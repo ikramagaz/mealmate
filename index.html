@@ -117,6 +117,8 @@
   .setup-head{padding:22px 24px 12px;border-bottom:1px solid var(--line)}
   .setup-head h2{margin:0;font-size:25px}
   .setup-head p{margin:6px 0 0;color:var(--muted);font-size:14px}
+  .setup-close{position:absolute;top:18px;right:20px;width:36px;height:36px;border:none;background:var(--accent-soft);color:var(--accent-dark);font-size:22px;font-weight:700;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;line-height:1}
+  .setup-close:hover{background:var(--accent);color:#fff}
   .setup-progress{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:16px}
   .setup-dot{height:7px;border-radius:8px;background:var(--line)}
   .setup-dot.active{background:linear-gradient(90deg,var(--accent),var(--purple))}
@@ -252,6 +254,9 @@
     <div class="row between">
       <h2 class="section" style="margin:0">📅 Monthly plan — 4 weeks</h2>
       <div class="row">
+        <button class="btn btn-ghost btn-sm" onclick="openPlansModal()">📂 Saved plans</button>
+        <button class="btn btn-ghost btn-sm" onclick="openSavePlanModal()">💾 Save plan</button>
+        <button class="btn btn-ghost btn-sm" onclick="newPlan()">🗑️ New plan</button>
         <button class="btn btn-ghost btn-sm" onclick="openBalanceModal()">⚙️ Balance settings</button>
         <button class="btn btn-primary btn-sm" onclick="autoBalance()">⚖️ Auto-balance the month</button>
       </div>
@@ -386,6 +391,20 @@
   <h3 id="viewModalTitle"></h3>
   <div id="viewModalContent"></div>
   <div class="row between" style="margin-top:16px"><button class="btn btn-ghost" onclick="closeViewRecipeModal()">Close</button></div>
+</div></div>
+
+<div class="modal-bg" id="savePlanModal"><div class="modal" style="max-width:420px">
+  <h3>💾 Save current plan</h3>
+  <p style="color:var(--muted);font-size:13px;margin-top:0">Give this plan a name so you can load it later.</p>
+  <label class="fld">Plan name</label><input id="planSaveName" style="width:100%" placeholder="e.g. March 2026, Ramadan week 1">
+  <div class="row between" style="margin-top:16px"><button class="btn btn-ghost" onclick="closeSavePlanModal()">Cancel</button><button class="btn btn-primary" onclick="savePlan()">Save</button></div>
+</div></div>
+
+<div class="modal-bg" id="plansModal"><div class="modal" style="max-width:500px">
+  <h3>📂 Saved plans</h3>
+  <p style="color:var(--muted);font-size:13px;margin-top:0">Load a saved plan to replace the current month. Deleting is permanent.</p>
+  <div id="plansList"></div>
+  <div class="row between" style="margin-top:16px"><button class="btn btn-ghost" onclick="closePlansModal()">Close</button></div>
 </div></div>
 
 <style>
@@ -560,6 +579,8 @@ let plan={};
 let editingId=null, planCtx=null, checked={};
 let extraItems=[]; let nextExtraId=1;
 let balanceSettings={repeatDays:7,tags:[],favorCheap:false,favorQuick:false};
+let savedPlans=[];
+let savedPlans=[];
 let monthlyBudget=0; let spendLog=[]; let nextSpendId=1; let spendCtx=null;
 
 /* ---------- Nav ---------- */
@@ -2221,6 +2242,60 @@ function normalizeCategoryList() {
   categories = next.length ? next : [...setupData.categoryKeys].map(catLabel);
   if (activeFilter !== 'All' && !seen.has(activeFilter)) activeFilter = 'All';
 }
+/* ---------- Plan save/load ---------- */
+function openSavePlanModal(){
+  document.getElementById('planSaveName').value='';
+  document.getElementById('savePlanModal').classList.add('open');
+  aModal('savePlanModal');
+}
+function closeSavePlanModal(){document.getElementById('savePlanModal').classList.remove('open');}
+function savePlan(){
+  const name=document.getElementById('planSaveName').value.trim();
+  if(!name){alert('Enter a name for the plan.');return;}
+  savedPlans.push({id:Date.now(),name:name,plan:JSON.parse(JSON.stringify(plan)),createdAt:new Date().toISOString()});
+  closeSavePlanModal();
+  queueAppStateSave();
+  renderSavedPlans();
+}
+function openPlansModal(){
+  renderSavedPlans();
+  document.getElementById('plansModal').classList.add('open');
+  aModal('plansModal');
+}
+function closePlansModal(){document.getElementById('plansModal').classList.remove('open');}
+function renderSavedPlans(){
+  const el=document.getElementById('plansList'); el.innerHTML='';
+  if(!savedPlans.length){el.innerHTML='<p style="color:var(--muted)">No saved plans yet.</p>';return;}
+  savedPlans.forEach((p,i)=>{
+    const cnt=Object.keys(p.plan).length;
+    const date=p.createdAt?new Date(p.createdAt).toLocaleDateString():'';
+    const row=document.createElement('div');
+    row.className='shop-item';
+    row.innerHTML='<span style="flex:1"><strong>'+htmlEscape(p.name)+'</strong> <span style="color:var(--muted);font-size:12px">('+cnt+' days) '+(date?' • '+date:'')+'</span></span>'+
+      '<button class="btn btn-sm btn-ghost" onclick="loadPlan('+i+')" style="margin-right:6px">Load</button>'+
+      '<button class="btn btn-sm btn-ghost" style="color:var(--accent)" onclick="deletePlan('+i+')">Delete</button>';
+    el.appendChild(row);
+  });
+}
+function loadPlan(i){
+  if(!confirm('Replace the current 4-week plan with "'+savedPlans[i].name+'"? This cannot be undone.'))return;
+  plan=JSON.parse(JSON.stringify(savedPlans[i].plan));
+  closePlansModal();
+  renderWeeks();
+  queueAppStateSave();
+}
+function deletePlan(i){
+  if(!confirm('Permanently delete "'+savedPlans[i].name+'"? This cannot be undone.'))return;
+  savedPlans.splice(i,1);
+  queueAppStateSave();
+  renderSavedPlans();
+}
+function newPlan(){
+  if(Object.keys(plan).length&&!confirm('Clear the entire current plan and start fresh? This cannot be undone.'))return;
+  plan={};
+  renderWeeks();
+  queueAppStateSave();
+}
 function appStateSnapshot() {
   return {
     version: 1,
@@ -2237,6 +2312,7 @@ function appStateSnapshot() {
     checked,
     extraItems,
     nextExtraId,
+    savedPlans,
     balanceSettings,
     monthlyBudget,
     spendLog,
@@ -2269,6 +2345,7 @@ function hydrateAppState(saved) {
   checked = saved.checked && typeof saved.checked === 'object' ? saved.checked : {};
   extraItems = Array.isArray(saved.extraItems) ? saved.extraItems : [];
   nextExtraId = Math.max(Number(saved.nextExtraId) || 1, ...extraItems.map(x => Number(x.id) || 0)) + 1;
+  savedPlans = Array.isArray(saved.savedPlans) ? saved.savedPlans : [];
   balanceSettings = Object.assign(balanceSettings, saved.balanceSettings || {});
   monthlyBudget = Number(saved.monthlyBudget) || 0;
   spendLog = Array.isArray(saved.spendLog) ? saved.spendLog : [];
@@ -2527,7 +2604,7 @@ function renderSetup() {
   const screen = document.getElementById('setupScreen');
   const dots = Array.from({ length: 7 }, (_, i) => '<div class="setup-dot ' + (i <= setupStep ? 'active' : '') + '"></div>').join('');
   screen.innerHTML = `<div class="setup-card">
-    <div class="setup-head"><h2>${htmlEscape(tr('setupTitle'))}</h2><p>${htmlEscape(tr('setupSub'))}</p><div class="setup-progress">${dots}</div></div>
+    <div class="setup-head" style="position:relative"><h2>${htmlEscape(tr('setupTitle'))}</h2><p>${htmlEscape(tr('setupSub'))}</p><div class="setup-progress">${dots}</div><button class="setup-close" onclick="closeSetup()">×</button></div>
     <div class="setup-body"><h3>${htmlEscape(setupPaneTitle())}</h3><div id="setupPane"></div></div>
     <div class="setup-actions"><button class="btn btn-ghost" onclick="setupBack()" ${setupStep === 0 ? 'disabled' : ''}>${htmlEscape(tr('back'))}</button><button class="btn btn-primary" onclick="setupNext()">${htmlEscape(setupStep === 6 ? tr('finish') : tr('next'))}</button></div>
   </div>`;
