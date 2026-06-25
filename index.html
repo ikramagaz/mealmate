@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MealMate — Plan meals, shop smart</title>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#fdf2f7; --card:#ffffff; --ink:#4a2f3e; --muted:#a98ba0;
@@ -433,7 +432,16 @@ function isBudgetFeature() { return setupData && setupData.features && setupData
 const SUPABASE_URL = 'https://yqbwdpqgphifqkqkylry.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxYndkcHFncGhpZnFrcWt5bHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzOTY4NTYsImV4cCI6MjA5Nzk3Mjg1Nn0.gTqq45OHhnmmAVZY7izdGhwvMuBCCXjRr_cI50CZrxc';
 let sb;
-try { const { createClient } = supabase; sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) { console.warn('Supabase init failed', e); }
+function loadSupabase(timeout){
+  timeout=timeout||5000;
+  const s=document.createElement('script');
+  s.src='https://unpkg.com/@supabase/supabase-js@2';
+  s.onload=()=>{try{const{createClient}=supabase;sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY)}catch(e){console.warn('Supabase init failed',e)}};
+  s.onerror=()=>{console.warn('Supabase CDN unavailable, cloud sync disabled')};
+  document.head.appendChild(s);
+  setTimeout(()=>{if(!sb)console.warn('Supabase CDN timeout, cloud sync disabled')},timeout);
+}
+loadSupabase();
 
 let lastCloudUpdate = 0;
 
