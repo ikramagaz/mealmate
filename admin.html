@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MealMate — Admin</title>
+<style>
+  :root{
+    --bg:#fdf2f7; --card:#ffffff; --ink:#4a2f3e; --muted:#a98ba0;
+    --accent:#e07ba6; --accent-dark:#c75b8c; --accent-soft:#fce0ec;
+    --green:#7cb6a3; --green-soft:#e2f1ec; --blue:#a99bd6; --blue-soft:#efe9f9;
+    --purple:#c08bc4; --purple-soft:#f6e7f6; --line:#f3dde8; --radius:20px;
+    --shadow:0 8px 26px rgba(210,120,160,.16);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Nunito','Segoe UI',system-ui,sans-serif;background:
+    radial-gradient(1200px 500px at 90% -10%, #fbe3f0 0%, transparent 55%),
+    radial-gradient(900px 500px at -10% 10%, #f3e7fb 0%, transparent 50%),
+    var(--bg);background-attachment:fixed;color:var(--ink);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:18px}
+  .admin-card{background:#fff;border-radius:var(--radius);max-width:540px;width:100%;padding:36px 28px;box-shadow:0 24px 80px rgba(70,24,58,.34)}
+  .admin-card h1{margin:0 0 4px;font-family:'Playfair Display',serif;font-size:28px;color:var(--ink)}
+  .admin-card .back{margin-bottom:14px;display:block}
+  .admin-card .back a{color:var(--muted);font-size:13px;text-decoration:none}
+  .admin-card .back a:hover{color:var(--accent-dark);text-decoration:underline}
+  .admin-card h2{font-size:17px;margin:20px 0 10px;font-family:'Playfair Display',serif;color:var(--ink)}
+  .admin-card label.fld{display:block;font-size:12px;font-weight:700;margin:10px 0 4px;color:var(--muted)}
+  .admin-card textarea{width:100%;min-height:120px;font-family:monospace;font-size:12px;border:1px solid var(--line);border-radius:12px;padding:10px;background:#fffafc;color:var(--ink);resize:vertical}
+  .admin-card textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .admin-card input{width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:#fffafc;color:var(--ink)}
+  .admin-card input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .btn{border:none;border-radius:30px;padding:8px 16px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .15s}
+  .btn-primary{background:linear-gradient(120deg,#e07ba6,#cf76c4);color:#fff;box-shadow:0 6px 16px rgba(208,118,196,.32)}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 9px 22px rgba(208,118,196,.42)}
+  .btn-ghost{background:var(--accent-soft);color:var(--accent-dark)}
+  .btn-ghost:hover{background:#fad2e4}
+  .btn-sm{padding:6px 12px;font-size:13px}
+  .hash-out{font-size:12px;color:var(--green);margin-top:6px;word-break:break-all;font-family:monospace}
+  .hint{font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+  .sep{border:none;border-top:1px solid var(--line);margin:20px 0}
+  .row{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="admin-card">
+  <div class="back"><a href="/">&larr; Back to MealMate</a></div>
+  <h1>🌸 Admin Panel</h1>
+  <p class="hint">Manage user accounts. After making changes, copy the JSON below and paste it into the <code>USERS</code> object in <code>index.html</code>, then re-deploy.</p>
+
+  <h2>Current Users</h2>
+  <div class="hint">This is read-only. To add/remove users, edit the JSON directly in <code>index.html</code>.</div>
+  <textarea id="usersDisplay" readonly></textarea>
+
+  <hr class="sep">
+
+  <h2>Generate Password Hash</h2>
+  <label class="fld">Type a password</label>
+  <input id="hashInput" placeholder="e.g. MySecret123" onkeydown="if(event.key==='Enter')generateHash()">
+  <div class="hash-out" id="hashOutput"></div>
+  <div class="row" style="margin-top:8px">
+    <button class="btn btn-ghost btn-sm" onclick="generateHash()">Generate hash</button>
+    <button class="btn btn-sm btn-primary" onclick="copyHash()" style="display:none" id="copyBtn">Copy hash</button>
+  </div>
+</div>
+
+<script>
+const USERS = {};
+
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode('MealMate2024' + password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function renderUsers() {
+  document.getElementById('usersDisplay').value = JSON.stringify(USERS, null, 2);
+}
+
+async function generateHash() {
+  const input = document.getElementById('hashInput');
+  const out = document.getElementById('hashOutput');
+  const copyBtn = document.getElementById('copyBtn');
+  if (!input.value.trim()) { out.textContent = 'Type a password first.'; return; }
+  const h = await hashPassword(input.value.trim());
+  out.textContent = h;
+  copyBtn.style.display = 'inline-block';
+  copyBtn.dataset.hash = h;
+}
+
+function copyHash() {
+  const h = document.getElementById('copyBtn').dataset.hash;
+  if (!h) return;
+  navigator.clipboard.writeText(h).then(() => {
+    document.getElementById('copyBtn').textContent = 'Copied!';
+    setTimeout(() => { document.getElementById('copyBtn').textContent = 'Copy hash'; }, 2000);
+  });
+}
+
+renderUsers();
+</script>
+</body>
+</html>

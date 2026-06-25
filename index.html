@@ -178,8 +178,6 @@
   .login-card .btn-primary{width:100%;font-size:16px;padding:12px}
   .login-card .error{color:#d96b7b;font-size:13px;font-weight:700;margin-top:10px;min-height:20px}
   .login-card .hint{font-size:12px;color:var(--muted);margin-top:16px}
-  .login-card .admin-link{font-size:11px;color:var(--muted);margin-top:12px;cursor:pointer;text-decoration:underline}
-  .login-card .admin-link:hover{color:var(--accent-dark)}
 </style>
 </head>
 <body>
@@ -192,21 +190,7 @@
     <input id="loginPass" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
     <button class="btn btn-primary" onclick="login()">Sign in</button>
     <div class="error" id="loginError"></div>
-    <div class="admin-link" onclick="document.getElementById('adminPanel').style.display='block'">Admin: Manage users</div>
-    <div id="adminPanel" style="display:none;margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;text-align:left">Add or remove users below. After editing, save this HTML file and re-deploy.</div>
-      <textarea id="usersEditor" style="width:100%;min-height:120px;font-family:monospace;font-size:11px;text-align:left"></textarea>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="btn btn-ghost btn-sm" onclick="applyUsersEdit()" style="flex:1">Apply</button>
-        <button class="btn btn-sm" style="flex:1;background:var(--accent-soft);color:var(--accent-dark)" onclick="document.getElementById('adminPanel').style.display='none'">Close</button>
-      </div>
-      <div id="hashTool" style="margin-top:12px;text-align:left">
-        <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px">Generate password hash</div>
-        <input id="hashInput" placeholder="Type a password..." style="width:100%;font-size:13px;text-align:left" onkeydown="if(event.key==='Enter')generateHash()">
-        <div id="hashOutput" style="font-size:11px;color:var(--green);margin-top:4px;word-break:break-all"></div>
-        <button class="btn btn-ghost btn-sm" onclick="generateHash()" style="margin-top:6px">Generate hash</button>
-      </div>
-    </div>
+    <div class="hint" style="margin-top:14px;font-size:11px"><a href="/admin.html" style="color:var(--muted);text-decoration:underline">Admin panel</a></div>
   </div>
 </div>
 <div class="setup-screen" id="setupScreen"></div>
@@ -418,11 +402,7 @@
 
 <script>
 /* ---------- User accounts ---------- */
-const USERS = {
-  // Owner: edit this object to add/remove paying customers.
-  // Format: 'username': 'password_hash'
-  // Use the "Generate password hash" tool in the Admin panel to create hashes.
-};
+const USERS = {};
 let loggedInUser = localStorage.getItem('mealmate_user') || null;
 function isBudgetFeature() { return setupData && setupData.features && setupData.features.budget; }
 
@@ -457,32 +437,6 @@ function logout() {
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('loginPass').value = '';
 }
-
-function showUsersEditor() {
-  const ta = document.getElementById('usersEditor');
-  ta.value = JSON.stringify(USERS, null, 2);
-}
-
-function applyUsersEdit() {
-  try {
-    const parsed = JSON.parse(document.getElementById('usersEditor').value);
-    Object.keys(USERS).forEach(k => delete USERS[k]);
-    Object.assign(USERS, parsed);
-    document.getElementById('loginError').textContent = 'Users updated for this session. Save this HTML to persist.';
-  } catch(e) {
-    document.getElementById('loginError').textContent = 'Invalid JSON. No changes applied.';
-  }
-}
-
-async function generateHash() {
-  const input = document.getElementById('hashInput');
-  const out = document.getElementById('hashOutput');
-  if (!input.value.trim()) { out.textContent = 'Type a password first.'; return; }
-  const h = await hashPassword(input.value.trim());
-  out.textContent = h;
-}
-
-document.addEventListener('DOMContentLoaded', showUsersEditor);
 
 function closeViewRecipeModal() {
   document.getElementById('recipeViewModal').classList.remove('open');
