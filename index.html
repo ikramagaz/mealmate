@@ -190,7 +190,6 @@
     <input id="loginPass" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
     <button class="btn btn-primary" onclick="login()">Sign in</button>
     <div class="error" id="loginError"></div>
-    <div class="hint" style="margin-top:14px;font-size:11px"><a href="/admin.html" style="color:var(--muted);text-decoration:underline">Admin panel</a></div>
   </div>
 </div>
 <div class="setup-screen" id="setupScreen"></div>
@@ -403,7 +402,9 @@
 <script>
 /* ---------- User accounts ---------- */
 const USERS = {
-  'sarra.larbaoui022': '6beb69177f29de95db550ce336d60c178f8ec6ff253a222d72b816dcc87411a3'
+  'sarra.larbaoui022': '6beb69177f29de95db550ce336d60c178f8ec6ff253a222d72b816dcc87411a3',
+  'Talbisamia11021995': 'a3206713013f563cfa8fd8205329323023e979b49d4c564b689c0eab9482690e',
+  'ikram.magaz1': '1e61fd6e263a53ebced9399f7877bf1bedcd4af8432c5be3c905c27f45549fe4'
 };
 let loggedInUser = localStorage.getItem('mealmate_user') || null;
 function isBudgetFeature() { return setupData && setupData.features && setupData.features.budget; }
