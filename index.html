@@ -164,6 +164,7 @@
   [dir="rtl"] .meal-drawer-bg.open .meal-drawer{transform:translateX(0)}
   [dir="rtl"] .drawer-close{right:auto;left:14px}
   [dir="rtl"] .cat-mini{margin-right:0;margin-left:3px}
+  body:not(.feature-budget) .budget-field{display:none!important}
   @media (max-width:980px){.month-board{grid-template-columns:repeat(4,220px);width:max-content;max-width:none}}
   @media (max-width:700px){main{padding-left:12px;padding-right:12px}.setup-progress{grid-template-columns:repeat(3,1fr)}.setup-card{border-radius:16px}.meal-drawer{width:100%}}
   .login-screen{position:fixed;inset:0;z-index:999;background:radial-gradient(1200px 500px at 90% -10%,#fbe3f0 0%,transparent 55%),radial-gradient(900px 500px at -10% 10%,#f3e7fb 0%,transparent 50%),var(--bg);display:flex;align-items:center;justify-content:center;padding:18px;transition:opacity .5s,visibility .5s}
@@ -315,12 +316,12 @@
     <div style="flex:1"><label class="fld">Category</label><select id="rCategory" style="width:100%"></select></div>
   </div>
   <div class="row" style="margin-top:8px">
-    <div><label class="fld">Est. cost ($, optional)</label><input id="rCost" type="number" step="any" min="0" style="width:110px" placeholder="0.00"></div>
+    <div class="budget-field"><label class="fld">Est. cost ($, optional)</label><input id="rCost" type="number" step="any" min="0" style="width:110px" placeholder="0.00"></div>
     <div><label class="fld">Prep time (min, optional)</label><input id="rPrep" type="number" step="any" min="0" style="width:110px" placeholder="20"></div>
   </div>
   <label class="fld">Tags (comma separated)</label><input id="rTags" style="width:100%" placeholder="quick, kid-friendly">
   <label class="fld">Ingredients</label>
-  <div class="ing-row" style="font-size:11px;color:var(--muted);font-weight:700"><div>Name</div><div>Qty</div><div>Unit</div><div>Buy how often</div><div>Price/unit</div><div></div></div>
+  <div class="ing-row" style="font-size:11px;color:var(--muted);font-weight:700"><div>Name</div><div>Qty</div><div>Unit</div><div>Buy how often</div><div class="budget-field">Price/unit</div><div></div></div>
   <div id="ingRows"></div>
   <button class="btn btn-ghost btn-sm" onclick="addIngRow()" style="margin-top:6px">+ ingredient</button>
   <label class="fld">Steps (one per line)</label><textarea id="rSteps"></textarea>
@@ -369,7 +370,7 @@
   </div>
   <div class="row" style="margin-top:8px">
     <div style="flex:1"><label class="fld">Category (optional)</label><input id="exCat" style="width:100%" placeholder="e.g. Household"></div>
-    <div><label class="fld">Price (optional)</label><input id="exPrice" type="number" step="any" style="width:100px" placeholder="0.00"></div>
+    <div class="budget-field"><label class="fld">Price (optional)</label><input id="exPrice" type="number" step="any" style="width:100px" placeholder="0.00"></div>
   </div>
   <div class="row between" style="margin-top:16px"><button class="btn btn-ghost" onclick="closeExtraModal()">Cancel</button><button class="btn btn-primary" onclick="saveExtraItem()">Add item</button></div>
 </div></div>
@@ -397,6 +398,24 @@
   <div class="row between" style="margin-top:16px"><button class="btn btn-ghost" onclick="closeSpendModal()">Cancel</button><button class="btn btn-primary" onclick="saveSpend()">Log it</button></div>
 </div></div>
 
+<div class="modal-bg" id="recipeViewModal"><div class="modal" style="max-width:560px">
+  <h3 id="viewModalTitle"></h3>
+  <div id="viewModalContent"></div>
+  <div class="row between" style="margin-top:16px"><button class="btn btn-ghost" onclick="closeViewRecipeModal()">Close</button></div>
+</div></div>
+
+<style>
+#recipeViewModal .modal{max-height:calc(100vh - 60px);overflow-y:auto}
+#recipeViewModal .view-cat{margin:4px 0 8px}
+#recipeViewModal .view-ing-list{list-style:none;padding:0;margin:10px 0;font-size:14px}
+#recipeViewModal .view-ing-list li{padding:5px 0;border-bottom:1px dashed var(--line);display:flex;justify-content:space-between;gap:8px}
+#recipeViewModal .view-steps{list-style:decimal;padding-left:20px;margin:10px 0;font-size:14px;line-height:1.6}
+#recipeViewModal .view-steps li{padding:4px 0}
+#recipeViewModal .view-tags{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+#recipeViewModal .view-tag{font-size:12px;background:var(--accent-soft);color:var(--accent-dark);padding:4px 10px;border-radius:20px;font-weight:700}
+#recipeViewModal .view-meta{color:var(--muted);font-size:13px;margin-bottom:8px}
+</style>
+
 <script>
 /* ---------- User accounts ---------- */
 const USERS = {
@@ -404,7 +423,8 @@ const USERS = {
   // Format: 'username': 'password_hash'
   // Use the "Generate password hash" tool in the Admin panel to create hashes.
 };
-let loggedInUser = sessionStorage.getItem('mealmate_user') || null;
+let loggedInUser = localStorage.getItem('mealmate_user') || null;
+function isBudgetFeature() { return setupData && setupData.features && setupData.features.budget; }
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
@@ -423,7 +443,7 @@ async function login() {
   const hash = await hashPassword(pass);
   if (USERS[user] && USERS[user] === hash) {
     loggedInUser = user;
-    sessionStorage.setItem('mealmate_user', user);
+    localStorage.setItem('mealmate_user', user);
     document.getElementById('loginScreen').classList.add('hidden');
     bootMealMateV2();
   } else {
@@ -433,7 +453,7 @@ async function login() {
 
 function logout() {
   loggedInUser = null;
-  sessionStorage.removeItem('mealmate_user');
+  localStorage.removeItem('mealmate_user');
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('loginPass').value = '';
 }
@@ -463,6 +483,39 @@ async function generateHash() {
 }
 
 document.addEventListener('DOMContentLoaded', showUsersEditor);
+
+function closeViewRecipeModal() {
+  document.getElementById('recipeViewModal').classList.remove('open');
+}
+
+function viewRecipe(id) {
+  const r = recipes.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('viewModalTitle').textContent = r.title;
+  const cad = { weekly: tr('cadenceWeekly'), biweekly: tr('cadenceBiweekly'), monthly: tr('cadenceMonthly') };
+  const ings = r.ingredients.map(i => {
+    const qty = Math.round((i.qty || 0) * 100) / 100;
+    const price = i.pricePerUnit && isBudgetFeature() ? ` (${htmlEscape(formatUnitMoney(i.pricePerUnit, i.unit || ''))})` : '';
+    return `<li><span>${htmlEscape(i.name)}</span><span>${qty} ${htmlEscape(i.unit || '')}${price} <span class="pill ${i.cadence}">${htmlEscape(cad[i.cadence] || i.cadence)}</span></span></li>`;
+  }).join('');
+  const extraBits = [];
+  if (typeof r.prepMinutes === 'number') extraBits.push(r.prepMinutes + ' min');
+  if (typeof r.estimatedCost === 'number' && isBudgetFeature()) extraBits.push('~' + formatMoney(r.estimatedCost));
+  const tags = r.tags && r.tags.length ? `<div class="view-tags">${r.tags.map(t => `<span class="view-tag">${htmlEscape(t)}</span>`).join('')}</div>` : '';
+  const sourceHtml = r.sourceLink ? `<a href="${htmlEscape(r.sourceLink)}" target="_blank" rel="noopener" style="font-size:13px;color:var(--accent-dark)">${htmlEscape(tr('recipeLink'))} ↗</a>` : '';
+  const steps = r.steps && r.steps.length ? `<ol class="view-steps">${r.steps.map(s => `<li>${htmlEscape(s)}</li>`).join('')}</ol>` : '<p style="color:var(--muted)">No steps recorded.</p>';
+  document.getElementById('viewModalContent').innerHTML = `
+    <div class="view-cat"><span class="cat-tag">${htmlEscape(r.category || '-')}</span>${extraBits.length ? ' <span style="color:var(--muted);font-size:13px">' + extraBits.join(' • ') + '</span>' : ''}</div>
+    ${tags}
+    <div class="view-meta">${htmlEscape(tr('serves'))} ${r.baseServings} ${sourceHtml ? '• ' + sourceHtml : ''}</div>
+    <strong>Ingredients</strong>
+    <ul class="view-ing-list">${ings}</ul>
+    <strong>Steps</strong>
+    ${steps}
+  `;
+  document.getElementById('recipeViewModal').classList.add('open');
+  if (GSAP) gsap.from('#recipeViewModal .modal', { y: 30, scale: .95, autoAlpha: 0, duration: .4, ease: 'back.out(1.5)' });
+}
 
 /* ---------- State ---------- */
 let members=4, mealsPerDay=3;
@@ -2691,11 +2744,11 @@ renderRecipes = function() {
     const card = document.createElement('div'); card.className = 'card recipe-card';
     const ings = r.ingredients.map(i => {
       const qty = Math.round((i.qty || 0) * 100) / 100;
-      const price = i.pricePerUnit ? ` - ${htmlEscape(formatUnitMoney(i.pricePerUnit, i.unit || ''))}` : '';
+      const price = i.pricePerUnit && isBudgetFeature() ? ` - ${htmlEscape(formatUnitMoney(i.pricePerUnit, i.unit || ''))}` : '';
       return `<li><span>${htmlEscape(i.name)}</span><span>${qty} ${htmlEscape(i.unit || '')}${price} <span class="pill ${i.cadence}">${htmlEscape(cad[i.cadence] || i.cadence)}</span></span></li>`;
     }).join('');
     const extraBits = [];
-    if (typeof r.estimatedCost === 'number') extraBits.push('~' + formatMoney(r.estimatedCost));
+    if (typeof r.estimatedCost === 'number' && isBudgetFeature()) extraBits.push('~' + formatMoney(r.estimatedCost));
     if (typeof r.prepMinutes === 'number') extraBits.push(r.prepMinutes + ' min');
     const sourceHtml = r.sourceLink ? `<div class="meta"><b>${htmlEscape(tr('source'))}:</b> <a href="${htmlEscape(r.sourceLink)}" target="_blank" rel="noopener">${htmlEscape(tr('recipeLink'))}</a></div>` : '';
     card.innerHTML = `<div class="row between"><h3>${htmlEscape(r.title)}</h3><span class="cat-tag">${htmlEscape(r.category || '-')}</span></div>
@@ -2733,7 +2786,7 @@ function translateRecipeModalLabels() {
   const ingLabel = document.querySelector('#recipeModal label.fld + .ing-row');
   if (ingLabel && ingLabel.previousElementSibling) ingLabel.previousElementSibling.textContent = tr('ingredientsLabel');
   const head = document.querySelector('#recipeModal .ing-row');
-  if (head) head.innerHTML = `<div>${htmlEscape(tr('ingName'))}</div><div>${htmlEscape(tr('ingQty'))}</div><div>${htmlEscape(tr('ingUnit'))}</div><div>${htmlEscape(tr('buyHowOften'))}</div><div>${htmlEscape(tr('priceUnit') + ' (' + currencyCode() + ')')}</div><div></div>`;
+  if (head) head.innerHTML = `<div>${htmlEscape(tr('ingName'))}</div><div>${htmlEscape(tr('ingQty'))}</div><div>${htmlEscape(tr('ingUnit'))}</div><div>${htmlEscape(tr('buyHowOften'))}</div><div class="budget-field">${htmlEscape(tr('priceUnit') + ' (' + currencyCode() + ')')}</div><div></div>`;
   const addBtn = document.querySelector('#recipeModal button[onclick="addIngRow()"]'); if (addBtn) addBtn.textContent = tr('addIngredient');
   const actionBtns = document.querySelectorAll('#recipeModal .row.between button');
   const lastTwo = Array.from(actionBtns).slice(-2);
@@ -2747,7 +2800,7 @@ addIngRow = function(data) {
     <input class="i-qty" type="number" step="any" value="${data ? data.qty : ''}" placeholder="2">
     <input class="i-unit" value="${htmlEscape(data ? data.unit : '')}" placeholder="pcs">
     <select class="i-cad"><option value="weekly">${htmlEscape(tr('cadenceWeekly'))}</option><option value="biweekly">${htmlEscape(tr('cadenceBiweekly'))}</option><option value="monthly">${htmlEscape(tr('cadenceMonthly'))}</option></select>
-    <input class="i-price" type="number" step="any" min="0" value="${data && data.pricePerUnit ? data.pricePerUnit : ''}" placeholder="${htmlEscape(currencyCode())}">
+    <input class="i-price budget-field" type="number" step="any" min="0" value="${data && data.pricePerUnit ? data.pricePerUnit : ''}" placeholder="${htmlEscape(currencyCode())}">
     <button class="x" onclick="this.parentElement.remove()">x</button>`;
   d.appendChild(row);
   if (data && data.cadence) row.querySelector('.i-cad').value = data.cadence;
@@ -2818,8 +2871,9 @@ renderWeeks = function() {
         const label = slotLabel(sname);
         if (meal) {
           const r = recipes.find(x => x.id === meal.recipeId);
+          const rid = r ? r.id : 0;
           const linkHtml = r && r.sourceLink ? `<a class="recipe-plan-link" href="${htmlEscape(r.sourceLink)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="${htmlEscape(tr('recipeLink'))}">↗</a>` : '';
-          slotHtml += `<div class="month-slot"><span class="month-slot-label">${htmlEscape(label)}</span><div class="planned-meal"><button class="meal-chip plan-chip" title="${htmlEscape(r ? r.title : '')}" onclick="openMealDrawer(event,${w},${d},decodeURIComponent('${arg}'))"><span class="cat-mini"></span>${htmlEscape(r ? r.title : '?')}</button>${linkHtml}</div></div>`;
+          slotHtml += `<div class="month-slot"><span class="month-slot-label">${htmlEscape(label)}</span><div class="planned-meal"><button class="meal-chip plan-chip" title="${htmlEscape(r ? r.title : '')}" onclick="viewRecipe(${rid})"><span class="cat-mini"></span>${htmlEscape(r ? r.title : '?')}</button><button class="recipe-plan-link" onclick="event.stopPropagation();openMealDrawer(event,${w},${d},decodeURIComponent('${arg}'))" title="Change meal" style="font-size:12px;cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:6px;padding:2px 6px;color:var(--muted)">✎</button>${linkHtml}</div></div>`;
         } else {
           slotHtml += `<div class="month-slot"><span class="month-slot-label">${htmlEscape(label)}</span><button class="add-slot" onclick="openMealDrawer(event,${w},${d},decodeURIComponent('${arg}'))">${htmlEscape(tr('add'))}</button></div>`;
         }
@@ -2830,7 +2884,8 @@ renderWeeks = function() {
         const arg = encodeURIComponent(sname);
         const label = slotLabel(sname);
         const r = recipes.find(x => x.id === meal.recipeId);
-        return `<button class="addon-chip" title="${htmlEscape(label + ': ' + (r ? r.title : ''))}" onclick="openMealDrawer(event,${w},${d},decodeURIComponent('${arg}'))">${htmlEscape(label)}: ${htmlEscape(r ? r.title : '?')}</button>`;
+        const rid = r ? r.id : 0;
+        return `<button class="addon-chip" onclick="viewRecipe(${rid})">${htmlEscape(label)}: ${htmlEscape(r ? r.title : '?')}</button>`;
       }).join('');
       const addons = addonHtml ? `<div class="day-addons">${addonHtml}</div>` : '';
       if (!slotHtml) slotHtml = '<div class="empty" style="padding:10px;font-size:12px">-</div>';
@@ -3164,8 +3219,8 @@ group = function(title, sub, bucket, prefix) {
   const total = bucketTotal(bucket);
   const wrap = document.createElement('div'); wrap.className = 'shop-group';
   const head = document.createElement('div'); head.className = 'shop-head';
-  head.innerHTML = `<h3>${htmlEscape(title)}</h3><span class="badge">${htmlEscape(sub)} - ${items.length} ${htmlEscape(tr('items'))}${total ? ' - ~' + htmlEscape(formatMoney(total)) : ''}</span>`;
-  if (total > 0) {
+  head.innerHTML = `<h3>${htmlEscape(title)}</h3><span class="badge">${htmlEscape(sub)} - ${items.length} ${htmlEscape(tr('items'))}${total && isBudgetFeature() ? ' - ~' + htmlEscape(formatMoney(total)) : ''}</span>`;
+  if (total > 0 && isBudgetFeature()) {
     const btn = document.createElement('button'); btn.className = 'btn btn-ghost btn-sm done-trip'; btn.textContent = tr('done');
     btn.onclick = () => markTripDone(title, total);
     head.appendChild(btn);
@@ -3184,7 +3239,7 @@ group = function(title, sub, bucket, prefix) {
       const totalText = ingredientTotalText(it, qty);
       const row = document.createElement('div'); row.className = 'shop-item' + (checked[id] ? ' checked' : '');
       const extraTag = it.manual ? ' <span class="pill" style="background:var(--blue-soft);color:#5a4a8c">' + htmlEscape(tr('extra')) + '</span>' : '';
-      const priceHtml = it.price ? `<span class="qty" style="margin-left:6px">${htmlEscape(formatMoney(it.price * it.qty))}</span>` : '';
+      const priceHtml = it.price && isBudgetFeature() ? `<span class="qty" style="margin-left:6px">${htmlEscape(formatMoney(it.price * it.qty))}</span>` : '';
       const delHtml = it.manual ? `<button class="x" style="margin-left:6px" onclick="delExtraItem(${it.extraId})">x</button>` : '';
       const detailHtml = it.details && it.details.length
         ? `<div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.35"><b>${htmlEscape(tr('details'))}:</b> ${it.details.map(d => `${Math.round(d.qty * 100) / 100} ${htmlEscape(d.unit)} - ${htmlEscape(d.recipe)} (${htmlEscape(d.slot)}, ${htmlEscape(tr('week'))} ${d.week}, ${htmlEscape(d.day)})`).join('<br>')}</div>`
