@@ -254,9 +254,7 @@
       <h2 class="section" style="margin:0">📅 Monthly plan — 4 weeks</h2>
       <div class="row">
         <button class="btn btn-ghost btn-sm" onclick="openPlansModal()">📂 Saved plans</button>
-        <button class="btn btn-ghost btn-sm" onclick="openSavePlanModal()">💾 Save plan</button>
-        <button class="btn btn-ghost btn-sm" onclick="newPlan()">🗑️ New plan</button>
-        <button class="btn btn-ghost btn-sm" onclick="openBalanceModal()">⚙️ Balance settings</button>
+        <button class="btn btn-ghost btn-sm" onclick="newPlanPrompt()">🗑️ New month plan</button>
         <button class="btn btn-primary btn-sm" onclick="autoBalance()">⚖️ Auto-balance the month</button>
       </div>
     </div>
@@ -404,6 +402,16 @@
   <p style="color:var(--muted);font-size:13px;margin-top:0">Load a saved plan to replace the current month. Deleting is permanent.</p>
   <div id="plansList"></div>
   <div class="row between" style="margin-top:16px"><button class="btn btn-ghost" onclick="closePlansModal()">Close</button></div>
+</div></div>
+
+<div class="modal-bg" id="newPlanPromptModal"><div class="modal" style="max-width:420px">
+  <h3>🗑️ Start a new month plan?</h3>
+  <p style="color:var(--muted);font-size:13px;margin-top:0">Do you want to save the current plan before starting fresh?</p>
+  <div class="row between" style="margin-top:16px">
+    <button class="btn btn-ghost" onclick="closeNewPlanPrompt()">Cancel</button>
+    <button class="btn btn-ghost" onclick="discardPlanAndNew()">🗑️ No, discard</button>
+    <button class="btn btn-primary" onclick="savePlanAndNew()">💾 Yes, save it</button>
+  </div>
 </div></div>
 
 <style>
@@ -588,6 +596,7 @@ let editingId=null, planCtx=null, checked={};
 let extraItems=[]; let nextExtraId=1;
 let balanceSettings={repeatDays:7,tags:[],favorCheap:false,favorQuick:false};
 let savedPlans=[];
+let _pendingNewPlan=false;
 let monthlyBudget=0; let spendLog=[]; let nextSpendId=1; let spendCtx=null;
 
 /* ---------- Nav ---------- */
@@ -1019,7 +1028,7 @@ const I18N = {
     navRecipes: 'Recipes', navPlan: 'Meal Plan', navShop: 'Shopping List', navBudget: 'Money',
     importTitle: 'Extract a recipe from caption text', extract: 'Extract recipe', demoCaption: 'Try demo caption text', demoLink: '',
     recipeDb: 'Your recipe database', manageCategories: 'Manage categories', newRecipe: '+ New recipe',
-    planTitle: 'Monthly plan - 4 weeks', balanceSettings: 'Balance settings', autoBalance: 'Auto-balance the month',
+    planTitle: 'Monthly plan - 4 weeks', savedPlans: '📂 Saved plans', newMonthPlan: '🗑️ New month plan', balanceSettings: 'Balance settings', autoBalance: 'Auto-balance the month',
     planHint: 'Each week has <span id="planTarget">21</span> meal slots: <span id="planMeals">3</span> meals per day across 7 days.',
     shopTitle: 'Smart shopping list', addItem: '+ Add item', shopHint: 'Built from the meals you planned, scaled to your family, with duplicates merged into weekly, 15-day, and monthly trips.',
     budgetTitle: 'Money management', drawerTitle: 'Choose meal', drawerRecipe: 'Recipe', drawerServings: 'Servings', drawerSave: 'Save', drawerRemove: 'Remove',
@@ -1067,7 +1076,7 @@ const I18N = {
     navRecipes: 'Recettes', navPlan: 'Planning', navShop: 'Liste de courses', navBudget: 'Budget',
     importTitle: 'Extraire une recette depuis un texte', extract: 'Extraire la recette', demoCaption: 'Essayer un texte demo', demoLink: '',
     recipeDb: 'Votre base de recettes', manageCategories: 'Gerer les categories', newRecipe: '+ Nouvelle recette',
-    planTitle: 'Planning mensuel - 4 semaines', balanceSettings: 'Criteres', autoBalance: 'Equilibrer le mois',
+    planTitle: 'Planning mensuel - 4 semaines', savedPlans: '📂 Plans enregistres', newMonthPlan: '🗑️ Nouveau plan mensuel', balanceSettings: 'Criteres', autoBalance: 'Equilibrer le mois',
     planHint: 'Chaque semaine contient <span id="planTarget">21</span> emplacements: <span id="planMeals">3</span> repas par jour sur 7 jours.',
     shopTitle: 'Liste de courses intelligente', addItem: '+ Ajouter un article', shopHint: 'Creee a partir des repas planifies, adaptee a votre famille, avec les doublons regroupes par achats hebdomadaires, 15 jours et mensuels.',
     budgetTitle: 'Gestion du budget', drawerTitle: 'Choisir un repas', drawerRecipe: 'Recette', drawerServings: 'Portions', drawerSave: 'Enregistrer', drawerRemove: 'Retirer',
@@ -1115,7 +1124,7 @@ const I18N = {
     navRecipes: 'الوصفات', navPlan: 'خطة الوجبات', navShop: 'قائمة التسوق', navBudget: 'الميزانية',
     importTitle: 'استخراج وصفة من نص', extract: 'استخراج الوصفة', demoCaption: 'تجربة نص', demoLink: '',
     recipeDb: 'قاعدة الوصفات', manageCategories: 'إدارة الفئات', newRecipe: '+ وصفة جديدة',
-    planTitle: 'الخطة الشهرية - 4 أسابيع', balanceSettings: 'معايير الاختيار', autoBalance: 'تنظيم الشهر تلقائيا',
+    planTitle: 'الخطة الشهرية - 4 أسابيع', savedPlans: '📂 الخطط المحفوظة', newMonthPlan: '🗑️ خطة شهر جديد', balanceSettings: 'معايير الاختيار', autoBalance: 'تنظيم الشهر تلقائيا',
     planHint: 'كل أسبوع يحتوي على <span id="planTarget">21</span> خانة وجبات: <span id="planMeals">3</span> وجبات في اليوم لمدة 7 أيام.',
     shopTitle: 'قائمة تسوق ذكية', addItem: '+ إضافة عنصر', shopHint: 'تجمع المكونات من الوجبات المخططة، حسب عدد أفراد العائلة، وتقسمها إلى مشتريات أسبوعية ونصف شهرية وشهرية.',
     budgetTitle: 'إدارة المال', drawerTitle: 'اختيار وجبة', drawerRecipe: 'الوصفة', drawerServings: 'الحصص', drawerSave: 'حفظ', drawerRemove: 'إزالة',
@@ -1674,8 +1683,9 @@ function applyLanguage() {
   if (recipeActions[1]) recipeActions[1].textContent = tr('newRecipe');
   const planTitle = document.querySelector('#plan > .row.between h2.section'); if (planTitle) planTitle.textContent = tr('planTitle');
   const planBtns = document.querySelectorAll('#plan > .row.between button');
-  if (planBtns[0]) planBtns[0].textContent = tr('balanceSettings');
-  if (planBtns[1]) planBtns[1].textContent = tr('autoBalance');
+  if (planBtns[0]) planBtns[0].textContent = tr('savedPlans');
+  if (planBtns[1]) planBtns[1].textContent = tr('newMonthPlan');
+  if (planBtns[2]) planBtns[2].textContent = tr('autoBalance');
   const planHint = document.querySelector('#plan > .hint'); if (planHint) planHint.innerHTML = tr('planHint');
   const shopTitle = document.querySelector('#shop > .row.between h2.section'); if (shopTitle) shopTitle.textContent = tr('shopTitle');
   const shopBtn = document.querySelector('#shop > .row.between button'); if (shopBtn) shopBtn.textContent = tr('addItem');
@@ -2255,12 +2265,13 @@ function openSavePlanModal(){
   document.getElementById('savePlanModal').classList.add('open');
   aModal('savePlanModal');
 }
-function closeSavePlanModal(){document.getElementById('savePlanModal').classList.remove('open');}
+function closeSavePlanModal(){document.getElementById('savePlanModal').classList.remove('open');if(_pendingNewPlan)_pendingNewPlan=false;}
 function savePlan(){
   const name=document.getElementById('planSaveName').value.trim();
   if(!name){alert('Enter a name for the plan.');return;}
   savedPlans.push({id:Date.now(),name:name,plan:JSON.parse(JSON.stringify(plan)),createdAt:new Date().toISOString()});
   closeSavePlanModal();
+  if(_pendingNewPlan){_pendingNewPlan=false;plan={};renderWeeks();}
   queueAppStateSave();
   renderSavedPlans();
 }
@@ -2298,11 +2309,17 @@ function deletePlan(i){
   renderSavedPlans();
 }
 function newPlan(){
-  if(Object.keys(plan).length&&!confirm('Clear the entire current plan and start fresh? This cannot be undone.'))return;
   plan={};
   renderWeeks();
   queueAppStateSave();
 }
+function newPlanPrompt(){
+  if(Object.keys(plan).length){document.getElementById('newPlanPromptModal').classList.add('open');aModal('newPlanPromptModal');}
+  else newPlan();
+}
+function closeNewPlanPrompt(){document.getElementById('newPlanPromptModal').classList.remove('open');}
+function savePlanAndNew(){_pendingNewPlan=true;closeNewPlanPrompt();openSavePlanModal();}
+function discardPlanAndNew(){closeNewPlanPrompt();newPlan();}
 function appStateSnapshot() {
   return {
     version: 1,
