@@ -1,0 +1,10 @@
+MealMate for Windows
+
+Send this whole folder as MealMate-windows.zip.
+
+Buyer steps:
+1. Unzip the folder.
+2. Double-click Open MealMate.cmd.
+3. Optional: double-click Install desktop shortcut.cmd to add MealMate to the Desktop.
+
+The app data is saved on the buyer device. Use the Backup button before changing device or clearing browser data.

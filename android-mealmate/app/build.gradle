@@ -1,0 +1,14 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace 'com.mealmate.app'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId 'com.mealmate.app'
+        minSdk 23
+        targetSdk 33
+        versionCode 1
+        versionName '1.0.0'
+    }
+}

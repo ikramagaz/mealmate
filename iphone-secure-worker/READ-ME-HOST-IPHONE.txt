@@ -1,0 +1,24 @@
+MealMate secure iPhone hosting
+
+This is the version to deploy when you want one link plus usernames/passwords for paying clients.
+
+How to add clients:
+1. Open src/worker.js.
+2. Find const ACCOUNTS.
+3. Add one username with a password for each client.
+
+Current test accounts:
+client1 / meal2026
+client2 / meal2026
+demo / demo123
+
+How to host:
+1. Install/log in to Cloudflare Wrangler: npx wrangler login
+2. If you are inside the big cooking assistant project, run:
+   powershell -ExecutionPolicy Bypass -File .\deploy-from-clean-folder.ps1
+   This copies the secure iPhone app to your Desktop and deploys from there, so Wrangler does not confuse it with the main project config.
+3. Or, from this folder, try:
+   npx wrangler deploy --config .\wrangler.toml
+4. Send the deployed https link to iPhone clients.
+
+Clients open the link in Safari, log in, then choose Share > Add to Home Screen.

@@ -1,0 +1,2 @@
+rootProject.name = 'MealMateAndroid'
+include ':app'

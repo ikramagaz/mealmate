@@ -1,0 +1,11 @@
+MealMate - client file
+
+Send MealMate-app.html to the buyer. If the platform blocks HTML files, send MealMate-client-app.zip instead.
+
+How the buyer uses it:
+1. Open MealMate-app.html in Chrome, Edge, Safari, or another browser.
+2. Choose Arabic, French, or English in the first setup screen.
+3. Their recipes, plan, shopping list, and budget are saved on their own device/browser.
+4. They should use the Backup button inside the app to export a backup before changing device or clearing browser data.
+
+No hosting or database is needed.

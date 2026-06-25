@@ -1,0 +1,17 @@
+{
+  "name": "MealMate",
+  "short_name": "MealMate",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fdf2f7",
+  "theme_color": "#e07ba6",
+  "icons": [
+    {
+      "src": "app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

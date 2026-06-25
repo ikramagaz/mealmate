@@ -1,0 +1,11 @@
+MealMate Android project
+
+This folder is a ready Android WebView project that wraps the same MealMate app.
+
+To build the APK:
+1. Open this android-mealmate folder in Android Studio.
+2. If Android Studio asks to install SDK Platform 33 or Build Tools, accept.
+3. Choose Build > Build Bundle(s) / APK(s) > Build APK(s).
+4. Send the generated APK to Android clients.
+
+The app data is saved locally inside the Android app. The Backup button saves a JSON backup in Downloads.

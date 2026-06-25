@@ -1,0 +1,16 @@
+
+.client-login-gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(800px 360px at 20% 0%,#f8dce9 0%,transparent 58%),linear-gradient(145deg,#fdf2f7,#f7edf9 52%,#eef8f4);color:#4a2f3e}
+.client-login-card{width:min(420px,100%);background:#fff;border:1px solid #f3dde8;border-radius:18px;box-shadow:0 18px 55px rgba(120,40,90,.18);padding:22px}
+.client-login-mark{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#e07ba6,#c08bc4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;margin-bottom:14px}
+.client-login-card h1{font:800 28px/1.1 system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;color:#4a2f3e;letter-spacing:0}
+.client-login-card p{margin:8px 0 18px;color:#8b6d82;font:700 14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.client-login-field{display:grid;gap:7px;margin:12px 0}
+.client-login-field span{font:900 13px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;color:#6d4c62}
+.client-login-field input{width:100%;min-height:48px;border:1px solid #f0cddd;border-radius:12px;background:#fffafc;color:#4a2f3e;font-size:16px;padding:10px 12px}
+.client-login-field input:focus{outline:none;border-color:#e07ba6;box-shadow:0 0 0 4px #fce0ec}
+.client-login-button{width:100%;min-height:48px;border:0;border-radius:999px;background:linear-gradient(120deg,#e07ba6,#cf76c4);color:#fff;font:900 15px/1 system-ui,-apple-system,"Segoe UI",sans-serif;margin-top:8px;box-shadow:0 10px 24px rgba(208,118,196,.28)}
+.client-login-error{min-height:20px;color:#bd3f72;font:900 13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;margin:10px 0 0;text-align:center}
+.client-login-note{margin-top:14px;text-align:center;color:#a98ba0;font:800 12px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+.client-logout-btn{border:0;border-radius:999px;background:rgba(255,255,255,.9);color:#c75b8c;font-weight:900;padding:8px 12px}
+body.client-locked{overflow:hidden}
+@media (max-width:480px){.client-login-gate{align-items:stretch;padding:12px}.client-login-card{display:flex;flex-direction:column;justify-content:center;border-radius:16px;padding:20px}.client-login-card h1{font-size:25px}}

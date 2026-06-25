@@ -166,48 +166,9 @@
   [dir="rtl"] .cat-mini{margin-right:0;margin-left:3px}
   @media (max-width:980px){.month-board{grid-template-columns:repeat(4,220px);width:max-content;max-width:none}}
   @media (max-width:700px){main{padding-left:12px;padding-right:12px}.setup-progress{grid-template-columns:repeat(3,1fr)}.setup-card{border-radius:16px}.meal-drawer{width:100%}}
-  .login-screen{position:fixed;inset:0;z-index:999;background:radial-gradient(1200px 500px at 90% -10%,#fbe3f0 0%,transparent 55%),radial-gradient(900px 500px at -10% 10%,#f3e7fb 0%,transparent 50%),var(--bg);display:flex;align-items:center;justify-content:center;padding:18px;transition:opacity .5s,visibility .5s}
-  .login-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
-  .login-screen.hidden .login-card{transform:translateY(-20px) scale(.97);opacity:0}
-  .login-card{background:#fff;border-radius:var(--radius);max-width:400px;width:100%;padding:36px 28px;box-shadow:0 24px 80px rgba(70,24,58,.34);text-align:center;transition:transform .5s,opacity .5s}
-  .login-card h1{font-family:'Playfair Display',serif;font-size:32px;color:var(--ink);margin:0 0 4px}
-  .login-card .logo{font-size:48px;margin-bottom:8px}
-  .login-card p{color:var(--muted);font-size:14px;margin:0 0 20px}
-  .login-card input{display:block;width:100%;margin-bottom:12px;text-align:center;font-size:16px;padding:12px}
-  .login-card .btn-primary{width:100%;font-size:16px;padding:12px}
-  .login-card .error{color:#d96b7b;font-size:13px;font-weight:700;margin-top:10px;min-height:20px}
-  .login-card .hint{font-size:12px;color:var(--muted);margin-top:16px}
-  .login-card .admin-link{font-size:11px;color:var(--muted);margin-top:12px;cursor:pointer;text-decoration:underline}
-  .login-card .admin-link:hover{color:var(--accent-dark)}
 </style>
 </head>
 <body>
-<div class="login-screen" id="loginScreen">
-  <div class="login-card">
-    <div class="logo">🌸</div>
-    <h1>MealMate</h1>
-    <p>Plan 4 balanced weeks &mdash; Scale to your family &mdash; Shop in smart trips</p>
-    <input id="loginUser" placeholder="Username" autocomplete="username" onkeydown="if(event.key==='Enter')login()">
-    <input id="loginPass" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
-    <button class="btn btn-primary" onclick="login()">Sign in</button>
-    <div class="error" id="loginError"></div>
-    <div class="admin-link" onclick="document.getElementById('adminPanel').style.display='block'">Admin: Manage users</div>
-    <div id="adminPanel" style="display:none;margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;text-align:left">Add or remove users below. After editing, save this HTML file and re-deploy.</div>
-      <textarea id="usersEditor" style="width:100%;min-height:120px;font-family:monospace;font-size:11px;text-align:left"></textarea>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="btn btn-ghost btn-sm" onclick="applyUsersEdit()" style="flex:1">Apply</button>
-        <button class="btn btn-sm" style="flex:1;background:var(--accent-soft);color:var(--accent-dark)" onclick="document.getElementById('adminPanel').style.display='none'">Close</button>
-      </div>
-      <div id="hashTool" style="margin-top:12px;text-align:left">
-        <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px">Generate password hash</div>
-        <input id="hashInput" placeholder="Type a password..." style="width:100%;font-size:13px;text-align:left" onkeydown="if(event.key==='Enter')generateHash()">
-        <div id="hashOutput" style="font-size:11px;color:var(--green);margin-top:4px;word-break:break-all"></div>
-        <button class="btn btn-ghost btn-sm" onclick="generateHash()" style="margin-top:6px">Generate hash</button>
-      </div>
-    </div>
-  </div>
-</div>
 <div class="setup-screen" id="setupScreen"></div>
 
 <header>
@@ -219,7 +180,6 @@
   <div class="controls">
     <div class="ctrl"><label>Family</label><button onclick="changeMembers(-1)">−</button><span class="count" id="memberCount">4</span><button onclick="changeMembers(1)">+</button></div>
     <div class="ctrl"><label>Meals/day</label><button onclick="changeMeals(-1)">−</button><span class="count" id="mealCount">3</span><button onclick="changeMeals(1)">+</button></div>
-    <button class="btn btn-sm" style="background:rgba(255,255,255,.22);color:#fff;border:none" onclick="logout()">Logout</button>
   </div>
 </header>
 
@@ -398,72 +358,6 @@
 </div></div>
 
 <script>
-/* ---------- User accounts ---------- */
-const USERS = {
-  // Owner: edit this object to add/remove paying customers.
-  // Format: 'username': 'password_hash'
-  // Use the "Generate password hash" tool in the Admin panel to create hashes.
-};
-let loggedInUser = sessionStorage.getItem('mealmate_user') || null;
-
-async function hashPassword(password) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode('MealMate2024' + password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function login() {
-  const user = document.getElementById('loginUser').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  const err = document.getElementById('loginError');
-  err.textContent = '';
-  if (!user || !pass) { err.textContent = 'Please enter username and password.'; return; }
-  const hash = await hashPassword(pass);
-  if (USERS[user] && USERS[user] === hash) {
-    loggedInUser = user;
-    sessionStorage.setItem('mealmate_user', user);
-    document.getElementById('loginScreen').classList.add('hidden');
-    bootMealMateV2();
-  } else {
-    err.textContent = 'Invalid username or password.';
-  }
-}
-
-function logout() {
-  loggedInUser = null;
-  sessionStorage.removeItem('mealmate_user');
-  document.getElementById('loginScreen').classList.remove('hidden');
-  document.getElementById('loginPass').value = '';
-}
-
-function showUsersEditor() {
-  const ta = document.getElementById('usersEditor');
-  ta.value = JSON.stringify(USERS, null, 2);
-}
-
-function applyUsersEdit() {
-  try {
-    const parsed = JSON.parse(document.getElementById('usersEditor').value);
-    Object.keys(USERS).forEach(k => delete USERS[k]);
-    Object.assign(USERS, parsed);
-    document.getElementById('loginError').textContent = 'Users updated for this session. Save this HTML to persist.';
-  } catch(e) {
-    document.getElementById('loginError').textContent = 'Invalid JSON. No changes applied.';
-  }
-}
-
-async function generateHash() {
-  const input = document.getElementById('hashInput');
-  const out = document.getElementById('hashOutput');
-  if (!input.value.trim()) { out.textContent = 'Type a password first.'; return; }
-  const h = await hashPassword(input.value.trim());
-  out.textContent = h;
-}
-
-document.addEventListener('DOMContentLoaded', showUsersEditor);
-
 /* ---------- State ---------- */
 let members=4, mealsPerDay=3;
 let categories=['Soupes','Salades','Pâtes','Fast food','Plats principaux','Petit-déjeuner','Desserts'];
@@ -3281,11 +3175,7 @@ function bootMealMateV2() {
   }
 }
 
-// Boot only if already logged in (session restored)
-if (loggedInUser) {
-  document.getElementById('loginScreen').classList.add('hidden');
-  bootMealMateV2();
-}
+bootMealMateV2();
 
 </script>
 </body>

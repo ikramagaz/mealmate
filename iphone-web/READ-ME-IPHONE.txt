@@ -1,0 +1,9 @@
+MealMate for iPhone users
+
+iPhone users need the hosted web link. They can open the link in Safari and choose Share > Add to Home Screen.
+
+Client accounts are in clients.js. Edit that file before uploading if you want different usernames and passwords.
+Example current login: demo / demo123
+
+No database is used. Each client data is saved in Safari on her iPhone.
+Tell clients to use the Backup button before deleting Safari data or changing phone.
