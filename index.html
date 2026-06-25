@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MealMate — Plan meals, shop smart</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#fdf2f7; --card:#ffffff; --ink:#4a2f3e; --muted:#a98ba0;
@@ -408,6 +409,43 @@ const USERS = {
 };
 let loggedInUser = localStorage.getItem('mealmate_user') || null;
 function isBudgetFeature() { return setupData && setupData.features && setupData.features.budget; }
+
+/* ---------- Supabase integration ---------- */
+const SUPABASE_URL = 'https://yqbwdpqgphifqkqkylry.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxYndkcHFncGhpZnFrcWt5bHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzOTY4NTYsImV4cCI6MjA5Nzk3Mjg1Nn0.gTqq45OHhnmmAVZY7izdGhwvMuBCCXjRr_cI50CZrxc';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let lastCloudUpdate = 0;
+
+async function supabaseSave() {
+  if (!loggedInUser) return;
+  try {
+    const { error } = await sb.from('user_data').upsert({
+      user_id: loggedInUser,
+      setup_data: serializeSetup(),
+      app_state: appStateSnapshot(),
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' });
+    if (error) throw error;
+  } catch (e) { console.warn('Supabase save failed', e); }
+}
+
+async function supabaseLoad() {
+  if (!loggedInUser) return null;
+  try {
+    const { data, error } = await sb.from('user_data')
+      .select('setup_data, app_state, updated_at')
+      .eq('user_id', loggedInUser)
+      .single();
+    if (error) {
+      if (error.code === 'PGRST116') return null; // no rows
+      throw error;
+    }
+    lastCloudUpdate = new Date(data.updated_at).getTime();
+    return data;
+  } catch (e) { console.warn('Supabase load failed', e); return null; }
+}
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
@@ -2206,9 +2244,12 @@ function appStateSnapshot() {
 }
 function saveAppStateNow() {
   if (!appStateHydrated) return;
+  const ts = Date.now();
   try {
     localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup()));
     localStorage.setItem(APP_STATE_KEY, JSON.stringify(appStateSnapshot()));
+    localStorage.setItem('mealmate_setup_ts', String(ts));
+    supabaseSave();
   } catch (e) {}
 }
 function queueAppStateSave() {
@@ -3257,6 +3298,27 @@ function renderBudget() {
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeInlineMealPicker(); closeMealDrawer(); } });
 
+async function trySyncFromCloud() {
+  const cloud = await supabaseLoad();
+  if (!cloud) return; // nothing on cloud
+  const localSetupKey = 'mealmate_setup_ts';
+  const localTs = Number(localStorage.getItem(localSetupKey)) || 0;
+  const cloudTs = new Date(cloud.updated_at).getTime();
+  if (cloudTs > localTs) {
+    // cloud has newer data
+    if (cloud.setup_data) {
+      try { hydrateSetup(cloud.setup_data); } catch (e) {}
+    }
+    if (cloud.app_state) {
+      try { hydrateAppState(cloud.app_state); } catch (e) {}
+    }
+    refreshAfterStateLoad();
+  } else if (localTs > 0 && localTs >= cloudTs) {
+    // local is current – push to cloud
+    supabaseSave();
+  }
+}
+
 function bootMealMateV2() {
   appStateHydrated = false;
   const hasStoredAppState = loadStoredAppState();
@@ -3291,6 +3353,8 @@ function bootMealMateV2() {
   } catch (e) {
     setTimeout(() => openSetup(0), 120);
   }
+  // sync with Supabase after boot
+  trySyncFromCloud();
 }
 
 // Boot only if already logged in (session restored)
