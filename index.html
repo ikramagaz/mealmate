@@ -432,13 +432,13 @@ function isBudgetFeature() { return setupData && setupData.features && setupData
 /* ---------- Supabase integration ---------- */
 const SUPABASE_URL = 'https://yqbwdpqgphifqkqkylry.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxYndkcHFncGhpZnFrcWt5bHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzOTY4NTYsImV4cCI6MjA5Nzk3Mjg1Nn0.gTqq45OHhnmmAVZY7izdGhwvMuBCCXjRr_cI50CZrxc';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let sb;
+try { const { createClient } = supabase; sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch (e) { console.warn('Supabase init failed', e); }
 
 let lastCloudUpdate = 0;
 
 async function supabaseSave() {
-  if (!loggedInUser) return;
+  if (!loggedInUser || !sb) return;
   try {
     const { error } = await sb.from('user_data').upsert({
       user_id: loggedInUser,
@@ -451,7 +451,7 @@ async function supabaseSave() {
 }
 
 async function supabaseLoad() {
-  if (!loggedInUser) return null;
+  if (!loggedInUser || !sb) return null;
   try {
     const { data, error } = await sb.from('user_data')
       .select('setup_data, app_state, updated_at')
