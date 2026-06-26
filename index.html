@@ -434,16 +434,9 @@
 
 <script>
 /* ---------- User accounts ---------- */
-const USERS = {
-  'sarra.larbaoui022': '6beb69177f29de95db550ce336d60c178f8ec6ff253a222d72b816dcc87411a3',
-  'Talbisamia11021995@gmail.com': 'a3206713013f563cfa8fd8205329323023e979b49d4c564b689c0eab9482690e',
-  'ikram.magaz1@gmail.com': '1e61fd6e263a53ebced9399f7877bf1bedcd4af8432c5be3c905c27f45549fe4',
-  'Marouaazoud@gmail.com': '599b07529675230c53f16916526cffc75b70cdee421f89ad8ba61e34c4b55918',
-  'asmaMH': '161af5402dd252b54dbd04f264cb499f370989cf2cdecc510c076bab1e16a7dc',
-  'warda': '7bb236dd17d54705633ad4375796f11818fbd8243523543c10fa7e7b8233b414',
-  'imeneRB': '06a28b9fc64ab45ddb8b961befed9138b01bcda426a3756e9e9c0b697873f94a',
-  'Khanfar.ayoub@gmail.com': '47858b5816edcf5921ac63f5df93ded5e82fd6644f8126a39e43a0d53d791453'
-};
+/* Login now runs through Supabase Auth (secure). The old hardcoded
+   username/password hashes were removed from this public file. */
+const USERS = {};
 let loggedInUser = localStorage.getItem('mealmate_user') || null;
 function isBudgetFeature() { return setupData && setupData.features && setupData.features.budget; }
 
@@ -464,32 +457,44 @@ loadSupabase();
 
 let lastCloudUpdate = 0;
 
+async function currentUserId() {
+  if (!sb) return null;
+  try { const { data } = await sb.auth.getUser(); return data && data.user ? data.user.id : null; }
+  catch (e) { return null; }
+}
+
 async function supabaseSave() {
-  if (!loggedInUser || !sb) return;
+  if (!sb) return;
+  const uid = await currentUserId();
+  if (!uid) return;
   try {
-    const { error } = await sb.from('user_data').upsert({
-      user_id: loggedInUser,
-      setup_data: serializeSetup(),
-      app_state: appStateSnapshot(),
-      updated_at: new Date().toISOString()
+    const now = new Date().toISOString();
+    const { error } = await sb.from('mealmate_data').upsert({
+      user_id: uid,
+      state: { setup_data: serializeSetup(), app_state: appStateSnapshot(), updated_at: now },
+      updated_at: now
     }, { onConflict: 'user_id' });
     if (error) throw error;
   } catch (e) { console.warn('Supabase save failed', e); }
 }
 
 async function supabaseLoad() {
-  if (!loggedInUser || !sb) return null;
+  if (!sb) return null;
+  const uid = await currentUserId();
+  if (!uid) return null;
   try {
-    const { data, error } = await sb.from('user_data')
-      .select('setup_data, app_state, updated_at')
-      .eq('user_id', loggedInUser)
+    const { data, error } = await sb.from('mealmate_data')
+      .select('state, updated_at')
+      .eq('user_id', uid)
       .single();
     if (error) {
-      if (error.code === 'PGRST116') return null; // no rows
+      if (error.code === 'PGRST116') return null; // no rows yet
       throw error;
     }
-    lastCloudUpdate = new Date(data.updated_at).getTime();
-    return data;
+    const st = data.state || {};
+    const ts = st.updated_at || data.updated_at;
+    lastCloudUpdate = new Date(ts).getTime();
+    return { setup_data: st.setup_data, app_state: st.app_state, updated_at: ts };
   } catch (e) { console.warn('Supabase load failed', e); return null; }
 }
 
@@ -501,26 +506,36 @@ async function hashPassword(password) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Turn a typed username into the hidden login id Supabase needs.
+// If it already contains "@" it is used as-is; otherwise we append @mealmate.local.
+function usernameToEmail(u) {
+  u = (u || '').trim();
+  return u.includes('@') ? u.toLowerCase() : (u.toLowerCase() + '@mealmate.local');
+}
+
 async function login() {
   const user = document.getElementById('loginUser').value.trim();
   const pass = document.getElementById('loginPass').value;
   const err = document.getElementById('loginError');
   err.textContent = '';
   if (!user || !pass) { err.textContent = 'Please enter username and password.'; return; }
-  const hash = await hashPassword(pass);
-  if (USERS[user] && USERS[user] === hash) {
+  if (!sb) { err.textContent = 'Still connecting to the server, please try again in a moment.'; return; }
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email: usernameToEmail(user), password: pass });
+    if (error || !data || !data.user) { err.textContent = 'Invalid username or password.'; return; }
     loggedInUser = user;
     localStorage.setItem('mealmate_user', user);
     document.getElementById('loginScreen').classList.add('hidden');
     bootMealMateV2();
-  } else {
-    err.textContent = 'Invalid username or password.';
+  } catch (e) {
+    err.textContent = 'Could not sign in. Please check your connection and try again.';
   }
 }
 
-function logout() {
+async function logout() {
   loggedInUser = null;
   localStorage.removeItem('mealmate_user');
+  if (sb) { try { await sb.auth.signOut(); } catch (e) {} }
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('loginPass').value = '';
 }
@@ -3413,7 +3428,12 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeInlin
 
 async function trySyncFromCloud() {
   const cloud = await supabaseLoad();
-  if (!cloud) return; // nothing on cloud
+  if (!cloud) {
+    // Nothing saved in the cloud yet for this account.
+    // If this device already has data, upload it once so it carries over.
+    if (localStorage.getItem(SETUP_KEY) || localStorage.getItem(APP_STATE_KEY)) supabaseSave();
+    return;
+  }
   const localSetupKey = 'mealmate_setup_ts';
   const localTs = Number(localStorage.getItem(localSetupKey)) || 0;
   const cloudTs = new Date(cloud.updated_at).getTime();
