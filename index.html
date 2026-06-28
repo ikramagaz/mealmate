@@ -33,6 +33,24 @@
   .ctrl label{font-size:13px}
   .ctrl button{width:28px;height:28px;border-radius:50%;border:none;background:#fff;color:var(--accent-dark);font-size:17px;font-weight:700;cursor:pointer}
   .ctrl .count{font-size:17px;font-weight:700;min-width:20px;text-align:center}
+  .profile-menu{position:relative}
+  .profile-btn{background:rgba(255,255,255,.22);color:#fff;border:none;display:flex;align-items:center;gap:6px}
+  .profile-btn .profile-caret{font-size:11px;opacity:.85}
+  .profile-dropdown{position:absolute;top:calc(100% + 8px);right:0;min-width:230px;background:var(--card);border-radius:16px;box-shadow:var(--shadow);border:1px solid var(--line);padding:10px;display:none;flex-direction:column;gap:6px;z-index:60;color:var(--ink)}
+  .profile-dropdown.open{display:flex}
+  .profile-dropdown-name{font-weight:800;font-size:14px;padding:4px 8px;color:var(--accent-dark)}
+  .profile-dropdown-divider{height:1px;background:var(--line);margin:2px 0}
+  .profile-dropdown-label{font-size:12px;font-weight:700;color:var(--muted);padding:0 8px}
+  .profile-lang-options{display:flex;gap:6px;padding:0 8px 4px}
+  .profile-lang-options button{flex:1;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:6px 4px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+  .profile-lang-options button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .profile-dropdown .currency-ctrl{display:none;background:none;padding:0 8px;justify-content:space-between;margin:0}
+  body.feature-budget .profile-dropdown .currency-ctrl{display:flex}
+  .profile-dropdown-item{background:none;border:none;text-align:left;padding:8px;border-radius:10px;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit}
+  .profile-dropdown-item:hover{background:var(--accent-soft)}
+  .profile-logout{color:var(--accent-dark)}
+  [dir="rtl"] .profile-dropdown{right:auto;left:0}
+  [dir="rtl"] .profile-dropdown-item{text-align:right}
   nav{display:flex;gap:6px;padding:14px 22px 0;flex-wrap:wrap}
   nav button{border:none;background:transparent;padding:10px 18px;border-radius:30px;cursor:pointer;font-size:15px;color:var(--muted);font-weight:700;font-family:inherit}
   nav button.active{background:var(--card);color:var(--accent-dark);box-shadow:var(--shadow)}
@@ -72,7 +90,7 @@
   .modal-bg.open{display:flex}
   .modal{background:#fff;border-radius:var(--radius);max-width:560px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(120,40,90,.3)}
   .modal h3{margin-top:0}
-  .ing-row{display:grid;grid-template-columns:1.3fr .55fr .65fr .85fr .65fr 28px;gap:6px;margin-bottom:6px}
+  .ing-row{display:grid;grid-template-columns:1.6fr .7fr 1fr 28px;gap:6px;margin-bottom:6px}
   .crit-row{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;background:#fffafc;border:1px solid var(--line);border-radius:12px;padding:9px 12px}
   .crit-row input{width:auto}
   .ing-row input,.ing-row select{padding:7px 8px;font-size:13px}
@@ -211,7 +229,19 @@
   <div class="controls">
     <div class="ctrl"><label>Family</label><button onclick="changeMembers(-1)">−</button><span class="count" id="memberCount">4</span><button onclick="changeMembers(1)">+</button></div>
     <div class="ctrl"><label>Meals/day</label><button onclick="changeMeals(-1)">−</button><span class="count" id="mealCount">3</span><button onclick="changeMeals(1)">+</button></div>
-    <button class="btn btn-sm" style="background:rgba(255,255,255,.22);color:#fff;border:none" onclick="logout()">Logout</button>
+    <div class="profile-menu" id="profileMenu">
+      <button class="btn btn-sm profile-btn" id="profileMenuBtn" type="button" onclick="toggleProfileMenu(event)">
+        <span id="profileMenuName">Account</span><span class="profile-caret" aria-hidden="true">▾</span>
+      </button>
+      <div class="profile-dropdown" id="profileDropdown">
+        <div class="profile-dropdown-name" id="profileDropdownName"></div>
+        <div class="profile-dropdown-divider"></div>
+        <div class="profile-dropdown-label" id="profileLangLabel"></div>
+        <div class="profile-lang-options" id="profileLangOptions"></div>
+        <div class="profile-dropdown-divider"></div>
+        <button class="profile-dropdown-item profile-logout" id="profileLogoutItem" type="button" onclick="logout()">Logout</button>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -273,7 +303,7 @@
       <h2 class="section" style="margin:0">🛒 Smart shopping list</h2>
       <button class="btn btn-primary btn-sm" onclick="openExtraModal()">+ Add item</button>
     </div>
-    <div class="hint">Built from the whole month, scaled to your family, duplicates merged — then split by how often you buy: weekly items become one list per week, every-15-days items split into two stock-ups, and monthly items are one bulk run. Things that aren't in any recipe — salt, paper towels, cleaning supplies — can be added manually with "+ Add item"; they're tagged <b>extra</b> and can be removed anytime. Set ingredient prices on a recipe to see cost estimates here, and use <b>Mark trip done</b> to log actual spend on the Budget tab.</div>
+    <div class="hint">Built from the whole month, scaled to your family, duplicates merged — then split by how often you buy: weekly items become one list per week, every-15-days items split into two stock-ups, and monthly items are one bulk run. Things that aren't in any recipe — salt, paper towels, cleaning supplies — can be added manually with "+ Add item"; they're tagged <b>extra</b> and can be removed anytime. Type a price next to any item to see cost estimates, or tick what you bought and use <b>Mark trip done</b> to log the total you spent on the Budget tab.</div>
     <div id="shopContent"></div>
   </section>
 
@@ -295,7 +325,7 @@
       </div>
     </div>
     <h2 class="section" style="margin:0 0 10px">🧾 Spend log</h2>
-    <div class="hint">Hit "✅ Mark trip done" on any shopping group (Shopping List tab) to log what you actually spent on that trip. Estimates use the prices you've set on ingredients/extra items.</div>
+    <div class="hint">Hit "✅ Mark trip done" on any shopping group (Shopping List tab) to log what you actually spent on that trip. Estimates use the prices you type next to each item in the shopping list.</div>
     <div id="spendLogContent"></div>
   </section>
 </main>
@@ -308,12 +338,11 @@
     <div style="flex:1"><label class="fld">Category</label><select id="rCategory" style="width:100%"></select></div>
   </div>
   <div class="row" style="margin-top:8px">
-    <div class="budget-field"><label class="fld">Est. cost ($, optional)</label><input id="rCost" type="number" step="any" min="0" style="width:110px" placeholder="0.00"></div>
     <div><label class="fld">Prep time (min, optional)</label><input id="rPrep" type="number" step="any" min="0" style="width:110px" placeholder="20"></div>
   </div>
   <label class="fld">Tags (comma separated)</label><input id="rTags" style="width:100%" placeholder="quick, kid-friendly">
   <label class="fld">Ingredients</label>
-  <div class="ing-row" style="font-size:11px;color:var(--muted);font-weight:700"><div>Name</div><div>Qty</div><div>Unit</div><div>Buy how often</div><div class="budget-field">Price/unit</div><div></div></div>
+  <div class="ing-row" style="font-size:11px;color:var(--muted);font-weight:700"><div>Name</div><div>Qty</div><div>Buy how often</div><div></div></div>
   <div id="ingRows"></div>
   <button class="btn btn-ghost btn-sm" onclick="addIngRow()" style="margin-top:6px">+ ingredient</button>
   <label class="fld">Steps (one per line)</label><textarea id="rSteps"></textarea>
@@ -355,7 +384,6 @@
   <label class="fld">Name</label><input id="exName" style="width:100%" placeholder="e.g. Salt, Paper towels">
   <div class="row" style="margin-top:8px">
     <div><label class="fld">Qty</label><input id="exQty" type="number" step="any" value="1" style="width:90px"></div>
-    <div><label class="fld">Unit</label><input id="exUnit" style="width:90px" placeholder="pcs"></div>
     <div style="flex:1"><label class="fld">Buy how often</label><select id="exCad" style="width:100%">
       <option value="weekly">Weekly</option><option value="biweekly">Every 15 days</option><option value="monthly">Monthly</option>
     </select></div>
@@ -376,7 +404,6 @@
   <div class="chips" id="balTags"></div>
   <label class="fld" style="margin-top:10px">Also consider</label>
   <div class="row" style="gap:10px;margin-top:4px">
-    <label class="crit-row" style="flex:1;min-width:160px"><input type="checkbox" id="balCheap">Favor cheaper recipes</label>
     <label class="crit-row" style="flex:1;min-width:160px"><input type="checkbox" id="balQuick">Favor quicker recipes</label>
   </div>
   <div class="row between" style="margin-top:16px"><button class="btn btn-ghost" onclick="closeBalanceModal()">Cancel</button><button class="btn btn-primary" onclick="saveBalanceSettings()">Save &amp; balance</button></div>
@@ -706,6 +733,7 @@ let nextId=101;
 let plan={};
 let editingId=null, planCtx=null, checked={};
 let extraItems=[]; let nextExtraId=1;
+let ingredientPrices={};
 let balanceSettings={repeatDays:7,tags:[],favorCheap:false,favorQuick:false};
 let savedPlans=[];
 let _pendingNewPlan=false;
@@ -911,7 +939,6 @@ function closeBalanceModal(){document.getElementById('balanceModal').classList.r
 function saveBalanceSettings(){
   balanceSettings.repeatDays=Math.max(0,parseInt(document.getElementById('balRepeat').value)||0);
   balanceSettings.tags=[].slice.call(document.querySelectorAll('#balTags .chip.active')).map(c=>c.dataset.tag);
-  balanceSettings.favorCheap=document.getElementById('balCheap').checked;
   balanceSettings.favorQuick=document.getElementById('balQuick').checked;
   closeBalanceModal();
   autoBalance();
@@ -944,7 +971,17 @@ function buildShoppingBuckets(){
   });
   return {weekly,biweekly,monthly,any};
 }
-function bucketTotal(b){return Object.values(b).reduce((s,it)=>s+(it.price||0)*it.qty,0);}
+function normItemName(n){return (n||'').trim().toLowerCase();}
+function lineCost(it){return it&&it.manual?(Number(it.price)||0):(Number(ingredientPrices[normItemName(it&&it.name)])||0);}
+function setItemPrice(name, v, extraId){
+  const p = parseFloat(v) || 0;
+  if (extraId !== null && extraId !== undefined) { const it = extraItems.find(x => x.id === extraId); if (it) it.price = p; }
+  else { ingredientPrices[normItemName(name)] = p; }
+  renderShopping();
+  renderBudget();
+  if (typeof queueAppStateSave === 'function') queueAppStateSave();
+}
+function bucketTotal(b){return Object.values(b).reduce((s,it)=>s+lineCost(it),0);}
 function renderShopping(){
   const {weekly,biweekly,monthly,any}=buildShoppingBuckets();
   const c=document.getElementById('shopContent');
@@ -984,7 +1021,6 @@ function toggleCheck(id,el){checked[id]=el.checked;el.closest('.shop-item').clas
 function openExtraModal(){
   document.getElementById('exName').value='';
   document.getElementById('exQty').value='1';
-  document.getElementById('exUnit').value='';
   document.getElementById('exCad').value='weekly';
   document.getElementById('exCat').value='';
   document.getElementById('exPrice').value='';
@@ -1136,7 +1172,7 @@ const I18N = {
   en: {
     tagline: 'Plan 4 balanced weeks - Scale to your family - Shop in smart trips',
     family: 'Family', mealsWeek: 'Meals/day', all: 'All', edit: 'Edit', del: 'Delete', serves: 'Serves',
-    noRecipes: 'No recipes in this category yet.', setupBtn: 'Setup',
+    noRecipes: 'No recipes in this category yet.', setupBtn: 'Setup', showSections: 'Show sections',
     navRecipes: 'Recipes', navPlan: 'Meal Plan', navShop: 'Shopping List', navBudget: 'Money',
     importTitle: 'Extract a recipe from caption text', extract: 'Extract recipe', demoCaption: 'Try demo caption text', demoLink: '',
     recipeDb: 'Your recipe database', manageCategories: 'Manage categories', newRecipe: '+ New recipe',
@@ -1184,7 +1220,7 @@ const I18N = {
   fr: {
     tagline: 'Planifiez 4 semaines - Adaptez a votre famille - Faites les courses intelligemment',
     family: 'Famille', mealsWeek: 'Repas/jour', all: 'Tout', edit: 'Modifier', del: 'Supprimer', serves: 'Pour',
-    noRecipes: 'Aucune recette dans cette categorie.', setupBtn: 'Configurer',
+    noRecipes: 'Aucune recette dans cette categorie.', setupBtn: 'Configurer', showSections: 'Sections affichees',
     navRecipes: 'Recettes', navPlan: 'Planning', navShop: 'Liste de courses', navBudget: 'Budget',
     importTitle: 'Extraire une recette depuis un texte', extract: 'Extraire la recette', demoCaption: 'Essayer un texte demo', demoLink: '',
     recipeDb: 'Votre base de recettes', manageCategories: 'Gerer les categories', newRecipe: '+ Nouvelle recette',
@@ -1232,7 +1268,7 @@ const I18N = {
   ar: {
     tagline: 'خططي 4 أسابيع - حسب حجم عائلتك - وتسوقي بذكاء',
     family: 'العائلة', mealsWeek: 'وجبات/اليوم', all: 'الكل', edit: 'تعديل', del: 'حذف', serves: 'تكفي',
-    noRecipes: 'لا توجد وصفات في هذه الفئة.', setupBtn: 'الإعداد',
+    noRecipes: 'لا توجد وصفات في هذه الفئة.', setupBtn: 'الإعداد', showSections: 'الأقسام الظاهرة',
     navRecipes: 'الوصفات', navPlan: 'خطة الوجبات', navShop: 'قائمة التسوق', navBudget: 'الميزانية',
     importTitle: 'استخراج وصفة من نص', extract: 'استخراج الوصفة', demoCaption: 'تجربة نص', demoLink: '',
     recipeDb: 'قاعدة الوصفات', manageCategories: 'إدارة الفئات', newRecipe: '+ وصفة جديدة',
@@ -1361,6 +1397,22 @@ Object.assign(I18N.ar, {
   backupImported: 'تم استيراد النسخة بنجاح.',
   backupInvalid: 'لم نتمكن من قراءة ملف النسخة.',
   backupReplaceConfirm: 'استيراد هذه النسخة سيستبدل الخطة المحفوظة حاليا على هذا الجهاز. هل تريدين المتابعة؟'
+});
+
+Object.assign(I18N.en, {
+  account: 'Account',
+  language: 'Language',
+  logout: 'Logout'
+});
+Object.assign(I18N.fr, {
+  account: 'Compte',
+  language: 'Langue',
+  logout: 'Deconnexion'
+});
+Object.assign(I18N.ar, {
+  account: 'الحساب',
+  language: 'اللغة',
+  logout: 'تسجيل الخروج'
 });
 
 const READY_RECIPE_DEFS = [
@@ -1807,11 +1859,14 @@ function applyLanguage() {
   document.getElementById('drawerServingsLabel').textContent = tr('drawerServings');
   document.getElementById('drawerSave').textContent = tr('drawerSave');
   document.getElementById('drawerRemove').textContent = tr('drawerRemove');
-  const setupBtn = document.getElementById('setupEditBtn'); if (setupBtn) setupBtn.textContent = tr('setupBtn');
+  const prefsLabel = document.getElementById('prefsLabel'); if (prefsLabel) prefsLabel.textContent = tr('showSections');
+  const prefMap = { plan: 'mealPlanning', shop: 'shopping', budget: 'money' };
+  document.querySelectorAll('#prefsBlock span[data-prefkey]').forEach(s => { s.textContent = tr(prefMap[s.getAttribute('data-prefkey')]); });
   syncBackupTools();
   localizeReadyRecipes();
   translateStaticInterface();
   syncCurrencyControls();
+  renderProfileMenu();
   updatePlanCounters();
 }
 function translateStaticInterface() {
@@ -1841,10 +1896,8 @@ function translateStaticInterface() {
   setPrevLabel('balRepeat', tr('repeatDays'));
   const balLabels = document.querySelectorAll('#balanceModal label.fld'); if (balLabels[1]) balLabels[1].textContent = tr('tagsLabel'); if (balLabels[2]) balLabels[2].textContent = tr('criteriaIntro');
   const critRows = document.querySelectorAll('#balanceModal .crit-row');
-  const cheapChecked = (document.getElementById('balCheap') && document.getElementById('balCheap').checked) || !!balanceSettings.favorCheap;
   const quickChecked = (document.getElementById('balQuick') && document.getElementById('balQuick').checked) || !!balanceSettings.favorQuick;
-  if (critRows[0]) critRows[0].innerHTML = `<input type="checkbox" id="balCheap" ${cheapChecked ? 'checked' : ''}>${htmlEscape(tr('cheap'))}`;
-  if (critRows[1]) critRows[1].innerHTML = `<input type="checkbox" id="balQuick" ${quickChecked ? 'checked' : ''}>${htmlEscape(tr('quick'))}`;
+  if (critRows[0]) critRows[0].innerHTML = `<input type="checkbox" id="balQuick" ${quickChecked ? 'checked' : ''}>${htmlEscape(tr('quick'))}`;
   const balBtns = document.querySelectorAll('#balanceModal .row.between button'); if (balBtns[0]) balBtns[0].textContent = tr('cancel'); if (balBtns[1]) balBtns[1].textContent = tr('saveAndBalance');
   const spendTitle = document.querySelector('#spendModal h3'); if (spendTitle) spendTitle.textContent = tr('done');
   setPrevLabel('spendEstimate', tr('estimatedLabel')); setPrevLabel('spendActual', tr('actualSpent'));
@@ -1871,23 +1924,81 @@ showView = function(v, btn) {
   document.querySelector('main').classList.toggle('plan-full', v === 'plan');
 };
 function ensureSetupButton() {
-  if (document.getElementById('setupEditBtn')) return;
-  const btn = document.createElement('button');
-  btn.id = 'setupEditBtn';
-  btn.className = 'btn btn-sm setup-edit';
-  btn.textContent = tr('setupBtn');
-  btn.onclick = () => openSetup(0);
-  document.querySelector('header .controls').appendChild(btn);
+  // The step-by-step setup wizard runs once for brand-new users only.
+  // After that, every setting lives in its own place: categories in "Manage categories",
+  // plan criteria in "Auto-balance settings", language/currency here, family & meals in the header.
+  // The only wizard-only parameters are the section toggles below.
+  if (document.getElementById('prefsBlock')) return;
+  const dropdown = document.getElementById('profileDropdown');
+  if (!dropdown) return;
+  const f = (setupData && setupData.features) || {};
+  const divider = document.createElement('div'); divider.className = 'profile-dropdown-divider';
+  const wrap = document.createElement('div');
+  wrap.id = 'prefsBlock';
+  const opts = [['plan', 'mealPlanning'], ['shop', 'shopping'], ['budget', 'money']];
+  wrap.innerHTML = `<div class="profile-dropdown-label" id="prefsLabel">${htmlEscape(tr('showSections'))}</div>` +
+    opts.map(([k, key]) => `<label class="profile-dropdown-item" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" ${f[k] ? 'checked' : ''} onchange="toggleSectionPref('${k}',this.checked)" style="width:auto"><span data-prefkey="${k}">${htmlEscape(tr(key))}</span></label>`).join('');
+  const logoutItem = document.getElementById('profileLogoutItem');
+  if (logoutItem) { dropdown.insertBefore(divider, logoutItem); dropdown.insertBefore(wrap, logoutItem); }
+  else { dropdown.appendChild(divider); dropdown.appendChild(wrap); }
+}
+function toggleSectionPref(name, on) {
+  if (!setupData.features) setupData.features = {};
+  setupData.features[name] = !!on;
+  applyFeatures();
+  try { localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup())); } catch (e) {}
+  if (typeof appStateHydrated !== 'undefined' && appStateHydrated) queueAppStateSave();
 }
 function ensureCurrencyControl() {
   if (document.getElementById('currencySelect')) return;
   const ctrl = document.createElement('div');
   ctrl.className = 'ctrl currency-ctrl';
-  ctrl.innerHTML = `<label id="currencyHeaderLabel">${htmlEscape(tr('currencyLabel'))}</label><select id="currencySelect" onchange="setupChooseCurrency(this.value)" style="border:none;border-radius:18px;padding:7px 10px;font-weight:800;color:var(--accent-dark);background:#fff;max-width:170px"></select>`;
+  ctrl.innerHTML = `<label id="currencyHeaderLabel">${htmlEscape(tr('currencyLabel'))}</label><select id="currencySelect" onchange="setupChooseCurrency(this.value)" style="border:none;border-radius:14px;padding:7px 10px;font-weight:800;color:var(--accent-dark);background:var(--accent-soft);max-width:170px"></select>`;
+  const dropdown = document.getElementById('profileDropdown');
   const setupBtn = document.getElementById('setupEditBtn');
-  const controls = document.querySelector('header .controls');
-  if (setupBtn) controls.insertBefore(ctrl, setupBtn); else controls.appendChild(ctrl);
+  const logoutItem = document.getElementById('profileLogoutItem');
+  if (dropdown) {
+    if (setupBtn) dropdown.insertBefore(ctrl, setupBtn);
+    else if (logoutItem) dropdown.insertBefore(ctrl, logoutItem);
+    else dropdown.appendChild(ctrl);
+  }
   syncCurrencyControls();
+}
+function toggleProfileMenu(e) {
+  if (e) e.stopPropagation();
+  const dropdown = document.getElementById('profileDropdown');
+  if (!dropdown) return;
+  dropdown.classList.toggle('open');
+}
+function closeProfileMenu() {
+  const dropdown = document.getElementById('profileDropdown');
+  if (dropdown) dropdown.classList.remove('open');
+}
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('profileMenu');
+  if (menu && !menu.contains(e.target)) closeProfileMenu();
+});
+function setHeaderLanguage(lang) {
+  if (!I18N[lang]) { closeProfileMenu(); return; }
+  if (lang !== currentLang) {
+    setupData.lang = lang;
+    currentLang = lang;
+    applyLanguage();
+    try { localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup())); } catch (e) {}
+    const setupScreen = document.getElementById('setupScreen');
+    if (appStateHydrated && (!setupScreen || !setupScreen.classList.contains('open'))) queueAppStateSave();
+  }
+  closeProfileMenu();
+}
+function renderProfileMenu() {
+  const nameEl = document.getElementById('profileMenuName'); if (nameEl) nameEl.textContent = loggedInUser || tr('account');
+  const dropdownName = document.getElementById('profileDropdownName'); if (dropdownName) dropdownName.textContent = loggedInUser || tr('account');
+  const langLabel = document.getElementById('profileLangLabel'); if (langLabel) langLabel.textContent = tr('language');
+  const langOptions = document.getElementById('profileLangOptions');
+  if (langOptions) {
+    langOptions.innerHTML = ['en', 'fr', 'ar'].map(l => `<button type="button" class="${currentLang === l ? 'active' : ''}" onclick="setHeaderLanguage('${l}')">${l.toUpperCase()}</button>`).join('');
+  }
+  const logoutItem = document.getElementById('profileLogoutItem'); if (logoutItem) logoutItem.textContent = tr('logout');
 }
 function ensureOptionalSlotStyles() {
   if (document.getElementById('optionalSlotStyles')) return;
@@ -2448,6 +2559,7 @@ function appStateSnapshot() {
     checked,
     extraItems,
     nextExtraId,
+    ingredientPrices,
     savedPlans,
     balanceSettings,
     monthlyBudget,
@@ -2481,6 +2593,7 @@ function hydrateAppState(saved) {
   checked = saved.checked && typeof saved.checked === 'object' ? saved.checked : {};
   extraItems = Array.isArray(saved.extraItems) ? saved.extraItems : [];
   nextExtraId = Math.max(Number(saved.nextExtraId) || 1, ...extraItems.map(x => Number(x.id) || 0)) + 1;
+  ingredientPrices = (saved.ingredientPrices && typeof saved.ingredientPrices === 'object') ? saved.ingredientPrices : {};
   savedPlans = Array.isArray(saved.savedPlans) ? saved.savedPlans : [];
   balanceSettings = Object.assign(balanceSettings, saved.balanceSettings || {});
   monthlyBudget = Number(saved.monthlyBudget) || 0;
@@ -2525,7 +2638,8 @@ function wireStatePersistence() {
     if (typeof fn !== 'function') return;
     eval(name + ' = function(){ const result = fn.apply(this, arguments); queueAppStateSave(); return result; }');
   };
-  ['addCat', 'delCat', 'saveRecipe', 'delRecipe', 'saveDrawerMeal', 'removeDrawerMeal', 'removeMeal', 'chooseInlineRecipe', 'removeInlinePickerMeal', 'saveExtraItem', 'delExtraItem', 'toggleCheck', 'saveBalanceSettings', 'autoBalance', 'setBudget', 'saveSpend', 'finishSetup', 'changeMembers', 'changeMeals'].forEach(wrap);
+  ['addCat', 'delCat', 'saveRecipe', 'delRecipe', 'saveDrawerMeal', 'removeDrawerMeal', 'removeMeal', 'chooseInlineRecipe', 'removeInlinePickerMeal', 'saveExtraItem', 'delExtraItem', 'toggleCheck', 'saveBalanceSettings', 'autoBalance', 'setBudget', 'saveSpend', 'finishSetup', 'changeMembers', 'changeMeals',
+   'setupChooseLang', 'setupChooseCurrency', 'setupToggleFeature', 'setupToggleReady', 'setupToggleCategory', 'setupDeleteCategory', 'setupAddCategory', 'setupSelectAll', 'setupPopular', 'setupClearRecipes', 'setupCriteriaTag'].forEach(wrap);
 }
 function ensureBackupTools() {
   if (!document.getElementById('backupToolStyles')) {
@@ -2701,6 +2815,8 @@ function setupToggleCategory(key, on) {
   setupData.categoryTouched = true;
   if (on) setupData.categoryKeys.add(key); else setupData.categoryKeys.delete(key);
   pruneRecipeSelectionToCategories();
+  categories = [...setupData.categoryKeys].map(catLabel);
+  renderCatFilter();
 }
 function setupDeleteCategory(key) {
   setupData.categoryKeys.delete(key);
@@ -2708,6 +2824,8 @@ function setupDeleteCategory(key) {
   setupData.categoryTouched = true;
   pruneRecipeSelectionToCategories();
   renderCategoriesStepIntoPane();
+  categories = [...setupData.categoryKeys].map(catLabel);
+  renderCatFilter();
 }
 function setupAddCategory() {
   const input = document.getElementById('newSetupCategory');
@@ -2719,6 +2837,8 @@ function setupAddCategory() {
   setupData.categoryTouched = true;
   if (input) input.value = '';
   renderCategoriesStepIntoPane();
+  categories = [...setupData.categoryKeys].map(catLabel);
+  renderCatFilter();
 }
 function setupCriteriaTag(tag, on) {
   const set = new Set(setupData.criteria.tags || []);
@@ -2840,7 +2960,7 @@ function renderMealsStep() {
 }
 function renderFamilyStep() {
   return `<div class="number-grid">
-    <div class="number-box"><label class="fld">${htmlEscape(tr('familySize'))}</label><input type="number" min="1" max="20" value="${setupData.persons}" oninput="setupData.persons=Math.max(1,Math.min(20,parseInt(this.value)||1))"></div>
+    <div class="number-box"><label class="fld">${htmlEscape(tr('familySize'))}</label><input type="number" min="1" max="20" value="${setupData.persons}" oninput="setupData.persons=Math.max(1,Math.min(20,parseInt(this.value)||1));members=setupData.persons;if(typeof appStateHydrated!=='undefined'&&appStateHydrated)queueAppStateSave()"></div>
   </div>`;
 }
 function renderCriteriaStep() {
@@ -2956,11 +3076,9 @@ renderRecipes = function() {
     const card = document.createElement('div'); card.className = 'card recipe-card';
     const ings = r.ingredients.map(i => {
       const qty = Math.round((i.qty || 0) * 100) / 100;
-      const price = i.pricePerUnit && isBudgetFeature() ? ` - ${htmlEscape(formatUnitMoney(i.pricePerUnit, i.unit || ''))}` : '';
-      return `<li><span>${htmlEscape(i.name)}</span><span>${qty} ${htmlEscape(i.unit || '')}${price} <span class="pill ${i.cadence}">${htmlEscape(cad[i.cadence] || i.cadence)}</span></span></li>`;
+      return `<li><span>${htmlEscape(i.name)}</span><span>${qty} <span class="pill ${i.cadence}">${htmlEscape(cad[i.cadence] || i.cadence)}</span></span></li>`;
     }).join('');
     const extraBits = [];
-    if (typeof r.estimatedCost === 'number' && isBudgetFeature()) extraBits.push('~' + formatMoney(r.estimatedCost));
     if (typeof r.prepMinutes === 'number') extraBits.push(r.prepMinutes + ' min');
     const sourceHtml = r.sourceLink ? `<div class="meta"><b>${htmlEscape(tr('source'))}:</b> <a href="${htmlEscape(r.sourceLink)}" target="_blank" rel="noopener">${htmlEscape(tr('recipeLink'))}</a></div>` : '';
     card.innerHTML = `<div class="row between"><h3>${htmlEscape(r.title)}</h3><span class="cat-tag">${htmlEscape(r.category || '-')}</span></div>
@@ -2988,17 +3106,15 @@ function translateRecipeModalLabels() {
   setPrevLabel('rLink', tr('linkLabel'));
   setPrevLabel('rServings', tr('baseServings'));
   setPrevLabel('rCategory', tr('categoryLabel'));
-  setPrevLabel('rCost', tr('estCost') + ' (' + currencyCode() + ')');
   setPrevLabel('rPrep', tr('prepTime'));
   setPrevLabel('rTags', tr('tagsLabel'));
   setPrevLabel('rSteps', tr('stepsLabel'));
   const tags = document.getElementById('rTags'); if (tags) tags.placeholder = tr('tagsPlaceholder');
   const link = document.getElementById('rLink'); if (link) link.placeholder = tr('linkPlaceholder');
-  const cost = document.getElementById('rCost'); if (cost) cost.placeholder = formatMoney(0);
   const ingLabel = document.querySelector('#recipeModal label.fld + .ing-row');
   if (ingLabel && ingLabel.previousElementSibling) ingLabel.previousElementSibling.textContent = tr('ingredientsLabel');
   const head = document.querySelector('#recipeModal .ing-row');
-  if (head) head.innerHTML = `<div>${htmlEscape(tr('ingName'))}</div><div>${htmlEscape(tr('ingQty'))}</div><div>${htmlEscape(tr('ingUnit'))}</div><div>${htmlEscape(tr('buyHowOften'))}</div><div class="budget-field">${htmlEscape(tr('priceUnit') + ' (' + currencyCode() + ')')}</div><div></div>`;
+  if (head) head.innerHTML = `<div>${htmlEscape(tr('ingName'))}</div><div>${htmlEscape(tr('ingQty'))}</div><div>${htmlEscape(tr('buyHowOften'))}</div><div></div>`;
   const addBtn = document.querySelector('#recipeModal button[onclick="addIngRow()"]'); if (addBtn) addBtn.textContent = tr('addIngredient');
   const actionBtns = document.querySelectorAll('#recipeModal .row.between button');
   const lastTwo = Array.from(actionBtns).slice(-2);
@@ -3010,9 +3126,7 @@ addIngRow = function(data) {
   const row = document.createElement('div'); row.className = 'ing-row';
   row.innerHTML = `<input class="i-name" value="${htmlEscape(data ? data.name : '')}" placeholder="${htmlEscape(tr('ingName'))}">
     <input class="i-qty" type="number" step="any" value="${data ? data.qty : ''}" placeholder="2">
-    <input class="i-unit" value="${htmlEscape(data ? data.unit : '')}" placeholder="pcs">
     <select class="i-cad"><option value="weekly">${htmlEscape(tr('cadenceWeekly'))}</option><option value="biweekly">${htmlEscape(tr('cadenceBiweekly'))}</option><option value="monthly">${htmlEscape(tr('cadenceMonthly'))}</option></select>
-    <input class="i-price budget-field" type="number" step="any" min="0" value="${data && data.pricePerUnit ? data.pricePerUnit : ''}" placeholder="${htmlEscape(currencyCode())}">
     <button class="x" onclick="this.parentElement.remove()">x</button>`;
   d.appendChild(row);
   if (data && data.cadence) row.querySelector('.i-cad').value = data.cadence;
@@ -3028,7 +3142,6 @@ openRecipeModal = function(id) {
   document.getElementById('rLink').value = r && r.sourceLink ? r.sourceLink : '';
   document.getElementById('rServings').value = r ? r.baseServings : members;
   fillCatSelect(document.getElementById('rCategory'), r ? r.category : categories[0]);
-  document.getElementById('rCost').value = (r && typeof r.estimatedCost === 'number') ? r.estimatedCost : '';
   document.getElementById('rPrep').value = (r && typeof r.prepMinutes === 'number') ? r.prepMinutes : '';
   document.getElementById('rTags').value = r ? r.tags.join(', ') : '';
   document.getElementById('rSteps').value = r ? r.steps.join('\n') : '';
@@ -3042,17 +3155,14 @@ saveRecipe = function() {
   const ings = [].slice.call(document.querySelectorAll('#ingRows .ing-row')).map(r => ({
     name: r.querySelector('.i-name').value.trim(),
     qty: parseFloat(r.querySelector('.i-qty').value) || 0,
-    unit: r.querySelector('.i-unit').value.trim(),
-    cadence: r.querySelector('.i-cad').value,
-    pricePerUnit: parseFloat(r.querySelector('.i-price').value) || 0
+    cadence: r.querySelector('.i-cad').value
   })).filter(i => i.name);
-  const costVal = parseFloat(document.getElementById('rCost').value), prepVal = parseFloat(document.getElementById('rPrep').value);
+  const prepVal = parseFloat(document.getElementById('rPrep').value);
   const data = {
     title,
     sourceLink: document.getElementById('rLink').value.trim(),
     category: document.getElementById('rCategory').value,
     baseServings: parseInt(document.getElementById('rServings').value) || 1,
-    estimatedCost: isNaN(costVal) ? undefined : costVal,
     prepMinutes: isNaN(prepVal) ? undefined : prepVal,
     tags: document.getElementById('rTags').value.split(',').map(s => s.trim()).filter(Boolean),
     ingredients: ings,
@@ -3169,7 +3279,6 @@ openBalanceModal = function() {
   });
   document.getElementById('balRepeat').value = balanceSettings.repeatDays || setupData.criteria.repeatDays || 7;
   translateStaticInterface();
-  document.getElementById('balCheap').checked = !!balanceSettings.favorCheap;
   document.getElementById('balQuick').checked = !!balanceSettings.favorQuick;
   document.getElementById('balanceModal').classList.add('open');
   aModal('balanceModal');
@@ -3178,11 +3287,10 @@ saveExtraItem = function() {
   const name = document.getElementById('exName').value.trim();
   if (!name) { alert(tr('pleaseAddName')); return; }
   const qty = parseFloat(document.getElementById('exQty').value) || 1;
-  const unit = document.getElementById('exUnit').value.trim() || 'pcs';
   const cadence = document.getElementById('exCad').value;
   const category = document.getElementById('exCat').value.trim();
   const price = parseFloat(document.getElementById('exPrice').value) || 0;
-  extraItems.push({ id: nextExtraId++, name, qty, unit, cadence, category, price });
+  extraItems.push({ id: nextExtraId++, name, qty, cadence, category, price });
   closeExtraModal();
   renderShopping();
   renderBudget();
@@ -3305,9 +3413,8 @@ buildShoppingBuckets = function() {
   const weekly = [{}, {}, {}, {}], biweekly = [{}, {}], monthly = {};
   let any = false;
   const put = (bucket, key, item, detail) => {
-    if (!bucket[key]) bucket[key] = { name: item.name, unit: item.unit, qty: 0, price: item.pricePerUnit || 0, details: [] };
+    if (!bucket[key]) bucket[key] = { name: item.name, qty: 0, details: [] };
     bucket[key].qty += item.qty;
-    if (!bucket[key].price && item.pricePerUnit) bucket[key].price = item.pricePerUnit;
     if (detail) bucket[key].details.push(detail);
   };
   for (let w = 0; w < 4; w++) for (let d = 0; d < 7; d++) {
@@ -3316,24 +3423,23 @@ buildShoppingBuckets = function() {
       const factor = meal.servings / (r.baseServings || 1);
       r.ingredients.forEach(i => {
         const scaledQty = (i.qty || 0) * factor;
-        const key = i.name + '|' + (i.unit || '');
+        const key = i.name;
         let bucket;
         if (i.cadence === 'weekly') bucket = weekly[w];
         else if (i.cadence === 'biweekly') bucket = biweekly[w < 2 ? 0 : 1];
         else bucket = monthly;
-        put(bucket, key, { name: i.name, unit: i.unit || '', qty: scaledQty, pricePerUnit: i.pricePerUnit || 0 }, {
+        put(bucket, key, { name: i.name, qty: scaledQty }, {
           recipe: r.title,
           slot: slotLabel(meal.slot),
           week: w + 1,
           day: dayLabel(d),
-          qty: scaledQty,
-          unit: i.unit || ''
+          qty: scaledQty
         });
       });
     });
   }
   extraItems.forEach(it => {
-    const place = (b) => { b['extra-' + it.id] = { name: it.name, unit: it.unit, qty: it.qty, price: it.price, manual: true, extraId: it.id, category: it.category || '', details: [] }; any = true; };
+    const place = (b) => { b['extra-' + it.id] = { name: it.name, qty: it.qty, price: it.price, manual: true, extraId: it.id, category: it.category || '', details: [] }; any = true; };
     if (it.cadence === 'weekly') for (let w = 0; w < 4; w++) place(weekly[w]);
     else if (it.cadence === 'biweekly') { place(biweekly[0]); place(biweekly[1]); }
     else place(monthly);
@@ -3432,7 +3538,7 @@ group = function(title, sub, bucket, prefix) {
   const wrap = document.createElement('div'); wrap.className = 'shop-group';
   const head = document.createElement('div'); head.className = 'shop-head';
   head.innerHTML = `<h3>${htmlEscape(title)}</h3><span class="badge">${htmlEscape(sub)} - ${items.length} ${htmlEscape(tr('items'))}${total && isBudgetFeature() ? ' - ~' + htmlEscape(formatMoney(total)) : ''}</span>`;
-  if (total > 0 && isBudgetFeature()) {
+  if (isBudgetFeature()) {
     const btn = document.createElement('button'); btn.className = 'btn btn-ghost btn-sm done-trip'; btn.textContent = tr('done');
     btn.onclick = () => markTripDone(title, total);
     head.appendChild(btn);
@@ -3447,14 +3553,16 @@ group = function(title, sub, bucket, prefix) {
     catWrap.className = 'shop-category ' + catKey;
     catWrap.innerHTML = `<div class="shop-category-head"><div class="shop-category-title"><span class="shop-category-icon">${htmlEscape(meta.icon)}</span><span>${htmlEscape(tr(meta.label))}</span></div><span class="shop-category-count">${catItems.length} ${htmlEscape(tr('items'))}</span></div>`;
     catItems.forEach(it => {
-      const id = prefix + '|' + it.name + '|' + it.unit; const qty = Math.round(it.qty * 100) / 100;
+      const id = prefix + '|' + it.name; const qty = Math.round(it.qty * 100) / 100;
       const totalText = ingredientTotalText(it, qty);
       const row = document.createElement('div'); row.className = 'shop-item' + (checked[id] ? ' checked' : '');
       const extraTag = it.manual ? ' <span class="pill" style="background:var(--blue-soft);color:#5a4a8c">' + htmlEscape(tr('extra')) + '</span>' : '';
-      const priceHtml = it.price && isBudgetFeature() ? `<span class="qty" style="margin-left:6px">${htmlEscape(formatMoney(it.price * it.qty))}</span>` : '';
+      const storedPrice = it.manual ? (Number(it.price) || 0) : (Number(ingredientPrices[normItemName(it.name)]) || 0);
+      const priceArg = it.manual ? it.extraId : 'null';
+      const priceHtml = isBudgetFeature() ? `<input class="line-price" type="number" step="any" min="0" value="${storedPrice || ''}" placeholder="${htmlEscape(currencyCode())}" onchange="setItemPrice(decodeURIComponent('${encodeURIComponent(it.name)}'),this.value,${priceArg})" style="width:92px;margin-left:6px;text-align:right;padding:6px 8px">` : '';
       const delHtml = it.manual ? `<button class="x" style="margin-left:6px" onclick="delExtraItem(${it.extraId})">x</button>` : '';
       const detailHtml = it.details && it.details.length
-        ? `<div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.35"><b>${htmlEscape(tr('details'))}:</b> ${it.details.map(d => `${Math.round(d.qty * 100) / 100} ${htmlEscape(d.unit)} - ${htmlEscape(d.recipe)} (${htmlEscape(d.slot)}, ${htmlEscape(tr('week'))} ${d.week}, ${htmlEscape(d.day)})`).join('<br>')}</div>`
+        ? `<div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.35"><b>${htmlEscape(tr('details'))}:</b> ${it.details.map(d => `${Math.round(d.qty * 100) / 100} - ${htmlEscape(d.recipe)} (${htmlEscape(d.slot)}, ${htmlEscape(tr('week'))} ${d.week}, ${htmlEscape(d.day)})`).join('<br>')}</div>`
         : '';
       row.innerHTML = `<input type="checkbox" ${checked[id] ? 'checked' : ''} onchange="toggleCheck(decodeURIComponent('${encodeURIComponent(id)}'),this)"><label style="flex:1"><strong>${htmlEscape(totalText)}</strong>${extraTag}${detailHtml}</label>${priceHtml}${delHtml}`;
       catWrap.appendChild(row);
@@ -3553,35 +3661,4 @@ function bootMealMateV2() {
   ensureDrawerPickerStyles();
   ensureRecipeModalStyles();
   ensureInlineMealPickerStyles();
-  ensureShoppingCategoryStyles();
-  ensureCurrencyControl();
-  applyLanguage();
-  normalizeCategoryList();
-  applyFeatures();
-  ensureSetupButton();
-  ensureBackupTools();
-  renderCatFilter();
-  renderRecipes();
-  renderShopping();
-  renderBudget();
-  updatePlanCounters();
-  wireStatePersistence();
-  appStateHydrated = true;
-  try {
-    if (!localStorage.getItem(SETUP_KEY) && !localStorage.getItem(APP_STATE_KEY)) setTimeout(() => openSetup(0), 120);
-  } catch (e) {
-    setTimeout(() => openSetup(0), 120);
-  }
-  // sync with Supabase after boot
-  trySyncFromCloud();
-}
-
-// Boot only if already logged in (session restored)
-if (loggedInUser) {
-  document.getElementById('loginScreen').classList.add('hidden');
-  bootMealMateV2();
-}
-
-</script>
-</body>
-</html>
+  ensureShoppingCatego
