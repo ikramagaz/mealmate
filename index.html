@@ -3072,7 +3072,6 @@ function renderCriteriaStep() {
     ${option('pantryStaples', tr('pantryStaples'), tr('pantryStaplesSub'))}
     ${option('proteinVariety', tr('proteinVariety'), tr('proteinVarietySub'))}
     ${option('freshBalance', tr('freshBalance'), tr('freshBalanceSub'))}
-    <label class="setup-option ${c.favorCheap ? 'active' : ''}"><input type="checkbox" ${c.favorCheap ? 'checked' : ''} onchange="setupData.criteria.favorCheap=this.checked;this.closest('.setup-option').classList.toggle('active',this.checked)"><span><strong>${htmlEscape(tr('cheap'))}</strong></span></label>
     <label class="setup-option ${c.favorQuick ? 'active' : ''}"><input type="checkbox" ${c.favorQuick ? 'checked' : ''} onchange="setupData.criteria.favorQuick=this.checked;this.closest('.setup-option').classList.toggle('active',this.checked)"><span><strong>${htmlEscape(tr('quick'))}</strong></span></label>
     <label class="setup-option ${c.variety ? 'active' : ''}"><input type="checkbox" ${c.variety ? 'checked' : ''} onchange="setupData.criteria.variety=this.checked;this.closest('.setup-option').classList.toggle('active',this.checked)"><span><strong>${htmlEscape(tr('variety'))}</strong></span></label>
     ${tags.map(([tag, label]) => `<label class="setup-option ${(c.tags || []).includes(tag) ? 'active' : ''}"><input type="checkbox" ${(c.tags || []).includes(tag) ? 'checked' : ''} onchange="setupCriteriaTag('${tag}',this.checked);this.closest('.setup-option').classList.toggle('active',this.checked)"><span><strong>${htmlEscape(label)}</strong></span></label>`).join('')}
@@ -3213,10 +3212,18 @@ function translateRecipeModalLabels() {
   if (lastTwo[0]) lastTwo[0].textContent = tr('cancel');
   if (lastTwo[1]) lastTwo[1].textContent = tr('saveRecipeLabel');
 }
+function refreshIngredientDatalist() {
+  let dl = document.getElementById('ingredientList');
+  if (!dl) { dl = document.createElement('datalist'); dl.id = 'ingredientList'; document.body.appendChild(dl); }
+  const names = new Set();
+  recipes.forEach(r => (r.ingredients || []).forEach(i => { const n = (i.name || '').trim(); if (n) names.add(n); }));
+  (typeof extraItems !== 'undefined' ? extraItems : []).forEach(it => { const n = (it.name || '').trim(); if (n) names.add(n); });
+  dl.innerHTML = [...names].sort((a, b) => String(a).localeCompare(String(b))).map(n => `<option value="${htmlEscape(n)}"></option>`).join('');
+}
 addIngRow = function(data) {
   const d = document.getElementById('ingRows');
   const row = document.createElement('div'); row.className = 'ing-row';
-  row.innerHTML = `<input class="i-name" value="${htmlEscape(data ? data.name : '')}" placeholder="${htmlEscape(tr('ingName'))}">
+  row.innerHTML = `<input class="i-name" list="ingredientList" autocomplete="off" value="${htmlEscape(data ? data.name : '')}" placeholder="${htmlEscape(tr('ingName'))}">
     <input class="i-qty" type="number" step="any" value="${data ? data.qty : ''}" placeholder="2">
     <select class="i-cad"><option value="weekly">${htmlEscape(tr('cadenceWeekly'))}</option><option value="biweekly">${htmlEscape(tr('cadenceBiweekly'))}</option><option value="monthly">${htmlEscape(tr('cadenceMonthly'))}</option></select>
     <button class="x" onclick="this.parentElement.remove()">x</button>`;
@@ -3226,6 +3233,7 @@ addIngRow = function(data) {
 openRecipeModal = function(id) {
   editingId = id || null;
   ensureRecipeModalStyles();
+  refreshIngredientDatalist();
   ensureRecipeSourceField();
   translateRecipeModalLabels();
   document.getElementById('modalTitle').textContent = id ? tr('editRecipeTitle') : tr('newRecipeTitle');
