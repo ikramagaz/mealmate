@@ -3643,4 +3643,95 @@ function renderBudget() {
   const pct = monthlyBudget ? Math.min(100, Math.round(base / monthlyBudget * 100)) : 0;
   const estLabel = document.getElementById('budgetEstLabel');
   const pctLabel = document.getElementById('budgetPctLabel');
-  const bar = document.getElementById('
+  const bar = document.getElementById('budgetBar');
+  if (estLabel) estLabel.textContent = formatMoney(estimate) + ' ' + tr('estimated');
+  if (pctLabel) pctLabel.textContent = pct + '%';
+  if (bar) {
+    bar.style.width = pct + '%';
+    bar.style.background = monthlyBudget && base > monthlyBudget ? '#d96b7b' : 'var(--green)';
+  }
+  const warning = document.getElementById('budgetWarning');
+  if (warning) {
+    warning.style.display = monthlyBudget && base > monthlyBudget ? 'block' : 'none';
+    warning.textContent = monthlyBudget && base > monthlyBudget ? tr('overBudgetBy') + ' ' + formatMoney(base - monthlyBudget) : '';
+  }
+  const list = document.getElementById('spendLogContent');
+  if (!list) return;
+  if (!spendLog.length) { list.innerHTML = '<div class="empty">' + htmlEscape(tr('emptyBudget')) + '</div>'; return; }
+  list.innerHTML = spendLog.map(x => `<div class="shop-item"><label>${htmlEscape(x.title)}<br><small>${htmlEscape(x.date)}</small></label><span class="qty">${htmlEscape(formatMoney(x.actual))}</span></div>`).join('');
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeInlineMealPicker(); closeMealDrawer(); } });
+
+async function trySyncFromCloud() {
+  const cloud = await supabaseLoad();
+  if (!cloud) {
+    // Nothing saved in the cloud yet for this account.
+    // If this device already has data, upload it once so it carries over.
+    if (localStorage.getItem(SETUP_KEY) || localStorage.getItem(APP_STATE_KEY)) supabaseSave();
+    return;
+  }
+  const localSetupKey = 'mealmate_setup_ts';
+  const localTs = Number(localStorage.getItem(localSetupKey)) || 0;
+  const cloudTs = new Date(cloud.updated_at).getTime();
+  if (cloudTs > localTs) {
+    // cloud has newer data
+    if (cloud.setup_data) {
+      try { hydrateSetup(cloud.setup_data); } catch (e) {}
+    }
+    if (cloud.app_state) {
+      try { hydrateAppState(cloud.app_state); } catch (e) {}
+    }
+    refreshAfterStateLoad();
+  } else if (localTs > 0 && localTs >= cloudTs) {
+    // local is current – push to cloud
+    supabaseSave();
+  }
+}
+
+function bootMealMateV2() {
+  appStateHydrated = false;
+  const hasStoredAppState = loadStoredAppState();
+  if (!hasStoredAppState) {
+    try { hydrateSetup(JSON.parse(localStorage.getItem(SETUP_KEY) || 'null')); } catch (e) {}
+  }
+  currentLang = setupData.lang;
+  members = setupData.persons;
+  syncMealCounts();
+  if (!hasStoredAppState) applyReadyRecipes();
+  normalizeCategoryList();
+  ensureOptionalSlotStyles();
+  ensureDrawerPickerStyles();
+  ensureRecipeModalStyles();
+  ensureInlineMealPickerStyles();
+  ensureShoppingCategoryStyles();
+  ensureCurrencyControl();
+  applyLanguage();
+  normalizeCategoryList();
+  applyFeatures();
+  ensureSetupButton();
+  renderCatFilter();
+  renderRecipes();
+  renderShopping();
+  renderBudget();
+  updatePlanCounters();
+  wireStatePersistence();
+  appStateHydrated = true;
+  try {
+    if (!localStorage.getItem(SETUP_KEY) && !localStorage.getItem(APP_STATE_KEY)) setTimeout(() => openSetup(0), 120);
+  } catch (e) {
+    setTimeout(() => openSetup(0), 120);
+  }
+  // sync with Supabase after boot
+  trySyncFromCloud();
+}
+
+// Boot only if already logged in (session restored)
+if (loggedInUser) {
+  document.getElementById('loginScreen').classList.add('hidden');
+  bootMealMateV2();
+}
+
+</script>
+</body>
+</html>
