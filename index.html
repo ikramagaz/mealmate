@@ -54,8 +54,20 @@
   [dir="rtl"] .profile-dropdown{right:auto;left:0}
   [dir="rtl"] .profile-dropdown-item{text-align:right}
   nav{display:flex;gap:6px;padding:14px 22px 0;flex-wrap:wrap}
-  nav button{border:none;background:transparent;padding:10px 18px;border-radius:30px;cursor:pointer;font-size:15px;color:var(--muted);font-weight:700;font-family:inherit}
+  nav button{border:none;background:transparent;padding:10px 18px;border-radius:30px;cursor:pointer;font-size:15px;color:var(--muted);font-weight:700;font-family:inherit;display:inline-flex;align-items:center;gap:7px}
   nav button.active{background:var(--card);color:var(--accent-dark);box-shadow:var(--shadow)}
+  nav .nav-ico{font-size:17px;line-height:1}
+  @media (max-width:980px){
+    nav{position:fixed;bottom:0;left:0;right:0;z-index:85;background:#fff;border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom));margin:0;gap:2px;flex-wrap:nowrap;justify-content:space-around;box-shadow:0 -6px 20px rgba(199,91,140,.14)}
+    nav button{flex:1;flex-direction:column;gap:3px;padding:6px 2px;font-size:10.5px;border-radius:14px;min-width:0}
+    nav button .nav-label{font-size:10.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+    nav button.active{background:var(--accent-soft);color:var(--accent-dark);box-shadow:none}
+    nav .nav-ico{font-size:20px}
+    main{padding-bottom:84px}
+    header{padding:12px 16px;gap:10px}
+    header .tagline{display:none}
+    header h1{font-size:20px}
+  }
   main{padding:18px 22px 60px;max-width:1100px;margin:0 auto}
   .view{display:none}
   .view.active{display:block}
@@ -190,12 +202,9 @@
   .week-tab:hover{transform:translateY(-1px)}
   .week-single{width:min(100%,640px);margin:0 auto}
   .week-single .week-column.card{padding:14px}
-  .shop-tabs{display:none;gap:8px;flex-wrap:wrap;margin:4px 0 14px}
-  @media (max-width:980px){
-    .shop-tabs{display:flex}
-    #shopContent .shop-week-card{display:none}
-    #shopContent .shop-week-card.shop-active{display:block}
-  }
+  .shop-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 14px}
+  #shopContent .shop-week-card{display:none}
+  #shopContent .shop-week-card.shop-active{display:block}
   .week-days-list{display:grid;gap:8px}
   .week-day{background:#fffafc;border:1px solid var(--line);border-radius:12px;padding:8px;min-height:96px}
   .week-day-title{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-weight:800;font-size:12px;margin-bottom:6px}
@@ -276,10 +285,10 @@
 </header>
 
 <nav>
-  <button class="active" data-view="recipes" onclick="showView('recipes',this)">📖 Recipes</button>
-  <button data-view="plan" onclick="showView('plan',this)">📅 Meal Plan</button>
-  <button data-view="shop" onclick="showView('shop',this)">🛒 Shopping List</button>
-  <button data-view="budget" onclick="showView('budget',this)">💰 Budget</button>
+  <button class="active" data-view="recipes" onclick="showView('recipes',this)"><span class="nav-ico">📖</span><span class="nav-label">Recipes</span></button>
+  <button data-view="plan" onclick="showView('plan',this)"><span class="nav-ico">📅</span><span class="nav-label">Meal Plan</span></button>
+  <button data-view="shop" onclick="showView('shop',this)"><span class="nav-ico">🛒</span><span class="nav-label">Shopping List</span></button>
+  <button data-view="budget" onclick="showView('budget',this)"><span class="nav-ico">💰</span><span class="nav-label">Budget</span></button>
 </nav>
 
 <main>
@@ -320,12 +329,15 @@
       <h2 class="section" style="margin:0">📅 Monthly plan — 4 weeks</h2>
       <button class="btn btn-ghost btn-sm" id="planNewBtn" onclick="newPlanPrompt()">➕ New month plan</button>
     </div>
-    <div class="plan-toolbar" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px">
-      <button class="btn btn-primary btn-sm" id="planAutoBtn" onclick="autoBalance()">⚖️ Auto-balance the month</button>
-      <button class="btn btn-ghost btn-sm" id="planBalanceBtn" onclick="openBalanceModal()">⚙️ Balance settings</button>
-      <button class="btn btn-ghost btn-sm" id="planSavedBtn" onclick="openPlansModal()">📂 Saved plans</button>
+    <div class="plan-controls" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 4px">
+      <div class="plan-toolbar" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" id="planAutoBtn" onclick="autoBalance()">⚖️ Auto-balance the month</button>
+        <button class="btn btn-ghost btn-sm" id="planBalanceBtn" onclick="openBalanceModal()">⚙️ Balance settings</button>
+        <button class="btn btn-ghost btn-sm" id="planSavedBtn" onclick="openPlansModal()">📂 Saved plans</button>
+      </div>
+      <div id="addonTrayHost"></div>
     </div>
-    <div class="hint">Each week has <span id="planTarget">21</span> meal slots (<span id="planMeals">3</span> meals/day × 7). Tap <b>Auto-balance the month</b> to fill it with a varied mix, then tweak any day. Set the rules under <b>Balance settings</b>.</div>
+    <div class="hint" style="display:none"><span id="planTarget">21</span><span id="planMeals">3</span></div>
     <div id="weeks"></div>
   </section>
 
@@ -334,7 +346,7 @@
       <h2 class="section" style="margin:0">🛒 Smart shopping list</h2>
       <button class="btn btn-primary btn-sm" onclick="openExtraModal()">+ Add item</button>
     </div>
-    <div class="hint">Built from the whole month, scaled to your family, duplicates merged — then split by how often you buy: weekly items become one list per week, every-15-days items split into two stock-ups, and monthly items are one bulk run. Things that aren't in any recipe — salt, paper towels, cleaning supplies — can be added manually with "+ Add item"; they're tagged <b>extra</b> and can be removed anytime. Type a price next to any item to see cost estimates, or tick what you bought and use <b>Mark trip done</b> to log the total you spent on the Budget tab.</div>
+    <div class="hint">Pick a week, tick items as you buy them, and type a price to track cost. Add anything extra with "+ Add item".</div>
     <div id="shopContent"></div>
   </section>
 
@@ -356,7 +368,7 @@
       </div>
     </div>
     <h2 class="section" style="margin:0 0 10px">🧾 Spend log</h2>
-    <div class="hint">Hit "✅ Mark trip done" on any shopping group (Shopping List tab) to log what you actually spent on that trip. Estimates use the prices you type next to each item in the shopping list.</div>
+    <div class="hint">Tick items and tap "✅ Mark trip done" on a shopping list to log what you spent.</div>
     <div id="spendLogContent"></div>
   </section>
 </main>
@@ -469,12 +481,12 @@
 </div></div>
 
 <div class="modal-bg" id="newPlanPromptModal"><div class="modal" style="max-width:420px">
-  <h3>➕ Start a new month plan?</h3>
-  <p style="color:var(--muted);font-size:13px;margin-top:0">Do you want to save the current plan before starting fresh?</p>
+  <h3 id="newPlanTitle">➕ Start a new month plan?</h3>
+  <p id="newPlanQuestion" style="color:var(--muted);font-size:13px;margin-top:0">Do you want to save the current plan before starting fresh?</p>
   <div class="row between" style="margin-top:16px">
-    <button class="btn btn-ghost" onclick="closeNewPlanPrompt()">Cancel</button>
-    <button class="btn btn-ghost" onclick="discardPlanAndNew()">➕ No, discard</button>
-    <button class="btn btn-primary" onclick="savePlanAndNew()">💾 Yes, save it</button>
+    <button class="btn btn-ghost" id="newPlanCancelBtn" onclick="closeNewPlanPrompt()">Cancel</button>
+    <button class="btn btn-ghost" id="newPlanDiscardBtn" onclick="discardPlanAndNew()">🗑️ No, discard</button>
+    <button class="btn btn-primary" id="newPlanSaveBtn" onclick="savePlanAndNew()">💾 Yes, save it</button>
   </div>
 </div></div>
 
@@ -1260,6 +1272,7 @@ const I18N = {
     catModalTitle: 'Meal categories', catModalDesc: 'Add the categories you cook by. These appear as filters and on each recipe.', close: 'Close',
     extraModalTitle: 'Add a non-recipe item', nameLabel: 'Name', qtyLabel: 'Qty', unitLabel: 'Unit', categoryOptional: 'Category (optional)', priceOptional: 'Price (optional)', addItemAction: 'Add item',
     balanceModalTitle: 'Auto-balance settings', balanceModalDesc: 'Choose what the month planner should optimize for.', noTagsYet: 'No tags yet - add some in your recipes.', saveAndBalance: 'Save & balance',
+    newPlanTitle: 'Start a new month plan?', newPlanQuestion: 'Do you want to save the current plan before starting fresh?', newPlanDiscard: 'No, discard', newPlanSave: 'Yes, save it',
     budgetInputLabel: 'Monthly grocery budget', spendLog: 'Spend log', spendHint: 'Mark a shopping trip done to log what you actually spent.', estimatedLabel: 'Estimated', actualSpent: 'Actual amount spent', source: 'Source', details: 'Details', currencyLabel: 'Currency', currencyIntro: 'Algeria uses Algerian dinar by default. Change this if your family shops in another country.',
     noRecipesFirst: 'Add some recipes first.', actualAmountError: 'Enter the actual amount spent.', overBudgetBy: 'Over budget by', pleaseAddName: 'Please add a name.',
     importNoIngredients: 'Could not detect ingredients from this text. Try pasting the full caption/transcript with quantities, for example "400g pasta".',
@@ -1308,6 +1321,7 @@ const I18N = {
     catModalTitle: 'Categories de repas', catModalDesc: 'Ajoutez les categories que vous utilisez. Elles servent de filtres et apparaissent sur chaque recette.', close: 'Fermer',
     extraModalTitle: 'Ajouter un article hors recette', nameLabel: 'Nom', qtyLabel: 'Qte', unitLabel: 'Unite', categoryOptional: 'Categorie (optionnel)', priceOptional: 'Prix (optionnel)', addItemAction: 'Ajouter',
     balanceModalTitle: 'Criteres d equilibrage', balanceModalDesc: 'Choisissez ce que le planning mensuel doit privilegier.', noTagsYet: 'Aucun tag pour le moment - ajoutez-en dans vos recettes.', saveAndBalance: 'Enregistrer et equilibrer',
+    newPlanTitle: 'Commencer un nouveau plan du mois ?', newPlanQuestion: 'Voulez-vous enregistrer le plan actuel avant de recommencer ?', newPlanDiscard: 'Non, supprimer', newPlanSave: 'Oui, enregistrer',
     budgetInputLabel: 'Budget courses mensuel', spendLog: 'Journal des depenses', spendHint: 'Marquez une course comme faite pour enregistrer le montant reel.', estimatedLabel: 'Estime', actualSpent: 'Montant reel depense', source: 'Source', details: 'Details', currencyLabel: 'Devise', currencyIntro: 'En Algerie, la devise par defaut est le dinar algerien. Changez-la si votre famille fait les courses dans un autre pays.',
     noRecipesFirst: 'Ajoutez quelques recettes d abord.', actualAmountError: 'Entrez le montant reel depense.', overBudgetBy: 'Depassement du budget de', pleaseAddName: 'Ajoutez un nom.',
     importNoIngredients: 'Impossible de detecter les ingredients dans ce texte. Collez la legende ou transcription complete avec les quantites, par exemple "400g pates".',
@@ -1356,6 +1370,7 @@ const I18N = {
     catModalTitle: 'فئات الوجبات', catModalDesc: 'أضيفي الفئات التي تطبخين بها. تظهر كفلاتر وعلى كل وصفة.', close: 'إغلاق',
     extraModalTitle: 'إضافة عنصر خارج الوصفات', nameLabel: 'الاسم', qtyLabel: 'الكمية', unitLabel: 'الوحدة', categoryOptional: 'الفئة (اختياري)', priceOptional: 'السعر (اختياري)', addItemAction: 'إضافة',
     balanceModalTitle: 'إعدادات التخطيط التلقائي', balanceModalDesc: 'اختاري ما يجب أن يراعيه مخطط الشهر.', noTagsYet: 'لا توجد وسوم بعد - أضيفيها داخل الوصفات.', saveAndBalance: 'حفظ وتنظيم',
+    newPlanTitle: 'بدء خطة شهر جديدة؟', newPlanQuestion: 'هل تريدين حفظ الخطة الحالية قبل البدء من جديد؟', newPlanDiscard: 'لا، احذفها', newPlanSave: 'نعم، احفظها',
     budgetInputLabel: 'ميزانية المشتريات الشهرية', spendLog: 'سجل المصاريف', spendHint: 'حددي رحلة التسوق كمنجزة لتسجيل المبلغ الحقيقي.', estimatedLabel: 'متوقع', actualSpent: 'المبلغ الحقيقي المصروف', source: 'المصدر', details: 'التفاصيل', currencyLabel: 'العملة', currencyIntro: 'في الجزائر العملة الافتراضية هي الدينار الجزائري. غيّريها إذا كانت العائلة تتسوق في بلد آخر.',
     noRecipesFirst: 'أضيفي بعض الوصفات أولا.', actualAmountError: 'أدخلي المبلغ الحقيقي المصروف.', overBudgetBy: 'تجاوزت الميزانية بـ', pleaseAddName: 'أضيفي اسما.',
     importNoIngredients: 'لم نتمكن من اكتشاف المكونات من هذا النص. الصقي الوصف أو التفريغ الكامل مع الكميات، مثلا "400g pasta".',
@@ -1368,17 +1383,17 @@ const I18N = {
 
 Object.assign(I18N.en, {
   optionalAddonsTitle: 'Optional add-ons',
-  optionalAddonsHint: 'Drag bread or dessert onto any day, or click one then click a day.',
+  optionalAddonsHint: 'Drag bread or dessert onto a day, or tap it then tap a day.',
   dropAddonHint: 'Drop to add'
 });
 Object.assign(I18N.fr, {
   optionalAddonsTitle: 'Extras optionnels',
-  optionalAddonsHint: 'Glissez le pain ou le dessert sur un jour, ou cliquez puis choisissez un jour.',
+  optionalAddonsHint: 'Glissez le pain ou le dessert sur un jour, ou touchez puis touchez un jour.',
   dropAddonHint: 'Deposez pour ajouter'
 });
 Object.assign(I18N.ar, {
   optionalAddonsTitle: 'إضافات اختيارية',
-  optionalAddonsHint: 'اسحبي الخبز أو التحلية إلى اليوم، أو اضغطي عليها ثم اختاري اليوم.',
+  optionalAddonsHint: 'اسحبي الخبز أو التحلية إلى اليوم، أو اضغطي ثم اختاري اليوم.',
   dropAddonHint: 'أفلتي هنا للإضافة'
 });
 
@@ -1894,7 +1909,7 @@ function applyLanguage() {
   if (labels[1]) labels[1].textContent = tr('mealsWeek');
   const tagline = document.querySelector('header .tagline'); if (tagline) tagline.textContent = tr('tagline');
   const navMap = { recipes: 'navRecipes', plan: 'navPlan', shop: 'navShop', budget: 'navBudget' };
-  Object.keys(navMap).forEach(v => { const b = document.querySelector('nav button[data-view="' + v + '"]'); if (b) b.textContent = tr(navMap[v]); });
+  Object.keys(navMap).forEach(v => { const b = document.querySelector('nav button[data-view="' + v + '"]'); if (b) { const lab = b.querySelector('.nav-label'); if (lab) lab.textContent = tr(navMap[v]); else b.textContent = tr(navMap[v]); } });
   const importTitle = document.querySelector('#recipes .card h2.section'); if (importTitle) importTitle.textContent = tr('importTitle');
   const importBtn = document.querySelector('#recipes .card .btn-primary'); if (importBtn) importBtn.textContent = tr('extract');
   const demoBtns = document.querySelectorAll('#recipes .card .btn-ghost');
@@ -1909,7 +1924,6 @@ function applyLanguage() {
   const _pa = document.getElementById('planAutoBtn'); if (_pa) _pa.textContent = tr('autoBalance');
   const _pb = document.getElementById('planBalanceBtn'); if (_pb) _pb.textContent = '⚙️ ' + tr('balanceSettings');
   const _ps = document.getElementById('planSavedBtn'); if (_ps) _ps.textContent = tr('savedPlans');
-  const planHint = document.querySelector('#plan > .hint'); if (planHint) planHint.innerHTML = tr('planHint');
   const shopTitle = document.querySelector('#shop > .row.between h2.section'); if (shopTitle) shopTitle.textContent = tr('shopTitle');
   const shopBtn = document.querySelector('#shop > .row.between button'); if (shopBtn) shopBtn.textContent = tr('addItem');
   const shopHint = document.querySelector('#shop > .hint'); if (shopHint) shopHint.textContent = tr('shopHint');
@@ -1958,6 +1972,11 @@ function translateStaticInterface() {
   const quickChecked = (document.getElementById('balQuick') && document.getElementById('balQuick').checked) || !!balanceSettings.favorQuick;
   if (critRows[0]) critRows[0].innerHTML = `<input type="checkbox" id="balQuick" ${quickChecked ? 'checked' : ''}>${htmlEscape(tr('quick'))}`;
   const balBtns = document.querySelectorAll('#balanceModal .row.between button'); if (balBtns[0]) balBtns[0].textContent = tr('cancel'); if (balBtns[1]) balBtns[1].textContent = tr('saveAndBalance');
+  const npt = document.getElementById('newPlanTitle'); if (npt) npt.textContent = '➕ ' + tr('newPlanTitle');
+  const npq = document.getElementById('newPlanQuestion'); if (npq) npq.textContent = tr('newPlanQuestion');
+  const npc = document.getElementById('newPlanCancelBtn'); if (npc) npc.textContent = tr('cancel');
+  const npd = document.getElementById('newPlanDiscardBtn'); if (npd) npd.textContent = '🗑️ ' + tr('newPlanDiscard');
+  const nps = document.getElementById('newPlanSaveBtn'); if (nps) nps.textContent = '💾 ' + tr('newPlanSave');
   const spendTitle = document.querySelector('#spendModal h3'); if (spendTitle) spendTitle.textContent = tr('done');
   setPrevLabel('spendEstimate', tr('estimatedLabel')); setPrevLabel('spendActual', tr('actualSpent'));
   const spendBtns = document.querySelectorAll('#spendModal .row.between button'); if (spendBtns[0]) spendBtns[0].textContent = tr('cancel'); if (spendBtns[1]) spendBtns[1].textContent = tr('saveSpend');
@@ -2070,11 +2089,10 @@ function ensureOptionalSlotStyles() {
     #weeks{direction:ltr}
     [dir="rtl"] #weeks .week-column,[dir="rtl"] #weeks .optional-addon-tray,[dir="rtl"] #weeks .week-day{direction:rtl}
     .month-board{grid-template-columns:repeat(4,minmax(230px,1fr));width:min(100%,1500px)!important;position:relative;left:50%;margin-inline:0!important;margin-left:0!important;transform:translateX(-50%)!important}
-    .optional-addon-tray{width:min(100%,1500px);position:relative;left:50%;transform:translateX(-50%);margin:0 0 12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow)}
-    .optional-addon-copy strong{display:block;font-size:14px}
-    .optional-addon-copy span{display:block;color:var(--muted);font-size:12px;margin-top:1px}
-    .optional-addon-tools{display:flex;gap:8px;flex-wrap:wrap}
-    .optional-addon-drag{border:1px solid var(--line);background:var(--accent-soft);color:var(--accent-dark);border-radius:20px;padding:8px 12px;font-weight:800;cursor:grab;font-family:inherit}
+    .optional-addon-tray{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:fit-content;max-width:100%;margin:0;padding:6px 12px;background:var(--accent-soft);border-radius:24px}
+    .optional-addon-label{font-size:12.5px;font-weight:800;color:var(--accent-dark)}
+    .optional-addon-tools{display:flex;gap:6px;flex-wrap:wrap}
+    .optional-addon-drag{border:1px solid var(--line);background:#fff;color:var(--accent-dark);border-radius:20px;padding:6px 12px;font-size:12.5px;font-weight:800;cursor:grab;font-family:inherit}
     .optional-addon-drag:active{cursor:grabbing}
     .optional-addon-drag.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 5px 14px rgba(224,123,166,.28)}
     #weeks.addon-pick-mode .week-day{cursor:copy}
@@ -2449,10 +2467,7 @@ function optionalAddonTrayHtml() {
       ${htmlEscape(slotLabel(slot))}
     </button>
   `).join('');
-  return `<div class="optional-addon-tray">
-    <div class="optional-addon-copy"><strong>${htmlEscape(tr('optionalAddonsTitle'))}</strong><span>${htmlEscape(tr('optionalAddonsHint'))}</span></div>
-    <div class="optional-addon-tools">${chips}</div>
-  </div>`;
+  return `<div class="optional-addon-tray" title="${htmlEscape(tr('optionalAddonsHint'))}"><span class="optional-addon-label">${htmlEscape(tr('optionalAddonsTitle'))}</span><div class="optional-addon-tools">${chips}</div></div>`;
 }
 function renderOptionalAddonPickState() {
   const weeks = document.getElementById('weeks');
@@ -2558,15 +2573,22 @@ function reconcileCategoriesIntoSetup() {
   categories = [...setupData.categoryKeys].map(catLabel);
 }
 function normalizeCategoryList() {
+  // The user's chosen/managed categories (onboarding + "Manage categories") are the
+  // source of truth. Do NOT auto-add every category used by a recipe, otherwise the
+  // 100 starter recipes (which span all default categories) refill the list each time.
   const seen = new Set();
   const next = [];
-  [...(categories || []), ...recipes.map(r => r.category).filter(Boolean)].forEach(cat => {
+  [...setupData.categoryKeys].map(catLabel).forEach(cat => {
     const key = String(cat || '').trim();
-    if (!key || seen.has(key)) return;
-    seen.add(key);
-    next.push(key);
+    if (key && !seen.has(key)) { seen.add(key); next.push(key); }
   });
-  categories = next.length ? next : [...setupData.categoryKeys].map(catLabel);
+  if (!next.length) {
+    recipes.map(r => r.category).filter(Boolean).forEach(cat => {
+      const key = String(cat).trim();
+      if (key && !seen.has(key)) { seen.add(key); next.push(key); }
+    });
+  }
+  categories = next;
   if (activeFilter !== 'All' && !seen.has(activeFilter)) activeFilter = 'All';
 }
 /* ---------- Plan save/load ---------- */
@@ -3294,7 +3316,7 @@ renderWeeks = function() {
     tabsEl.appendChild(tb);
   }
   wrap.appendChild(tabsEl);
-  wrap.insertAdjacentHTML('beforeend', optionalAddonTrayHtml());
+  const _addonHost = document.getElementById('addonTrayHost'); if (_addonHost) _addonHost.innerHTML = optionalAddonTrayHtml();
   const board = document.createElement('div'); board.className = 'month-board';
   board.setAttribute('data-active', String(activePlanWeek));
   for (let w = 0; w < 4; w++) {
@@ -3598,7 +3620,6 @@ renderShopping = function() {
   const c = document.getElementById('shopContent');
   if (!any) { c.innerHTML = '<div class="empty">' + htmlEscape(tr('emptyShop')) + '</div>'; return; }
   c.innerHTML = '';
-  c.insertAdjacentHTML('beforeend', `<div class="shopping-merge-note">${htmlEscape(tr('shoppingMergeNote'))}</div>`);
   const weekBuckets = weekly.map(cloneShoppingBucket);
   mergeShoppingBucket(weekBuckets[0], biweekly[0]);
   mergeShoppingBucket(weekBuckets[0], monthly);
@@ -3669,7 +3690,7 @@ group = function(title, sub, bucket, prefix) {
   const total = bucketTotal(bucket);
   const wrap = document.createElement('div'); wrap.className = 'shop-group';
   const head = document.createElement('div'); head.className = 'shop-head';
-  head.innerHTML = `<h3>${htmlEscape(title)}</h3><span class="badge">${htmlEscape(sub)} - ${items.length} ${htmlEscape(tr('items'))}${total && isBudgetFeature() ? ' - ~' + htmlEscape(formatMoney(total)) : ''}</span>`;
+  head.innerHTML = `<h3>${htmlEscape(title)}</h3><span class="badge">${items.length} ${htmlEscape(tr('items'))}${total && isBudgetFeature() ? ' · ~' + htmlEscape(formatMoney(total)) : ''}</span>`;
   if (isBudgetFeature()) {
     const btn = document.createElement('button'); btn.className = 'btn btn-ghost btn-sm done-trip'; btn.textContent = tr('done');
     btn.onclick = () => markTripDone(title, total);
@@ -3682,7 +3703,7 @@ group = function(title, sub, bucket, prefix) {
     if (!catItems || !catItems.length) return;
     const meta = SHOP_CATEGORY_META[catKey];
     const catWrap = document.createElement('div');
-    catWrap.className = 'shop-category ' + catKey;
+    catWrap.className = 'shop-category collapsed ' + catKey;
     catWrap.innerHTML = `<div class="shop-category-head" onclick="this.parentElement.classList.toggle('collapsed')" style="cursor:pointer"><div class="shop-category-title"><span class="shop-category-icon">${htmlEscape(meta.icon)}</span><span>${htmlEscape(tr(meta.label))}</span></div><span class="shop-category-count">${catItems.length} ${htmlEscape(tr('items'))} <span class="shop-cat-chevron">▾</span></span></div>`;
     catItems.forEach(it => {
       const id = prefix + '|' + it.name; const qty = Math.round(it.qty * 100) / 100;
