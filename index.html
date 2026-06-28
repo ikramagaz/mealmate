@@ -34,8 +34,10 @@
   .ctrl button{width:28px;height:28px;border-radius:50%;border:none;background:#fff;color:var(--accent-dark);font-size:17px;font-weight:700;cursor:pointer}
   .ctrl .count{font-size:17px;font-weight:700;min-width:20px;text-align:center}
   .profile-menu{position:relative}
-  .profile-btn{background:rgba(255,255,255,.22);color:#fff;border:none;display:flex;align-items:center;gap:6px}
-  .profile-btn .profile-caret{font-size:11px;opacity:.85}
+  .profile-btn{width:46px;height:46px;padding:0;border-radius:50%;background:linear-gradient(135deg,#ffffff,var(--accent-soft));color:var(--accent-dark);border:2px solid rgba(255,255,255,.75);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px rgba(199,91,140,.28);font-family:inherit;transition:transform .15s,box-shadow .15s}
+  .profile-btn:hover{transform:translateY(-1px);box-shadow:0 7px 18px rgba(199,91,140,.4)}
+  .profile-avatar{font-size:21px;font-weight:900;line-height:1}
+  .profile-caret{display:none}
   .profile-dropdown{position:absolute;top:calc(100% + 8px);right:0;min-width:230px;background:var(--card);border-radius:16px;box-shadow:var(--shadow);border:1px solid var(--line);padding:10px;display:none;flex-direction:column;gap:6px;z-index:60;color:var(--ink)}
   .profile-dropdown.open{display:flex}
   .profile-dropdown-name{font-weight:800;font-size:14px;padding:4px 8px;color:var(--accent-dark)}
@@ -230,8 +232,8 @@
     <div class="ctrl"><label>Family</label><button onclick="changeMembers(-1)">−</button><span class="count" id="memberCount">4</span><button onclick="changeMembers(1)">+</button></div>
     <div class="ctrl"><label>Meals/day</label><button onclick="changeMeals(-1)">−</button><span class="count" id="mealCount">3</span><button onclick="changeMeals(1)">+</button></div>
     <div class="profile-menu" id="profileMenu">
-      <button class="btn btn-sm profile-btn" id="profileMenuBtn" type="button" onclick="toggleProfileMenu(event)">
-        <span id="profileMenuName">Account</span><span class="profile-caret" aria-hidden="true">▾</span>
+      <button class="profile-btn" id="profileMenuBtn" type="button" onclick="toggleProfileMenu(event)" aria-label="Account" title="Account">
+        <span class="profile-avatar" id="profileAvatar">🌸</span><span id="profileMenuName" style="display:none">Account</span>
       </button>
       <div class="profile-dropdown" id="profileDropdown">
         <div class="profile-dropdown-name" id="profileDropdownName"></div>
@@ -762,13 +764,33 @@ function renderCatFilter(){
 function openCatModal(){renderCatList();document.getElementById('catModal').classList.add('open');aModal('catModal');}
 function closeCatModal(){document.getElementById('catModal').classList.remove('open');renderCatFilter();renderRecipes();}
 function renderCatList(){const l=document.getElementById('catList');l.innerHTML='';categories.forEach((c,i)=>{const row=document.createElement('div');row.className='shop-item';row.innerHTML=`<span>${c}</span><button class="x" style="margin-left:auto" onclick="delCat(${i})">×</button>`;l.appendChild(row);});}
-function addCat(){const v=document.getElementById('newCat').value.trim();if(v&&!categories.includes(v)){categories.push(v);document.getElementById('newCat').value='';renderCatList();}}
+function addCat(){
+  const v=document.getElementById('newCat').value.trim();
+  if(!v)return;
+  const existing=[...setupData.categoryKeys].map(catLabel);
+  if(!existing.includes(v)){
+    const key='custom_'+Date.now().toString(36);
+    setupData.customCategories.push({key,label:v});
+    setupData.categoryKeys.add(key);
+    setupData.categoryTouched=true;
+  }
+  document.getElementById('newCat').value='';
+  categories=[...setupData.categoryKeys].map(catLabel);
+  renderCatList();if(typeof renderCatFilter==='function')renderCatFilter();if(typeof renderRecipes==='function')renderRecipes();
+}
 function delCat(i){
   const removed=categories[i];
-  categories.splice(i,1);
+  let key=Object.keys(CATEGORY_LIBRARY).find(k=>catLabel(k)===removed);
+  if(!key){const c=setupData.customCategories.find(c=>c.label===removed);if(c)key=c.key;}
+  if(key){
+    setupData.categoryKeys.delete(key);
+    setupData.customCategories=setupData.customCategories.filter(c=>c.key!==key);
+    setupData.categoryTouched=true;
+  }
   recipes.forEach(r=>{if(r.category===removed)r.category='';});
   if(activeFilter===removed)activeFilter='All';
-  renderCatList();
+  categories=[...setupData.categoryKeys].map(catLabel);
+  renderCatList();if(typeof renderCatFilter==='function')renderCatFilter();if(typeof renderRecipes==='function')renderRecipes();
 }
 
 /* ---------- Recipes ---------- */
@@ -1798,6 +1820,8 @@ function localizeReadyRecipes() {
     if (!r._ready) return;
     const def = ACTIVE_READY_RECIPE_DEFS[r._defIndex];
     Object.assign(r, makeReadyRecipe(def, r._defIndex));
+    // If the user removed this category in "Manage categories", don't resurrect it.
+    if (!setupData.categoryKeys.has(r._catKey)) r.category = '';
   });
 }
 function selectedReadyDefs() {
@@ -1992,6 +2016,7 @@ function setHeaderLanguage(lang) {
 }
 function renderProfileMenu() {
   const nameEl = document.getElementById('profileMenuName'); if (nameEl) nameEl.textContent = loggedInUser || tr('account');
+  const avatar = document.getElementById('profileAvatar'); if (avatar) { const u = (loggedInUser || '').trim(); avatar.textContent = u ? u.charAt(0).toUpperCase() : '🌸'; }
   const dropdownName = document.getElementById('profileDropdownName'); if (dropdownName) dropdownName.textContent = loggedInUser || tr('account');
   const langLabel = document.getElementById('profileLangLabel'); if (langLabel) langLabel.textContent = tr('language');
   const langOptions = document.getElementById('profileLangOptions');
@@ -2470,6 +2495,22 @@ function hydrateSetup(saved) {
   setupData.persons = saved.persons || 4;
   setupData.criteria = Object.assign(setupData.criteria, saved.criteria || {});
 }
+function reconcileCategoriesIntoSetup() {
+  // Migration/repair: fold any categories that exist only in the saved `categories`
+  // list (e.g. added by an older "Manage categories" popup) into the persisted
+  // setupData source, so they survive future reloads.
+  const derived = [...setupData.categoryKeys].map(catLabel);
+  (categories || []).forEach(label => {
+    const lbl = String(label || '').trim();
+    if (!lbl || derived.includes(lbl)) return;
+    const existingCustom = setupData.customCategories.find(c => c.label === lbl);
+    if (existingCustom) { setupData.categoryKeys.add(existingCustom.key); return; }
+    const key = 'custom_' + Math.random().toString(36).slice(2, 9);
+    setupData.customCategories.push({ key, label: lbl });
+    setupData.categoryKeys.add(key);
+  });
+  categories = [...setupData.categoryKeys].map(catLabel);
+}
 function normalizeCategoryList() {
   const seen = new Set();
   const next = [];
@@ -2586,7 +2627,9 @@ function hydrateAppState(saved) {
   if (!saved || typeof saved !== 'object') return false;
   if (saved.setup) hydrateSetup(saved.setup);
   if (saved.currentLang) setupData.lang = saved.currentLang;
+  currentLang = setupData.lang || currentLang || 'en';
   if (Array.isArray(saved.categories)) categories = saved.categories.filter(Boolean);
+  reconcileCategoriesIntoSetup();
   if (Array.isArray(saved.recipes)) recipes = saved.recipes;
   nextId = Math.max(Number(saved.nextId) || nextId || 1, ...recipes.map(r => Number(r.id) || 0), 999) + 1;
   plan = saved.plan && typeof saved.plan === 'object' ? saved.plan : {};
@@ -3600,65 +3643,4 @@ function renderBudget() {
   const pct = monthlyBudget ? Math.min(100, Math.round(base / monthlyBudget * 100)) : 0;
   const estLabel = document.getElementById('budgetEstLabel');
   const pctLabel = document.getElementById('budgetPctLabel');
-  const bar = document.getElementById('budgetBar');
-  if (estLabel) estLabel.textContent = formatMoney(estimate) + ' ' + tr('estimated');
-  if (pctLabel) pctLabel.textContent = pct + '%';
-  if (bar) {
-    bar.style.width = pct + '%';
-    bar.style.background = monthlyBudget && base > monthlyBudget ? '#d96b7b' : 'var(--green)';
-  }
-  const warning = document.getElementById('budgetWarning');
-  if (warning) {
-    warning.style.display = monthlyBudget && base > monthlyBudget ? 'block' : 'none';
-    warning.textContent = monthlyBudget && base > monthlyBudget ? tr('overBudgetBy') + ' ' + formatMoney(base - monthlyBudget) : '';
-  }
-  const list = document.getElementById('spendLogContent');
-  if (!list) return;
-  if (!spendLog.length) { list.innerHTML = '<div class="empty">' + htmlEscape(tr('emptyBudget')) + '</div>'; return; }
-  list.innerHTML = spendLog.map(x => `<div class="shop-item"><label>${htmlEscape(x.title)}<br><small>${htmlEscape(x.date)}</small></label><span class="qty">${htmlEscape(formatMoney(x.actual))}</span></div>`).join('');
-}
-
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeInlineMealPicker(); closeMealDrawer(); } });
-
-async function trySyncFromCloud() {
-  const cloud = await supabaseLoad();
-  if (!cloud) {
-    // Nothing saved in the cloud yet for this account.
-    // If this device already has data, upload it once so it carries over.
-    if (localStorage.getItem(SETUP_KEY) || localStorage.getItem(APP_STATE_KEY)) supabaseSave();
-    return;
-  }
-  const localSetupKey = 'mealmate_setup_ts';
-  const localTs = Number(localStorage.getItem(localSetupKey)) || 0;
-  const cloudTs = new Date(cloud.updated_at).getTime();
-  if (cloudTs > localTs) {
-    // cloud has newer data
-    if (cloud.setup_data) {
-      try { hydrateSetup(cloud.setup_data); } catch (e) {}
-    }
-    if (cloud.app_state) {
-      try { hydrateAppState(cloud.app_state); } catch (e) {}
-    }
-    refreshAfterStateLoad();
-  } else if (localTs > 0 && localTs >= cloudTs) {
-    // local is current – push to cloud
-    supabaseSave();
-  }
-}
-
-function bootMealMateV2() {
-  appStateHydrated = false;
-  const hasStoredAppState = loadStoredAppState();
-  if (!hasStoredAppState) {
-    try { hydrateSetup(JSON.parse(localStorage.getItem(SETUP_KEY) || 'null')); } catch (e) {}
-  }
-  currentLang = setupData.lang;
-  members = setupData.persons;
-  syncMealCounts();
-  if (!hasStoredAppState) applyReadyRecipes();
-  normalizeCategoryList();
-  ensureOptionalSlotStyles();
-  ensureDrawerPickerStyles();
-  ensureRecipeModalStyles();
-  ensureInlineMealPickerStyles();
-  ensureShoppingCatego
+  const bar = document.getElementById('
