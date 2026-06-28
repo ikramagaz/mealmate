@@ -74,6 +74,11 @@
   .pill.monthly{background:var(--purple-soft);color:#8c4d8c}
   .ing-list{list-style:none;padding:0;margin:8px 0 0;font-size:13px}
   .ing-list li{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--line);gap:8px}
+  .recipe-view-btn{display:none}
+  @media (max-width:980px){
+    .recipe-card .recipe-details{display:none}
+    .recipe-view-btn{display:inline-block}
+  }
   .btn{border:none;border-radius:30px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .15s}
   .btn-primary{background:linear-gradient(120deg,#e07ba6,#cf76c4);color:#fff;box-shadow:0 6px 16px rgba(208,118,196,.32)}
   .btn-primary:hover{transform:translateY(-1px);box-shadow:0 9px 22px rgba(208,118,196,.42)}
@@ -173,6 +178,13 @@
   .month-board{display:grid;grid-template-columns:repeat(4,minmax(230px,1fr));gap:12px;width:min(100%,1500px);position:relative;left:50%;transform:translateX(-50%);align-items:start}
   .week-column.card{padding:12px;border-radius:16px}
   .week-column .week-head{margin-bottom:10px}
+  .week-tabs{display:none;gap:8px;flex-wrap:wrap;margin:4px 0 14px}
+  .week-tab{flex:1;min-width:84px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:8px 10px;cursor:pointer;font-family:inherit;font-weight:800;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .12s}
+  .week-tab small{font-weight:700;font-size:11px;opacity:.85}
+  .week-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:var(--shadow)}
+  .week-tab:hover{transform:translateY(-1px)}
+  .week-single{width:min(100%,640px);margin:0 auto}
+  .week-single .week-column.card{padding:14px}
   .week-days-list{display:grid;gap:8px}
   .week-day{background:#fffafc;border:1px solid var(--line);border-radius:12px;padding:8px;min-height:96px}
   .week-day-title{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-weight:800;font-size:12px;margin-bottom:6px}
@@ -193,7 +205,12 @@
   [dir="rtl"] .drawer-close{right:auto;left:14px}
   [dir="rtl"] .cat-mini{margin-right:0;margin-left:3px}
   body:not(.feature-budget) .budget-field{display:none!important}
-  @media (max-width:980px){.month-board{grid-template-columns:repeat(4,220px);width:max-content;max-width:none}}
+  @media (max-width:980px){
+    #weeks .week-tabs{display:flex}
+    .month-board{grid-template-columns:1fr;width:100%;max-width:none;left:auto;transform:none;margin:0}
+    .month-board > .week-column{display:none}
+    .month-board > .week-column.wk-active{display:block}
+  }
   @media (max-width:700px){main{padding-left:12px;padding-right:12px}.setup-progress{grid-template-columns:repeat(3,1fr)}.setup-card{border-radius:16px}.meal-drawer{width:100%}}
   .login-screen{position:fixed;inset:0;z-index:999;background:radial-gradient(1200px 500px at 90% -10%,#fbe3f0 0%,transparent 55%),radial-gradient(900px 500px at -10% 10%,#f3e7fb 0%,transparent 50%),var(--bg);display:flex;align-items:center;justify-content:center;padding:18px;transition:opacity .5s,visibility .5s}
   .login-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
@@ -288,16 +305,16 @@
   </section>
 
   <section class="view" id="plan">
-    <div class="row between">
+    <div class="row between" style="align-items:center">
       <h2 class="section" style="margin:0">📅 Monthly plan — 4 weeks</h2>
-      <div class="row">
-        <button class="btn btn-ghost btn-sm" onclick="openPlansModal()">📂 Saved plans</button>
-        <button class="btn btn-ghost btn-sm" onclick="newPlanPrompt()">🗑️ New month plan</button>
-        <button class="btn btn-ghost btn-sm" onclick="openBalanceModal()">⚙️ Balance settings</button>
-        <button class="btn btn-primary btn-sm" onclick="autoBalance()">⚖️ Auto-balance the month</button>
-      </div>
+      <button class="btn btn-ghost btn-sm" id="planNewBtn" onclick="newPlanPrompt()">➕ New month plan</button>
     </div>
-    <div class="hint">Each week has <span id="planTarget">21</span> meal slots (<span id="planMeals">3</span> meals/day × 7). The bar shows how full and how varied each week is — aim for a mix of categories so no week feels repetitive. Use <b>Balance settings</b> to control repeat limits, prioritized tags, and cost/time preference.</div>
+    <div class="plan-toolbar" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px">
+      <button class="btn btn-primary btn-sm" id="planAutoBtn" onclick="autoBalance()">⚖️ Auto-balance the month</button>
+      <button class="btn btn-ghost btn-sm" id="planBalanceBtn" onclick="openBalanceModal()">⚙️ Balance settings</button>
+      <button class="btn btn-ghost btn-sm" id="planSavedBtn" onclick="openPlansModal()">📂 Saved plans</button>
+    </div>
+    <div class="hint">Each week has <span id="planTarget">21</span> meal slots (<span id="planMeals">3</span> meals/day × 7). Tap <b>Auto-balance the month</b> to fill it with a varied mix, then tweak any day. Set the rules under <b>Balance settings</b>.</div>
     <div id="weeks"></div>
   </section>
 
@@ -441,11 +458,11 @@
 </div></div>
 
 <div class="modal-bg" id="newPlanPromptModal"><div class="modal" style="max-width:420px">
-  <h3>🗑️ Start a new month plan?</h3>
+  <h3>➕ Start a new month plan?</h3>
   <p style="color:var(--muted);font-size:13px;margin-top:0">Do you want to save the current plan before starting fresh?</p>
   <div class="row between" style="margin-top:16px">
     <button class="btn btn-ghost" onclick="closeNewPlanPrompt()">Cancel</button>
-    <button class="btn btn-ghost" onclick="discardPlanAndNew()">🗑️ No, discard</button>
+    <button class="btn btn-ghost" onclick="discardPlanAndNew()">➕ No, discard</button>
     <button class="btn btn-primary" onclick="savePlanAndNew()">💾 Yes, save it</button>
   </div>
 </div></div>
@@ -1199,7 +1216,7 @@ const I18N = {
     navRecipes: 'Recipes', navPlan: 'Meal Plan', navShop: 'Shopping List', navBudget: 'Money',
     importTitle: 'Extract a recipe from caption text', extract: 'Extract recipe', demoCaption: 'Try demo caption text', demoLink: '',
     recipeDb: 'Your recipe database', manageCategories: 'Manage categories', newRecipe: '+ New recipe',
-    planTitle: 'Monthly plan - 4 weeks', savedPlans: '📂 Saved plans', newMonthPlan: '🗑️ New month plan', balanceSettings: 'Balance settings', autoBalance: 'Auto-balance the month',
+    planTitle: 'Monthly plan - 4 weeks', savedPlans: '📂 Saved plans', newMonthPlan: '➕ New month plan', balanceSettings: 'Balance settings', autoBalance: 'Auto-balance the month',
     planHint: 'Each week has <span id="planTarget">21</span> meal slots: <span id="planMeals">3</span> meals per day across 7 days.',
     shopTitle: 'Smart shopping list', addItem: '+ Add item', shopHint: 'Built from the meals you planned, scaled to your family, with duplicates merged into weekly, 15-day, and monthly trips.',
     budgetTitle: 'Money management', drawerTitle: 'Choose meal', drawerRecipe: 'Recipe', drawerServings: 'Servings', drawerSave: 'Save', drawerRemove: 'Remove',
@@ -1247,7 +1264,7 @@ const I18N = {
     navRecipes: 'Recettes', navPlan: 'Planning', navShop: 'Liste de courses', navBudget: 'Budget',
     importTitle: 'Extraire une recette depuis un texte', extract: 'Extraire la recette', demoCaption: 'Essayer un texte demo', demoLink: '',
     recipeDb: 'Votre base de recettes', manageCategories: 'Gerer les categories', newRecipe: '+ Nouvelle recette',
-    planTitle: 'Planning mensuel - 4 semaines', savedPlans: '📂 Plans enregistres', newMonthPlan: '🗑️ Nouveau plan mensuel', balanceSettings: 'Criteres', autoBalance: 'Equilibrer le mois',
+    planTitle: 'Planning mensuel - 4 semaines', savedPlans: '📂 Plans enregistres', newMonthPlan: '➕ Nouveau plan mensuel', balanceSettings: 'Criteres', autoBalance: 'Equilibrer le mois',
     planHint: 'Chaque semaine contient <span id="planTarget">21</span> emplacements: <span id="planMeals">3</span> repas par jour sur 7 jours.',
     shopTitle: 'Liste de courses intelligente', addItem: '+ Ajouter un article', shopHint: 'Creee a partir des repas planifies, adaptee a votre famille, avec les doublons regroupes par achats hebdomadaires, 15 jours et mensuels.',
     budgetTitle: 'Gestion du budget', drawerTitle: 'Choisir un repas', drawerRecipe: 'Recette', drawerServings: 'Portions', drawerSave: 'Enregistrer', drawerRemove: 'Retirer',
@@ -1295,7 +1312,7 @@ const I18N = {
     navRecipes: 'الوصفات', navPlan: 'خطة الوجبات', navShop: 'قائمة التسوق', navBudget: 'الميزانية',
     importTitle: 'استخراج وصفة من نص', extract: 'استخراج الوصفة', demoCaption: 'تجربة نص', demoLink: '',
     recipeDb: 'قاعدة الوصفات', manageCategories: 'إدارة الفئات', newRecipe: '+ وصفة جديدة',
-    planTitle: 'الخطة الشهرية - 4 أسابيع', savedPlans: '📂 الخطط المحفوظة', newMonthPlan: '🗑️ خطة شهر جديد', balanceSettings: 'معايير الاختيار', autoBalance: 'تنظيم الشهر تلقائيا',
+    planTitle: 'الخطة الشهرية - 4 أسابيع', savedPlans: '📂 الخطط المحفوظة', newMonthPlan: '➕ خطة شهر جديد', balanceSettings: 'معايير الاختيار', autoBalance: 'تنظيم الشهر تلقائيا',
     planHint: 'كل أسبوع يحتوي على <span id="planTarget">21</span> خانة وجبات: <span id="planMeals">3</span> وجبات في اليوم لمدة 7 أيام.',
     shopTitle: 'قائمة تسوق ذكية', addItem: '+ إضافة عنصر', shopHint: 'تجمع المكونات من الوجبات المخططة، حسب عدد أفراد العائلة، وتقسمها إلى مشتريات أسبوعية ونصف شهرية وشهرية.',
     budgetTitle: 'إدارة المال', drawerTitle: 'اختيار وجبة', drawerRecipe: 'الوصفة', drawerServings: 'الحصص', drawerSave: 'حفظ', drawerRemove: 'إزالة',
@@ -1357,6 +1374,8 @@ Object.assign(I18N.ar, {
 Object.assign(I18N.en, {
   shoppingMergeNote: 'Shopping rhythm: Week 1 includes the monthly stock-up and the first 15-day stock-up. Week 3 includes the second 15-day stock-up.',
   shopCatProduce: 'Vegetables & fruits',
+  shopCatGrocery: 'Grocery',
+  shopCatMeats: 'Meats & fish',
   shopCatMeat: 'Meat & chicken',
   shopCatFish: 'Fish & seafood',
   shopCatDairy: 'Dairy & eggs',
@@ -1368,6 +1387,8 @@ Object.assign(I18N.en, {
 Object.assign(I18N.fr, {
   shoppingMergeNote: 'Organisation des courses : la semaine 1 inclut le stock mensuel et le premier achat de 15 jours. La semaine 3 inclut le deuxieme achat de 15 jours.',
   shopCatProduce: 'Legumes et fruits',
+  shopCatGrocery: 'Epicerie',
+  shopCatMeats: 'Viandes et poisson',
   shopCatMeat: 'Viande et poulet',
   shopCatFish: 'Poisson et fruits de mer',
   shopCatDairy: 'Laitages et oeufs',
@@ -1379,6 +1400,8 @@ Object.assign(I18N.fr, {
 Object.assign(I18N.ar, {
   shoppingMergeNote: 'تنظيم الشراء: مشتريات الأسبوع الأول معها مشتريات الشهر ومشتريات 15 يوم الأولى، ومشتريات الأسبوع الثالث معها مشتريات 15 يوم الثانية.',
   shopCatProduce: 'الخضر والفواكه',
+  shopCatGrocery: 'البقالة',
+  shopCatMeats: 'اللحوم والأسماك',
   shopCatMeat: 'اللحوم والدجاج',
   shopCatFish: 'السمك والمأكولات البحرية',
   shopCatDairy: 'الحليب والبيض والأجبان',
@@ -1871,10 +1894,10 @@ function applyLanguage() {
   if (recipeActions[0]) recipeActions[0].textContent = tr('manageCategories');
   if (recipeActions[1]) recipeActions[1].textContent = tr('newRecipe');
   const planTitle = document.querySelector('#plan > .row.between h2.section'); if (planTitle) planTitle.textContent = tr('planTitle');
-  const planBtns = document.querySelectorAll('#plan > .row.between button');
-  if (planBtns[0]) planBtns[0].textContent = tr('savedPlans');
-  if (planBtns[1]) planBtns[1].textContent = tr('newMonthPlan');
-  if (planBtns[2]) planBtns[2].textContent = tr('autoBalance');
+  const _pn = document.getElementById('planNewBtn'); if (_pn) _pn.textContent = tr('newMonthPlan');
+  const _pa = document.getElementById('planAutoBtn'); if (_pa) _pa.textContent = tr('autoBalance');
+  const _pb = document.getElementById('planBalanceBtn'); if (_pb) _pb.textContent = '⚙️ ' + tr('balanceSettings');
+  const _ps = document.getElementById('planSavedBtn'); if (_ps) _ps.textContent = tr('savedPlans');
   const planHint = document.querySelector('#plan > .hint'); if (planHint) planHint.innerHTML = tr('planHint');
   const shopTitle = document.querySelector('#shop > .row.between h2.section'); if (shopTitle) shopTitle.textContent = tr('shopTitle');
   const shopBtn = document.querySelector('#shop > .row.between button'); if (shopBtn) shopBtn.textContent = tr('addItem');
@@ -2049,7 +2072,12 @@ function ensureOptionalSlotStyles() {
     .day-addons{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;border-top:1px dashed var(--line);padding-top:6px}
     .addon-chip{border:1px solid var(--line);background:var(--purple-soft);color:#854c87;border-radius:18px;padding:4px 7px;font-size:10px;font-weight:800;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:inherit}
     .addon-chip:hover{border-color:var(--accent);color:var(--accent-dark)}
-    @media (max-width:980px){.month-board{grid-template-columns:repeat(4,220px);width:max-content!important;max-width:none}}
+    @media (max-width:980px){
+      #weeks .week-tabs{display:flex!important}
+      .month-board{grid-template-columns:1fr!important;width:100%!important;max-width:none!important;left:auto!important;transform:none!important;margin:0!important}
+      .month-board > .week-column{display:none!important}
+      .month-board > .week-column.wk-active{display:block!important}
+    }
   `;
   document.head.appendChild(style);
 }
@@ -2116,8 +2144,14 @@ function ensureShoppingCategoryStyles() {
     .shop-category.pantry .shop-category-icon{background:#efe9f9;color:#67559a}
     .shop-category.spices .shop-category-icon{background:#ffe8d6;color:#aa6934}
     .shop-category.other .shop-category-icon{background:#f0edf0;color:#816b7b}
+    .shop-category.vegfruit .shop-category-icon{background:#e2f1ec;color:#3f7a68}
+    .shop-category.meats .shop-category-icon{background:#fbe0e5;color:#bf4f67}
+    .shop-category.grocery .shop-category-icon{background:#efe9f9;color:#67559a}
     .shop-category .shop-item{border:none;border-bottom:1px dashed var(--line);border-radius:0;margin-bottom:0;background:#fff}
     .shop-category .shop-item:last-child{border-bottom:none}
+    .shop-cat-chevron{display:inline-block;transition:transform .15s;margin-left:4px}
+    .shop-category.collapsed .shop-cat-chevron{transform:rotate(-90deg)}
+    .shop-category.collapsed .shop-item{display:none}
   `;
   document.head.appendChild(style);
 }
@@ -3126,10 +3160,12 @@ renderRecipes = function() {
     if (typeof r.prepMinutes === 'number') extraBits.push(r.prepMinutes + ' min');
     const sourceHtml = r.sourceLink ? `<div class="meta"><b>${htmlEscape(tr('source'))}:</b> <a href="${htmlEscape(r.sourceLink)}" target="_blank" rel="noopener">${htmlEscape(tr('recipeLink'))}</a></div>` : '';
     card.innerHTML = `<div class="row between"><h3>${htmlEscape(r.title)}</h3><span class="cat-tag">${htmlEscape(r.category || '-')}</span></div>
+      <div class="recipe-details">
       <div class="meta">${htmlEscape(tr('serves'))} ${r.baseServings} - ${htmlEscape(r.tags.join(', ') || '')}${extraBits.length ? ' - ' + extraBits.join(' - ') : ''}</div>
       ${sourceHtml}
       <ul class="ing-list">${ings}</ul>
-      <div class="row" style="margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="openRecipeModal(${r.id})">${htmlEscape(tr('edit'))}</button><button class="btn btn-ghost btn-sm" onclick="delRecipe(${r.id})">${htmlEscape(tr('del'))}</button></div>`;
+      </div>
+      <div class="row" style="margin-top:12px"><button class="btn btn-primary btn-sm recipe-view-btn" onclick="viewRecipe(${r.id})">👁 ${htmlEscape(tr('details'))}</button><button class="btn btn-ghost btn-sm" onclick="openRecipeModal(${r.id})">${htmlEscape(tr('edit'))}</button><button class="btn btn-ghost btn-sm" onclick="delRecipe(${r.id})">${htmlEscape(tr('del'))}</button></div>`;
     g.appendChild(card);
   });
   aStagger('#recipeGrid .recipe-card');
@@ -3215,19 +3251,36 @@ saveRecipe = function() {
   if (editingId) Object.assign(recipes.find(r => r.id === editingId), data); else { data.id = nextId++; recipes.push(data); }
   closeRecipeModal(); renderRecipes(); renderShopping();
 };
+let activePlanWeek = 0;
+function setPlanWeek(n){ activePlanWeek = Math.max(0, Math.min(3, n)); renderWeeks(); }
 renderWeeks = function() {
   syncMealCounts();
   const target = mealsPerWeek;
   const wrap = document.getElementById('weeks'); wrap.innerHTML = '';
   document.querySelector('main').classList.toggle('plan-full', document.getElementById('plan').classList.contains('active'));
+  if (typeof activePlanWeek !== 'number' || activePlanWeek < 0 || activePlanWeek > 3) activePlanWeek = 0;
+  const stats = [];
+  for (let wk = 0; wk < 4; wk++) {
+    let f = 0; const cset = new Set();
+    for (let d = 0; d < 7; d++) (plan[wk + '_' + d] || []).forEach(m => { if (!isOptionalDaySlot(m.slot)) f++; const rr = recipes.find(x => x.id === m.recipeId); if (rr) cset.add(rr.category); });
+    stats.push({ filled: f, variety: cset.size });
+  }
+  const tabsEl = document.createElement('div'); tabsEl.className = 'week-tabs';
+  for (let t = 0; t < 4; t++) {
+    const tb = document.createElement('button');
+    tb.className = 'week-tab' + (t === activePlanWeek ? ' active' : '');
+    tb.onclick = () => setPlanWeek(t);
+    tb.innerHTML = `<span>${htmlEscape(tr('week'))} ${t + 1}</span><small>${stats[t].filled}/${target}</small>`;
+    tabsEl.appendChild(tb);
+  }
+  wrap.appendChild(tabsEl);
   wrap.insertAdjacentHTML('beforeend', optionalAddonTrayHtml());
   const board = document.createElement('div'); board.className = 'month-board';
+  board.setAttribute('data-active', String(activePlanWeek));
   for (let w = 0; w < 4; w++) {
-    let filled = 0; const cats = new Set();
-    for (let d = 0; d < 7; d++) (plan[w + '_' + d] || []).forEach(m => { if (!isOptionalDaySlot(m.slot)) filled++; const r = recipes.find(x => x.id === m.recipeId); if (r) cats.add(r.category); });
+    const filled = stats[w].filled, variety = stats[w].variety;
     const fillPct = Math.min(100, Math.round(filled / target * 100));
-    const variety = cats.size;
-    const section = document.createElement('section'); section.className = 'week-column card';
+    const section = document.createElement('section'); section.className = 'week-column card' + (w === activePlanWeek ? ' wk-active' : '');
     let daysHtml = '<div class="week-days-list">';
     for (let d = 0; d < 7; d++) {
       let slotHtml = '';
@@ -3548,32 +3601,29 @@ function ingredientTotalText(it, qty) {
   }
   return qty + ' ' + unit + ' ' + cleanName;
 }
-const SHOP_CATEGORY_ORDER = ['produce', 'meat', 'fish', 'dairy', 'bakery', 'pantry', 'spices', 'other'];
+const SHOP_CATEGORY_ORDER = ['grocery', 'meats', 'vegfruit'];
 const SHOP_CATEGORY_META = {
-  produce: { icon: '🥬', label: 'shopCatProduce' },
-  meat: { icon: '🍗', label: 'shopCatMeat' },
-  fish: { icon: '🐟', label: 'shopCatFish' },
-  dairy: { icon: '🥚', label: 'shopCatDairy' },
-  bakery: { icon: '🥖', label: 'shopCatBakery' },
-  pantry: { icon: '🛒', label: 'shopCatPantry' },
-  spices: { icon: '🫙', label: 'shopCatSpices' },
-  other: { icon: '📦', label: 'shopCatOther' }
+  grocery: { icon: '🛒', label: 'shopCatGrocery' },
+  meats: { icon: '🍖', label: 'shopCatMeats' },
+  vegfruit: { icon: '🥗', label: 'shopCatProduce' }
 };
+const SHOP_BIG_CATEGORY = { produce: 'vegfruit', meat: 'meats', fish: 'meats', dairy: 'grocery', bakery: 'grocery', pantry: 'grocery', spices: 'grocery', other: 'grocery' };
+function bigCategoryForItem(it) { return SHOP_BIG_CATEGORY[shopCategoryForItem(it)] || 'grocery'; }
 function shopCategoryForItem(it) {
   const text = [it.name, it.unit, it.category].filter(Boolean).join(' ').toLowerCase();
-  if (/bread|baguette|tortilla|dioul|pain|boulanger|خبز|باغيت|تورتيلا|ديول|مخبوز/.test(text)) return 'bakery';
-  if (/fish|tuna|seafood|shrimp|poisson|thon|fruit de mer|سمك|تونة|حوت|جمبري|مأكولات بحرية/.test(text)) return 'fish';
-  if (/chicken|poulet|beef|boeuf|meat|viande|lamb|agneau|minced|hachee|دجاج|لحم|غنم|مفروم/.test(text)) return 'meat';
-  if (/egg|milk|cheese|butter|cream|yogurt|oeuf|lait|fromage|beurre|creme|yaourt|بيض|حليب|جبن|زبدة|كريمة|زبادي|ياغورت/.test(text)) return 'dairy';
-  if (/spice|cumin|oil|sauce|paste|broth|harissa|yeast|epice|huile|sauce|concentre|bouillon|levure|بهار|بهارات|كمون|زيت|صلصة|هريسة|معجون|مرق|خميرة/.test(text)) return 'spices';
-  if (/onion|carrot|tomato|cucumber|lettuce|potato|fruit|lemon|herb|parsley|coriander|pepper|mushroom|turnip|vegetable|olive|oignon|carotte|tomate|concombre|laitue|pomme de terre|fruit|citron|herbe|persil|coriandre|poivron|champignon|navet|legume|olive|بصل|جزر|طماطم|خيار|خس|بطاط|فواكه|ليمون|معدنوس|دبشة|فلفل|فطر|لفت|خضار|زيتون/.test(text)) return 'produce';
-  if (/flour|sugar|pasta|rice|legume|lentil|chickpea|couscous|semolina|frik|rechta|chocolate|almond|farine|sucre|pates|riz|legumineuse|lentille|pois chiche|couscous|semoule|chocolat|amande|دقيق|فرينة|سكر|معكرونة|أرز|بقولي|عدس|حمص|كسكس|سميد|فريك|رشتة|شوكولاتة|لوز|طحين/.test(text)) return 'pantry';
+  if (/bread|baguette|tortilla|dioul|pita|bun|roll|croissant|pastry|cake|biscuit|cracker|pain|boulanger|brioche|gateau|biscotte|خبز|باغيت|تورتيلا|ديول|مخبوز|كرواسون|كعكة|بسكويت|مطلوع|كسرة/.test(text)) return 'bakery';
+  if (/fish|tuna|salmon|sardine|shrimp|prawn|seafood|anchovy|mackerel|poisson|thon|saumon|sardine|crevette|fruit de mer|anchois|maquereau|سمك|تونة|سلمون|سردين|جمبري|قريدس|مأكولات بحرية|حوت|أنشوة/.test(text)) return 'fish';
+  if (/chicken|poultry|beef|veal|lamb|mutton|meat|mince|minced|sausage|turkey|liver|kefta|merguez|poulet|volaille|boeuf|veau|agneau|mouton|viande|hache|hachee|saucisse|dinde|foie|دجاج|لحم|بقري|عجل|غنم|خروف|مفروم|نقانق|ديك رومي|كبدة|كفتة|مرقاز/.test(text)) return 'meat';
+  if (/egg|milk|cheese|butter|cream|yogurt|yoghurt|dairy|mozzarella|feta|labneh|smen|oeuf|lait|fromage|beurre|creme|yaourt|بيض|حليب|جبن|زبدة|كريمة|زبادي|رايب|لبن|جبنة|موزاريلا|سمن|لبنة/.test(text)) return 'dairy';
+  if (/spice|cumin|paprika|salt|oil|vinegar|sauce|paste|broth|stock|harissa|yeast|baking powder|cinnamon|turmeric|ginger|honey|epice|sel|huile|vinaigre|concentre|bouillon|levure|cannelle|curcuma|miel|بهار|بهارات|كمون|ملح|زيت|خل|صلصة|معجون|مرق|هريسة|خميرة|قرفة|كركم|زنجبيل|عسل/.test(text)) return 'spices';
+  if (/onion|carrot|tomato|cucumber|lettuce|potato|fruit|lemon|lime|herb|parsley|coriander|cilantro|pepper|mushroom|turnip|vegetable|olive|garlic|zucchini|courgette|eggplant|aubergine|spinach|cabbage|cauliflower|broccoli|bean|peas|apple|banana|orange|grape|strawberry|avocado|celery|leek|beet|radish|date|oignon|carotte|tomate|concombre|laitue|pomme de terre|citron|herbe|persil|coriandre|poivron|champignon|navet|legume|ail|epinard|chou|brocoli|haricot|pomme|banane|raisin|fraise|avocat|celeri|poireau|betterave|radis|datte|بصل|جزر|طماطم|خيار|خس|بطاط|فواكه|ليمون|معدنوس|قزبر|فلفل|فطر|لفت|خضار|زيتون|ثوم|كوسة|باذنجان|سبانخ|كرنب|قرنبيط|فاصوليا|بازلاء|تفاح|موز|برتقال|عنب|فراولة|افوكادو|كرفس|شمندر|فجل|تمر/.test(text)) return 'produce';
+  if (/flour|semolina|sugar|pasta|spaghetti|macaroni|rice|couscous|lentil|chickpea|legume|frik|rechta|chocolate|almond|nut|oats|oat|cereal|tea|coffee|canned|farine|semoule|sucre|pates|riz|lentille|pois chiche|legumineuse|chocolat|amande|noix|flocons|avoine|thé|café|cafe|conserve|دقيق|فرينة|سميد|سكر|معكرونة|مكرونة|سباغيتي|أرز|كسكس|عدس|حمص|بقول|فريك|رشتة|شوكولاتة|لوز|جوز|شوفان|شاي|قهوة|طحين|معلبات/.test(text)) return 'pantry';
   return 'other';
 }
 function shoppingCategoryBuckets(items) {
   const buckets = {};
   SHOP_CATEGORY_ORDER.forEach(k => { buckets[k] = []; });
-  items.forEach(it => buckets[shopCategoryForItem(it)].push(it));
+  items.forEach(it => buckets[bigCategoryForItem(it)].push(it));
   return buckets;
 }
 group = function(title, sub, bucket, prefix) {
@@ -3595,7 +3645,7 @@ group = function(title, sub, bucket, prefix) {
     const meta = SHOP_CATEGORY_META[catKey];
     const catWrap = document.createElement('div');
     catWrap.className = 'shop-category ' + catKey;
-    catWrap.innerHTML = `<div class="shop-category-head"><div class="shop-category-title"><span class="shop-category-icon">${htmlEscape(meta.icon)}</span><span>${htmlEscape(tr(meta.label))}</span></div><span class="shop-category-count">${catItems.length} ${htmlEscape(tr('items'))}</span></div>`;
+    catWrap.innerHTML = `<div class="shop-category-head" onclick="this.parentElement.classList.toggle('collapsed')" style="cursor:pointer"><div class="shop-category-title"><span class="shop-category-icon">${htmlEscape(meta.icon)}</span><span>${htmlEscape(tr(meta.label))}</span></div><span class="shop-category-count">${catItems.length} ${htmlEscape(tr('items'))} <span class="shop-cat-chevron">▾</span></span></div>`;
     catItems.forEach(it => {
       const id = prefix + '|' + it.name; const qty = Math.round(it.qty * 100) / 100;
       const totalText = ingredientTotalText(it, qty);
