@@ -78,6 +78,11 @@
   @media (max-width:980px){
     .recipe-card .recipe-details{display:none}
     .recipe-view-btn{display:inline-block}
+    .recipes-grid{gap:10px}
+    .recipe-card{padding:13px 15px}
+    .recipe-card h3{font-size:16px}
+    .recipe-card .recipe-actions{margin-top:10px;gap:6px}
+    .recipe-card .recipe-actions .btn{flex:1;padding:7px 4px;font-size:12px}
   }
   .btn{border:none;border-radius:30px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .15s}
   .btn-primary{background:linear-gradient(120deg,#e07ba6,#cf76c4);color:#fff;box-shadow:0 6px 16px rgba(208,118,196,.32)}
@@ -185,6 +190,12 @@
   .week-tab:hover{transform:translateY(-1px)}
   .week-single{width:min(100%,640px);margin:0 auto}
   .week-single .week-column.card{padding:14px}
+  .shop-tabs{display:none;gap:8px;flex-wrap:wrap;margin:4px 0 14px}
+  @media (max-width:980px){
+    .shop-tabs{display:flex}
+    #shopContent .shop-week-card{display:none}
+    #shopContent .shop-week-card.shop-active{display:block}
+  }
   .week-days-list{display:grid;gap:8px}
   .week-day{background:#fffafc;border:1px solid var(--line);border-radius:12px;padding:8px;min-height:96px}
   .week-day-title{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-weight:800;font-size:12px;margin-bottom:6px}
@@ -3159,13 +3170,14 @@ renderRecipes = function() {
     const extraBits = [];
     if (typeof r.prepMinutes === 'number') extraBits.push(r.prepMinutes + ' min');
     const sourceHtml = r.sourceLink ? `<div class="meta"><b>${htmlEscape(tr('source'))}:</b> <a href="${htmlEscape(r.sourceLink)}" target="_blank" rel="noopener">${htmlEscape(tr('recipeLink'))}</a></div>` : '';
-    card.innerHTML = `<div class="row between"><h3>${htmlEscape(r.title)}</h3><span class="cat-tag">${htmlEscape(r.category || '-')}</span></div>
+    const catTag = r.category ? `<span class="cat-tag">${htmlEscape(r.category)}</span>` : '';
+    card.innerHTML = `<div class="row between" style="align-items:center;gap:8px"><h3 style="margin:0;flex:1;cursor:pointer" onclick="viewRecipe(${r.id})">${htmlEscape(r.title)}</h3>${catTag}</div>
       <div class="recipe-details">
       <div class="meta">${htmlEscape(tr('serves'))} ${r.baseServings} - ${htmlEscape(r.tags.join(', ') || '')}${extraBits.length ? ' - ' + extraBits.join(' - ') : ''}</div>
       ${sourceHtml}
       <ul class="ing-list">${ings}</ul>
       </div>
-      <div class="row" style="margin-top:12px"><button class="btn btn-primary btn-sm recipe-view-btn" onclick="viewRecipe(${r.id})">👁 ${htmlEscape(tr('details'))}</button><button class="btn btn-ghost btn-sm" onclick="openRecipeModal(${r.id})">${htmlEscape(tr('edit'))}</button><button class="btn btn-ghost btn-sm" onclick="delRecipe(${r.id})">${htmlEscape(tr('del'))}</button></div>`;
+      <div class="row recipe-actions" style="margin-top:12px"><button class="btn btn-primary btn-sm recipe-view-btn" onclick="viewRecipe(${r.id})">👁 ${htmlEscape(tr('details'))}</button><button class="btn btn-ghost btn-sm" onclick="openRecipeModal(${r.id})">✎ ${htmlEscape(tr('edit'))}</button><button class="btn btn-ghost btn-sm" onclick="delRecipe(${r.id})">🗑 ${htmlEscape(tr('del'))}</button></div>`;
     g.appendChild(card);
   });
   aStagger('#recipeGrid .recipe-card');
@@ -3570,6 +3582,8 @@ function mergeShoppingBucket(target, source) {
     target[key].details = [...(target[key].details || []), ...(item.details || [])];
   });
 }
+let activeShopWeek = 0;
+function setShopWeek(w){ activeShopWeek = w; renderShopping(); }
 renderShopping = function() {
   ensureShoppingCategoryStyles();
   const { weekly, biweekly, monthly, any } = buildShoppingBuckets();
@@ -3581,13 +3595,29 @@ renderShopping = function() {
   mergeShoppingBucket(weekBuckets[0], biweekly[0]);
   mergeShoppingBucket(weekBuckets[0], monthly);
   mergeShoppingBucket(weekBuckets[2], biweekly[1]);
+  const present = [];
+  weekBuckets.forEach((b, w) => { if (bucketHasItems(b)) present.push(w); });
+  if (!present.includes(activeShopWeek)) activeShopWeek = present.length ? present[0] : 0;
+  const shopTabs = document.createElement('div'); shopTabs.className = 'shop-tabs';
+  present.forEach(w => {
+    const tb = document.createElement('button');
+    tb.className = 'week-tab' + (w === activeShopWeek ? ' active' : '');
+    tb.onclick = () => setShopWeek(w);
+    tb.innerHTML = `<span>${htmlEscape(tr('week'))} ${w + 1}</span><small>${Object.keys(weekBuckets[w]).length} ${htmlEscape(tr('items'))}</small>`;
+    shopTabs.appendChild(tb);
+  });
+  c.appendChild(shopTabs);
   weekBuckets.forEach((b, w) => {
     if (!bucketHasItems(b)) return;
     const subParts = [tr('perishables')];
     if (w === 0 && bucketHasItems(biweekly[0])) subParts.push(tr('stockA'));
     if (w === 0 && bucketHasItems(monthly)) subParts.push(tr('bulk'));
     if (w === 2 && bucketHasItems(biweekly[1])) subParts.push(tr('stockB'));
-    c.appendChild(group(tr('weeklyTrip').replace('{n}', w + 1), subParts.join(' + '), b, 'w' + w));
+    const grp = group(tr('weeklyTrip').replace('{n}', w + 1), subParts.join(' + '), b, 'w' + w);
+    grp.classList.add('shop-week-card');
+    grp.setAttribute('data-shopwk', String(w));
+    if (w === activeShopWeek) grp.classList.add('shop-active');
+    c.appendChild(grp);
   });
   aStagger('#shopContent .shop-group', { y: 20, stagger: .08 });
 };
@@ -3716,17 +3746,21 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeInlin
 
 async function trySyncFromCloud() {
   const cloud = await supabaseLoad();
-  if (!cloud) {
-    // Nothing saved in the cloud yet for this account.
-    // If this device already has data, upload it once so it carries over.
-    if (localStorage.getItem(SETUP_KEY) || localStorage.getItem(APP_STATE_KEY)) supabaseSave();
+  const hasLocal = !!(localStorage.getItem(SETUP_KEY) || localStorage.getItem(APP_STATE_KEY));
+  const cloudHasData = !!(cloud && (cloud.setup_data || cloud.app_state));
+  if (!cloudHasData) {
+    // No saved data in the cloud for this account.
+    if (hasLocal) {
+      supabaseSave(); // this device already has data – upload it so it carries over
+    } else {
+      setTimeout(() => openSetup(0), 120); // brand-new account – run onboarding once
+    }
     return;
   }
-  const localSetupKey = 'mealmate_setup_ts';
-  const localTs = Number(localStorage.getItem(localSetupKey)) || 0;
+  // Cloud has real data → load it (this is what stops the wizard for returning users).
+  const localTs = Number(localStorage.getItem('mealmate_setup_ts')) || 0;
   const cloudTs = new Date(cloud.updated_at).getTime();
   if (cloudTs > localTs) {
-    // cloud has newer data
     if (cloud.setup_data) {
       try { hydrateSetup(cloud.setup_data); } catch (e) {}
     }
@@ -3735,7 +3769,6 @@ async function trySyncFromCloud() {
     }
     refreshAfterStateLoad();
   } else if (localTs > 0 && localTs >= cloudTs) {
-    // local is current – push to cloud
     supabaseSave();
   }
 }
@@ -3768,11 +3801,8 @@ function bootMealMateV2() {
   updatePlanCounters();
   wireStatePersistence();
   appStateHydrated = true;
-  try {
-    if (!localStorage.getItem(SETUP_KEY) && !localStorage.getItem(APP_STATE_KEY)) setTimeout(() => openSetup(0), 120);
-  } catch (e) {
-    setTimeout(() => openSetup(0), 120);
-  }
+  // The onboarding wizard is decided in trySyncFromCloud() after we know the
+  // account's cloud data, so returning users never get the setup window on login.
   // sync with Supabase after boot
   trySyncFromCloud();
 }
