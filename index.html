@@ -202,6 +202,26 @@
   .week-tab:hover{transform:translateY(-1px)}
   .week-single{width:min(100%,640px);margin:0 auto}
   .week-single .week-column.card{padding:14px}
+  .plan-view-toggle{display:inline-flex;gap:4px;background:var(--accent-soft);border-radius:24px;padding:4px;margin:0 0 14px}
+  .plan-view-toggle button{border:none;background:transparent;border-radius:20px;padding:7px 16px;font-family:inherit;font-weight:800;font-size:13px;color:var(--accent-dark);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+  .plan-view-toggle button.active{background:#fff;box-shadow:var(--shadow)}
+  .month-cal-head{font-family:'Playfair Display',serif;font-weight:700;font-size:19px;color:var(--accent-dark);text-align:center;margin:0 0 12px}
+  .month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .month-grid-cell.blank{background:transparent;border:none;min-height:0;padding:0}
+  .month-grid-cell.today{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+  .month-grid-dow{text-align:center;font-size:11px;font-weight:800;color:var(--muted);padding:2px 0}
+  .month-grid-cell{background:#fffafc;border:1px solid var(--line);border-radius:12px;min-height:92px;padding:6px;display:flex;flex-direction:column;gap:3px}
+  .month-grid-num{font-size:11px;font-weight:800;color:var(--muted)}
+  .month-meal-chip{border:none;background:var(--accent-soft);color:var(--accent-dark);border-radius:7px;padding:3px 6px;font-size:10.5px;font-weight:700;cursor:pointer;text-align:start;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:inherit;display:flex;align-items:center;gap:3px}
+  .month-meal-chip:hover{background:var(--accent);color:#fff}
+  .month-add-chip{border:1px dashed var(--line);background:#fff;color:var(--muted);border-radius:7px;padding:2px;font-size:12px;cursor:pointer;font-family:inherit}
+  @media (max-width:980px){
+    .month-grid{gap:3px}
+    .month-grid-cell{min-height:66px;padding:4px;border-radius:9px}
+    .month-meal-chip{font-size:9px;padding:2px 4px}
+    .month-grid-dow{font-size:9px}
+    .plan-view-toggle button{padding:7px 12px;font-size:12px}
+  }
   .shop-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 14px}
   #shopContent .shop-week-card{display:none}
   #shopContent .shop-week-card.shop-active{display:block}
@@ -267,7 +287,7 @@
   </div>
   <div class="controls">
     <div class="ctrl"><label>Family</label><button onclick="changeMembers(-1)">−</button><span class="count" id="memberCount">4</span><button onclick="changeMembers(1)">+</button></div>
-    <div class="ctrl"><label>Meals/day</label><button onclick="changeMeals(-1)">−</button><span class="count" id="mealCount">3</span><button onclick="changeMeals(1)">+</button></div>
+    <div class="ctrl meals-ctrl" onclick="openMealSlotsModal()" style="cursor:pointer"><label>Meals/day</label><span class="count" id="mealCount">3</span><span style="font-size:12px;opacity:.8">▾</span></div>
     <div class="profile-menu" id="profileMenu">
       <button class="profile-btn" id="profileMenuBtn" type="button" onclick="toggleProfileMenu(event)" aria-label="Account" title="Account">
         <span class="profile-avatar" id="profileAvatar">🌸</span><span id="profileMenuName" style="display:none">Account</span>
@@ -338,6 +358,10 @@
       <div id="addonTrayHost"></div>
     </div>
     <div class="hint" style="display:none"><span id="planTarget">21</span><span id="planMeals">3</span></div>
+    <div class="plan-view-toggle">
+      <button type="button" data-pview="weeks" class="active" onclick="setPlanView('weeks')">🗓 <span class="pv-label">Week</span></button>
+      <button type="button" data-pview="month" onclick="setPlanView('month')">📅 <span class="pv-label">Month</span></button>
+    </div>
     <div id="weeks"></div>
   </section>
 
@@ -392,6 +416,12 @@
   <div class="row between" style="margin-top:16px"><button class="btn btn-ghost" onclick="closeRecipeModal()">Cancel</button><button class="btn btn-primary" onclick="saveRecipe()">Save recipe</button></div>
 </div></div>
 
+<div class="modal-bg" id="mealSlotsModal"><div class="modal" style="max-width:440px">
+  <h3 id="mealSlotsTitle">Meals per day</h3>
+  <p id="mealSlotsDesc" style="color:var(--muted);font-size:13px;margin-top:0">Choose which meals you plan each day.</p>
+  <div id="mealSlotsList" class="setup-options"></div>
+  <div class="row between" style="margin-top:16px"><button class="btn btn-primary" id="mealSlotsDone" onclick="closeMealSlotsModal()">Done</button></div>
+</div></div>
 <div class="modal-bg" id="catModal"><div class="modal" style="max-width:440px">
   <h3>Meal categories</h3>
   <p style="color:var(--muted);font-size:13px;margin-top:0">Add the categories you cook by. These appear as filters and on each recipe.</p>
@@ -796,6 +826,59 @@ function showView(v,btn){
 }
 function changeMembers(d){members=Math.max(1,members+d);document.getElementById('memberCount').textContent=members;renderWeeks();renderShopping();}
 function changeMeals(d){mealsPerDay=Math.min(6,Math.max(1,mealsPerDay+d));document.getElementById('mealCount').textContent=mealsPerDay;document.getElementById('planMeals').textContent=mealsPerDay;document.getElementById('planTarget').textContent=mealsPerDay*7;renderWeeks();renderShopping();}
+function openMealSlotsModal(){ renderMealSlotsModal(); document.getElementById('mealSlotsModal').classList.add('open'); if(typeof aModal==='function')aModal('mealSlotsModal'); }
+function closeMealSlotsModal(){ document.getElementById('mealSlotsModal').classList.remove('open'); }
+function renderMealSlotsModal(){
+  const box = document.getElementById('mealSlotsList'); if(!box) return;
+  const t=document.getElementById('mealSlotsTitle'); if(t)t.textContent=tr('mealsPerWeek');
+  const ds=document.getElementById('mealSlotsDesc'); if(ds)ds.textContent=tr('mealChoiceIntro');
+  const done=document.getElementById('mealSlotsDone'); if(done)done.textContent=tr('close');
+  const selected = new Set(selectedMealSlots());
+  const rows = allMealSlotKeys().map(key => {
+    const isCustom = !MEAL_SLOT_KEYS.includes(key);
+    const del = isCustom ? `<button class="x" type="button" title="${htmlEscape(tr('del'))}" onclick="event.preventDefault();event.stopPropagation();deleteCustomMealSlot('${key}')">x</button>` : '';
+    return `<label class="setup-option ${selected.has(key)?'active':''}" style="cursor:pointer"><input type="checkbox" ${selected.has(key)?'checked':''} onchange="toggleMealSlotChoice('${key}',this.checked)"><span style="flex:1"><strong>${htmlEscape(slotLabel(key))}</strong></span>${del}</label>`;
+  }).join('');
+  const addRow = `<div class="row" style="margin-top:10px;gap:8px"><input id="newMealSlot" style="flex:1;min-width:150px" placeholder="${htmlEscape(tr('addMealPlaceholder'))}" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomMealSlot()}"><button class="btn btn-ghost btn-sm" onclick="addCustomMealSlot()">${htmlEscape(tr('addMeal'))}</button></div>`;
+  box.innerHTML = rows + addRow;
+}
+function toggleMealSlotChoice(key, on){
+  const slots = new Set(selectedMealSlots());
+  if(on) slots.add(key); else if(slots.size>1) slots.delete(key);
+  setupData.selectedMealSlots = allMealSlotKeys().filter(s=>slots.has(s));
+  syncMealCounts();
+  const mc = document.getElementById('mealCount'); if(mc) mc.textContent = mealsPerDay;
+  renderMealSlotsModal();
+  renderWeeks(); renderShopping();
+  try { localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup())); } catch(e){}
+  if (typeof appStateHydrated !== 'undefined' && appStateHydrated) queueAppStateSave();
+}
+function addCustomMealSlot(){
+  const input = document.getElementById('newMealSlot');
+  const label = (input && input.value.trim()) || '';
+  if(!label) return;
+  if(!Array.isArray(setupData.customMealSlots)) setupData.customMealSlots = [];
+  const key = 'cmeal_' + Date.now().toString(36);
+  setupData.customMealSlots.push({ key, label });
+  const slots = new Set(selectedMealSlots()); slots.add(key);
+  setupData.selectedMealSlots = allMealSlotKeys().filter(s=>slots.has(s));
+  if(input) input.value='';
+  syncMealCounts();
+  const mc = document.getElementById('mealCount'); if(mc) mc.textContent = mealsPerDay;
+  renderMealSlotsModal(); renderWeeks(); renderShopping();
+  try { localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup())); } catch(e){}
+  if (typeof appStateHydrated !== 'undefined' && appStateHydrated) queueAppStateSave();
+}
+function deleteCustomMealSlot(key){
+  setupData.customMealSlots = (setupData.customMealSlots||[]).filter(c=>c.key!==key);
+  setupData.selectedMealSlots = (setupData.selectedMealSlots||[]).filter(s=>s!==key);
+  if(!selectedMealSlots().length) setupData.selectedMealSlots = ['breakfast','lunch','dinner'];
+  syncMealCounts();
+  const mc = document.getElementById('mealCount'); if(mc) mc.textContent = mealsPerDay;
+  renderMealSlotsModal(); renderWeeks(); renderShopping();
+  try { localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup())); } catch(e){}
+  if (typeof appStateHydrated !== 'undefined' && appStateHydrated) queueAppStateSave();
+}
 
 /* ---------- Categories ---------- */
 function renderCatFilter(){
@@ -1239,7 +1322,7 @@ const I18N = {
     navRecipes: 'Recipes', navPlan: 'Meal Plan', navShop: 'Shopping List', navBudget: 'Money',
     importTitle: 'Extract a recipe from caption text', extract: 'Extract recipe', demoCaption: 'Try demo caption text', demoLink: '',
     recipeDb: 'Your recipe database', manageCategories: 'Manage categories', newRecipe: '+ New recipe',
-    planTitle: 'Monthly plan - 4 weeks', savedPlans: '📂 Saved plans', newMonthPlan: '➕ New month plan', balanceSettings: 'Balance settings', autoBalance: 'Auto-balance the month',
+    planTitle: 'Monthly plan - 4 weeks', savedPlans: '📂 Saved plans', newMonthPlan: '➕ New month plan', balanceSettings: 'Balance settings', autoBalance: 'Auto-balance the month', viewWeek: 'Week', viewMonth: 'Month',
     planHint: 'Each week has <span id="planTarget">21</span> meal slots: <span id="planMeals">3</span> meals per day across 7 days.',
     shopTitle: 'Smart shopping list', addItem: '+ Add item', shopHint: 'Built from the meals you planned, scaled to your family, with duplicates merged into weekly, 15-day, and monthly trips.',
     budgetTitle: 'Money management', drawerTitle: 'Choose meal', drawerRecipe: 'Recipe', drawerServings: 'Servings', drawerSave: 'Save', drawerRemove: 'Remove',
@@ -1249,7 +1332,7 @@ const I18N = {
     addCategory: '+ Add category', categoryPlaceholder: 'Add your own category...', deleteCategory: 'Delete category', customCategory: 'Custom category', noReadyInCats: 'No starter recipes match these categories yet. Add a standard category to choose ready recipes, or continue and add your own recipes later.', showingFromCats: 'Showing starter recipes from the categories you chose.',
     mealPlanning: 'Meal planning', mealPlanningSub: 'Build the 4-week calendar', shopping: 'Shopping list', shoppingSub: 'Group ingredients into trips', money: 'Money management', moneySub: 'Track grocery budget and spend',
     back: 'Back', next: 'Next', finish: 'Start planning', selected: 'selected', search: 'Search recipes...', selectAll: 'Select shown', clear: 'Clear', popular: 'Use popular starter set',
-    mealsPerWeek: 'Meals per day', mealChoiceIntro: 'Choose exactly which meal moments you want to plan every day. The monthly calendar will use only these slots.', mealsSelected: 'meals selected', familySize: 'People in the family', repeatDays: 'Do not repeat the same recipe within', days: 'days',
+    mealsPerWeek: 'Meals per day', mealChoiceIntro: 'Choose exactly which meal moments you want to plan every day. The monthly calendar will use only these slots.', addMeal: '+ Add meal', addMealPlaceholder: 'New meal, e.g. Brunch, Suhoor', mealsSelected: 'meals selected', familySize: 'People in the family', repeatDays: 'Do not repeat the same recipe within', days: 'days',
     cheap: 'Favor cheaper recipes', quick: 'Favor quick recipes', healthy: 'Prefer healthy meals', vegetarian: 'Prefer vegetarian meals', variety: 'Maximize category variety', kidFriendly: 'Kid-friendly',
     criteriaIntro: 'Choose what the automatic planner should care about. These choices affect recipe selection, weekly variety, shopping rhythm, and how many cook-ahead meals appear.',
     seasonalProduce: 'Seasonal vegetables', seasonalProduceSub: 'Prefer recipes that use fresh, seasonal produce.',
@@ -1288,7 +1371,7 @@ const I18N = {
     navRecipes: 'Recettes', navPlan: 'Planning', navShop: 'Liste de courses', navBudget: 'Budget',
     importTitle: 'Extraire une recette depuis un texte', extract: 'Extraire la recette', demoCaption: 'Essayer un texte demo', demoLink: '',
     recipeDb: 'Votre base de recettes', manageCategories: 'Gerer les categories', newRecipe: '+ Nouvelle recette',
-    planTitle: 'Planning mensuel - 4 semaines', savedPlans: '📂 Plans enregistres', newMonthPlan: '➕ Nouveau plan mensuel', balanceSettings: 'Criteres', autoBalance: 'Equilibrer le mois',
+    planTitle: 'Planning mensuel - 4 semaines', savedPlans: '📂 Plans enregistres', newMonthPlan: '➕ Nouveau plan mensuel', balanceSettings: 'Criteres', autoBalance: 'Equilibrer le mois', viewWeek: 'Semaine', viewMonth: 'Mois',
     planHint: 'Chaque semaine contient <span id="planTarget">21</span> emplacements: <span id="planMeals">3</span> repas par jour sur 7 jours.',
     shopTitle: 'Liste de courses intelligente', addItem: '+ Ajouter un article', shopHint: 'Creee a partir des repas planifies, adaptee a votre famille, avec les doublons regroupes par achats hebdomadaires, 15 jours et mensuels.',
     budgetTitle: 'Gestion du budget', drawerTitle: 'Choisir un repas', drawerRecipe: 'Recette', drawerServings: 'Portions', drawerSave: 'Enregistrer', drawerRemove: 'Retirer',
@@ -1298,7 +1381,7 @@ const I18N = {
     addCategory: '+ Ajouter une categorie', categoryPlaceholder: 'Ajouter votre categorie...', deleteCategory: 'Supprimer la categorie', customCategory: 'Categorie personnalisee', noReadyInCats: 'Aucune recette de depart ne correspond encore a ces categories. Ajoutez une categorie standard pour choisir des recettes pretes, ou continuez avec vos propres recettes plus tard.', showingFromCats: 'Recettes de depart affichees depuis les categories choisies.',
     mealPlanning: 'Planning des repas', mealPlanningSub: 'Construire le calendrier de 4 semaines', shopping: 'Liste de courses', shoppingSub: 'Regrouper les ingredients par courses', money: 'Gestion du budget', moneySub: 'Suivre budget et depenses',
     back: 'Retour', next: 'Suivant', finish: 'Commencer', selected: 'selectionnees', search: 'Rechercher une recette...', selectAll: 'Selectionner visibles', clear: 'Vider', popular: 'Selection populaire',
-    mealsPerWeek: 'Repas par jour', mealChoiceIntro: 'Choisissez les moments de repas a planifier chaque jour. Le calendrier mensuel utilisera uniquement ces emplacements.', mealsSelected: 'repas selectionnes', familySize: 'Personnes dans la famille', repeatDays: 'Ne pas repeter la meme recette avant', days: 'jours',
+    mealsPerWeek: 'Repas par jour', mealChoiceIntro: 'Choisissez les moments de repas a planifier chaque jour. Le calendrier mensuel utilisera uniquement ces emplacements.', addMeal: '+ Ajouter un repas', addMealPlaceholder: 'Nouveau repas, ex. Brunch, Suhoor', mealsSelected: 'repas selectionnes', familySize: 'Personnes dans la famille', repeatDays: 'Ne pas repeter la meme recette avant', days: 'jours',
     cheap: 'Favoriser les recettes economiques', quick: 'Favoriser les recettes rapides', healthy: 'Preferer les repas sains', vegetarian: 'Preferer le vegetarien', variety: 'Maximiser la variete', kidFriendly: 'Pour enfants',
     criteriaIntro: 'Choisissez ce que le planning automatique doit privilegier. Ces criteres influencent les recettes, la variete de la semaine, le rythme des courses et les repas prepares a l avance.',
     seasonalProduce: 'Legumes de saison', seasonalProduceSub: 'Favoriser les recettes avec legumes frais et de saison.',
@@ -1337,7 +1420,7 @@ const I18N = {
     navRecipes: 'الوصفات', navPlan: 'خطة الوجبات', navShop: 'قائمة التسوق', navBudget: 'الميزانية',
     importTitle: 'استخراج وصفة من نص', extract: 'استخراج الوصفة', demoCaption: 'تجربة نص', demoLink: '',
     recipeDb: 'قاعدة الوصفات', manageCategories: 'إدارة الفئات', newRecipe: '+ وصفة جديدة',
-    planTitle: 'الخطة الشهرية - 4 أسابيع', savedPlans: '📂 الخطط المحفوظة', newMonthPlan: '➕ خطة شهر جديد', balanceSettings: 'معايير الاختيار', autoBalance: 'تنظيم الشهر تلقائيا',
+    planTitle: 'الخطة الشهرية - 4 أسابيع', savedPlans: '📂 الخطط المحفوظة', newMonthPlan: '➕ خطة شهر جديد', balanceSettings: 'معايير الاختيار', autoBalance: 'تنظيم الشهر تلقائيا', viewWeek: 'أسبوع', viewMonth: 'شهر',
     planHint: 'كل أسبوع يحتوي على <span id="planTarget">21</span> خانة وجبات: <span id="planMeals">3</span> وجبات في اليوم لمدة 7 أيام.',
     shopTitle: 'قائمة تسوق ذكية', addItem: '+ إضافة عنصر', shopHint: 'تجمع المكونات من الوجبات المخططة، حسب عدد أفراد العائلة، وتقسمها إلى مشتريات أسبوعية ونصف شهرية وشهرية.',
     budgetTitle: 'إدارة المال', drawerTitle: 'اختيار وجبة', drawerRecipe: 'الوصفة', drawerServings: 'الحصص', drawerSave: 'حفظ', drawerRemove: 'إزالة',
@@ -1347,7 +1430,7 @@ const I18N = {
     addCategory: '+ إضافة فئة', categoryPlaceholder: 'أضيفي فئة خاصة...', deleteCategory: 'حذف الفئة', customCategory: 'فئة خاصة', noReadyInCats: 'لا توجد وصفات جاهزة لهذه الفئات حاليا. أضيفي فئة أساسية لاختيار وصفات جاهزة، أو تابعي وأضيفي وصفاتك لاحقا.', showingFromCats: 'نعرض الوصفات الجاهزة من الفئات التي اخترتها.',
     mealPlanning: 'تخطيط الوجبات', mealPlanningSub: 'إنشاء تقويم 4 أسابيع', shopping: 'قائمة التسوق', shoppingSub: 'تجميع المكونات في رحلات شراء', money: 'إدارة المال', moneySub: 'متابعة ميزانية المشتريات',
     back: 'رجوع', next: 'التالي', finish: 'ابدئي التخطيط', selected: 'محددة', search: 'ابحثي عن وصفة...', selectAll: 'تحديد الظاهر', clear: 'إفراغ', popular: 'مجموعة مقترحة',
-    mealsPerWeek: 'وجبات في اليوم', mealChoiceIntro: 'اختاري الوجبات التي تريدين تخطيطها كل يوم. التقويم الشهري سيستعمل هذه الخانات فقط.', mealsSelected: 'وجبات محددة', familySize: 'عدد أفراد العائلة', repeatDays: 'عدم تكرار نفس الوصفة خلال', days: 'أيام',
+    mealsPerWeek: 'وجبات في اليوم', mealChoiceIntro: 'اختاري الوجبات التي تريدين تخطيطها كل يوم. التقويم الشهري سيستعمل هذه الخانات فقط.', addMeal: '+ إضافة وجبة', addMealPlaceholder: 'وجبة جديدة، مثل: برانش، سحور', mealsSelected: 'وجبات محددة', familySize: 'عدد أفراد العائلة', repeatDays: 'عدم تكرار نفس الوصفة خلال', days: 'أيام',
     cheap: 'تفضيل الوصفات الاقتصادية', quick: 'تفضيل الوصفات السريعة', healthy: 'تفضيل الوجبات الصحية', vegetarian: 'تفضيل النباتي', variety: 'زيادة التنوع بين الفئات', kidFriendly: 'مناسبة للأطفال',
     criteriaIntro: 'اختاري ما يجب أن يهتم به التخطيط التلقائي. هذه المعايير تؤثر على اختيار الوصفات، تنوع الأسبوع، طريقة التسوق، والوجبات التي يمكن تحضيرها مسبقا.',
     seasonalProduce: 'الخضر الموسمية', seasonalProduceSub: 'تفضيل الوصفات التي تستعمل خضر طازجة وموسمية.',
@@ -1743,6 +1826,7 @@ const setupData = {
   categoryTouched: false,
   mealsPerWeek: 21,
   selectedMealSlots: ['breakfast', 'lunch', 'dinner'],
+  customMealSlots: [],
   persons: 4,
   criteria: {
     repeatDays: 7,
@@ -1800,12 +1884,17 @@ function mealSlotKeysForCount(count) {
   const preferred = ['breakfast', 'lunch', 'dinner', 'morningSnack', 'afternoonSnack', 'snack', 'supper'];
   return preferred.slice(0, Math.max(1, Math.min(preferred.length, count || 3)));
 }
+function allMealSlotKeys() { return [...MEAL_SLOT_KEYS, ...((setupData && setupData.customMealSlots) || []).map(c => c.key)]; }
 function selectedMealSlots() {
   if (!setupData.selectedMealSlots || !setupData.selectedMealSlots.length) setupData.selectedMealSlots = ['breakfast', 'lunch', 'dinner'];
-  return MEAL_SLOT_KEYS.filter(key => setupData.selectedMealSlots.includes(key));
+  return allMealSlotKeys().filter(key => setupData.selectedMealSlots.includes(key));
 }
 function isOptionalDaySlot(slot) { return OPTIONAL_DAY_SLOT_KEYS.includes(slot); }
-function slotLabel(slot) { return MEAL_SLOT_KEYS.includes(slot) || isOptionalDaySlot(slot) ? tr(slot) : slot; }
+function slotLabel(slot) {
+  if (MEAL_SLOT_KEYS.includes(slot) || isOptionalDaySlot(slot)) return tr(slot);
+  const custom = ((setupData && setupData.customMealSlots) || []).find(c => c.key === slot);
+  return custom ? custom.label : slot;
+}
 function optionalSlotRecipes(slot) {
   if (slot === 'dessertAddon') return recipes.filter(r => r._catKey === 'dessert' || r.category === catLabel('dessert') || /dessert|sweet|gateau|dessert|تحلية|حلو|بسبوسة|طمينة|محلبي|موسكوتشو|قلب اللوز|مقروط/i.test(r.title));
   if (slot === 'breadAddon') {
@@ -1924,6 +2013,8 @@ function applyLanguage() {
   const _pa = document.getElementById('planAutoBtn'); if (_pa) _pa.textContent = tr('autoBalance');
   const _pb = document.getElementById('planBalanceBtn'); if (_pb) _pb.textContent = '⚙️ ' + tr('balanceSettings');
   const _ps = document.getElementById('planSavedBtn'); if (_ps) _ps.textContent = tr('savedPlans');
+  const _pvw = document.querySelector('.plan-view-toggle button[data-pview="weeks"] .pv-label'); if (_pvw) _pvw.textContent = tr('viewWeek');
+  const _pvm = document.querySelector('.plan-view-toggle button[data-pview="month"] .pv-label'); if (_pvm) _pvm.textContent = tr('viewMonth');
   const shopTitle = document.querySelector('#shop > .row.between h2.section'); if (shopTitle) shopTitle.textContent = tr('shopTitle');
   const shopBtn = document.querySelector('#shop > .row.between button'); if (shopBtn) shopBtn.textContent = tr('addItem');
   const shopHint = document.querySelector('#shop > .hint'); if (shopHint) shopHint.textContent = tr('shopHint');
@@ -2538,6 +2629,7 @@ function serializeSetup() {
     customCategories: setupData.customCategories,
     mealsPerWeek: setupData.mealsPerWeek,
     selectedMealSlots: setupData.selectedMealSlots,
+    customMealSlots: setupData.customMealSlots,
     persons: setupData.persons,
     criteria: setupData.criteria
   };
@@ -2551,7 +2643,8 @@ function hydrateSetup(saved) {
   setupData.categoryKeys = new Set(Array.isArray(saved.categoryKeys) ? saved.categoryKeys : Object.keys(CATEGORY_LIBRARY));
   setupData.customCategories = Array.isArray(saved.customCategories) ? saved.customCategories : [];
   setupData.mealsPerWeek = saved.mealsPerWeek || 21;
-  setupData.selectedMealSlots = Array.isArray(saved.selectedMealSlots) && saved.selectedMealSlots.length ? saved.selectedMealSlots.filter(key => MEAL_SLOT_KEYS.includes(key)) : mealSlotKeysForCount(Math.ceil((saved.mealsPerWeek || 21) / 7));
+  setupData.customMealSlots = Array.isArray(saved.customMealSlots) ? saved.customMealSlots : [];
+  setupData.selectedMealSlots = Array.isArray(saved.selectedMealSlots) && saved.selectedMealSlots.length ? saved.selectedMealSlots.filter(key => allMealSlotKeys().includes(key)) : mealSlotKeysForCount(Math.ceil((saved.mealsPerWeek || 21) / 7));
   if (!setupData.selectedMealSlots.length) setupData.selectedMealSlots = ['breakfast', 'lunch', 'dinner'];
   setupData.persons = saved.persons || 4;
   setupData.criteria = Object.assign(setupData.criteria, saved.criteria || {});
@@ -3295,11 +3388,60 @@ saveRecipe = function() {
 };
 let activePlanWeek = 0;
 function setPlanWeek(n){ activePlanWeek = Math.max(0, Math.min(3, n)); renderWeeks(); }
+let planView = 'weeks';
+function setPlanView(v) { planView = (v === 'month') ? 'month' : 'weeks'; syncPlanViewToggle(); renderWeeks(); }
+function syncPlanViewToggle() {
+  document.querySelectorAll('.plan-view-toggle button').forEach(b => b.classList.toggle('active', b.dataset.pview === planView));
+}
+function addToMonthDay(w, d) {
+  const slots = slotsForDay(d);
+  const empty = slots.find(s => !(plan[w + '_' + d] || []).some(m => m.slot === s)) || slots[0];
+  openMealDrawer(w, d, empty);
+}
+function renderMonthCalendar(wrap) {
+  const now = new Date();
+  const year = now.getFullYear(), month = now.getMonth();
+  const locale = { en: 'en-US', fr: 'fr-FR', ar: 'ar' }[currentLang] || 'en-US';
+  const head = document.createElement('div'); head.className = 'month-cal-head';
+  try { head.textContent = now.toLocaleDateString(locale, { month: 'long', year: 'numeric' }); }
+  catch (e) { head.textContent = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }); }
+  wrap.appendChild(head);
+  const grid = document.createElement('div'); grid.className = 'month-grid';
+  for (let d = 0; d < 7; d++) { const h = document.createElement('div'); h.className = 'month-grid-dow'; h.textContent = dayLabel(d); grid.appendChild(h); }
+  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // Monday = 0
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayDate = now.getDate();
+  for (let i = 0; i < firstDow; i++) { const b = document.createElement('div'); b.className = 'month-grid-cell blank'; grid.appendChild(b); }
+  for (let date = 1; date <= daysInMonth; date++) {
+    const idx = firstDow + (date - 1);
+    const weekRow = Math.floor(idx / 7), weekday = idx % 7;
+    const cell = document.createElement('div'); cell.className = 'month-grid-cell' + (date === todayDate ? ' today' : '');
+    let inner = `<div class="month-grid-num">${date}</div>`;
+    if (weekRow < 4) {
+      let hasEmpty = false;
+      slotsForDay(weekday).forEach(sname => {
+        const meal = (plan[weekRow + '_' + weekday] || []).find(m => m.slot === sname);
+        if (meal) {
+          const r = recipes.find(x => x.id === meal.recipeId);
+          const arg = encodeURIComponent(sname);
+          inner += `<button class="month-meal-chip" title="${htmlEscape(r ? r.title : '')}" onclick="openMealDrawer(event,${weekRow},${weekday},decodeURIComponent('${arg}'))"><span class="cat-mini"></span>${htmlEscape(r ? r.title : '?')}</button>`;
+        } else { hasEmpty = true; }
+      });
+      if (hasEmpty) inner += `<button class="month-add-chip" onclick="addToMonthDay(${weekRow},${weekday})" title="${htmlEscape(tr('add'))}">＋</button>`;
+    }
+    cell.innerHTML = inner;
+    grid.appendChild(cell);
+  }
+  wrap.appendChild(grid);
+}
 renderWeeks = function() {
   syncMealCounts();
   const target = mealsPerWeek;
   const wrap = document.getElementById('weeks'); wrap.innerHTML = '';
   document.querySelector('main').classList.toggle('plan-full', document.getElementById('plan').classList.contains('active'));
+  const _ah = document.getElementById('addonTrayHost'); if (_ah) _ah.innerHTML = optionalAddonTrayHtml();
+  syncPlanViewToggle();
+  if (planView === 'month') { renderMonthCalendar(wrap); renderOptionalAddonPickState(); aBars(); return; }
   if (typeof activePlanWeek !== 'number' || activePlanWeek < 0 || activePlanWeek > 3) activePlanWeek = 0;
   const stats = [];
   for (let wk = 0; wk < 4; wk++) {
@@ -3316,7 +3458,6 @@ renderWeeks = function() {
     tabsEl.appendChild(tb);
   }
   wrap.appendChild(tabsEl);
-  const _addonHost = document.getElementById('addonTrayHost'); if (_addonHost) _addonHost.innerHTML = optionalAddonTrayHtml();
   const board = document.createElement('div'); board.className = 'month-board';
   board.setAttribute('data-active', String(activePlanWeek));
   for (let w = 0; w < 4; w++) {
@@ -3786,20 +3927,16 @@ async function trySyncFromCloud() {
     }
     return;
   }
-  // Cloud has real data → load it (this is what stops the wizard for returning users).
-  const localTs = Number(localStorage.getItem('mealmate_setup_ts')) || 0;
-  const cloudTs = new Date(cloud.updated_at).getTime();
-  if (cloudTs > localTs) {
-    if (cloud.setup_data) {
-      try { hydrateSetup(cloud.setup_data); } catch (e) {}
-    }
-    if (cloud.app_state) {
-      try { hydrateAppState(cloud.app_state); } catch (e) {}
-    }
-    refreshAfterStateLoad();
-  } else if (localTs > 0 && localTs >= cloudTs) {
-    supabaseSave();
+  // Cloud is the shared source of truth across devices: always load it on login,
+  // so anything saved on another device (saved plans, recipes, budget, categories…)
+  // shows up here. This prevents a stale local copy from hiding cloud data.
+  if (cloud.setup_data) {
+    try { hydrateSetup(cloud.setup_data); } catch (e) {}
   }
+  if (cloud.app_state) {
+    try { hydrateAppState(cloud.app_state); } catch (e) {}
+  }
+  refreshAfterStateLoad();
 }
 
 function bootMealMateV2() {
