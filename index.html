@@ -191,6 +191,7 @@
   .setup-edit{background:rgba(255,255,255,.26);color:#fff;border:1px solid rgba(255,255,255,.34)}
   main.plan-full{max-width:none;width:100%}
   #weeks{direction:ltr}
+  [dir="rtl"] #weeks{direction:rtl}
   [dir="rtl"] #weeks .week-column,[dir="rtl"] #weeks .week-day{direction:rtl}
   .month-board{display:grid;grid-template-columns:repeat(4,minmax(230px,1fr));gap:12px;width:min(100%,1500px);position:relative;left:50%;transform:translateX(-50%);align-items:start}
   .week-column.card{padding:12px;border-radius:16px}
@@ -202,13 +203,32 @@
   .week-tab:hover{transform:translateY(-1px)}
   .week-single{width:min(100%,640px);margin:0 auto}
   .week-single .week-column.card{padding:14px}
-  .plan-view-toggle{display:inline-flex;gap:4px;background:var(--accent-soft);border-radius:24px;padding:4px;margin:0 0 14px}
+  .plan-view-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 14px}
+  .plan-start{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--muted)}
+  .plan-start input{padding:6px 10px}
+  @media (max-width:980px){ .plan-view-toggle{display:none} }
+  .plan-view-toggle{display:inline-flex;gap:4px;background:var(--accent-soft);border-radius:24px;padding:4px}
   .plan-view-toggle button{border:none;background:transparent;border-radius:20px;padding:7px 16px;font-family:inherit;font-weight:800;font-size:13px;color:var(--accent-dark);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
   .plan-view-toggle button.active{background:#fff;box-shadow:var(--shadow)}
   .month-cal-head{font-family:'Playfair Display',serif;font-weight:700;font-size:19px;color:var(--accent-dark);text-align:center;margin:0 0 12px}
   .month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
   .month-grid-cell.blank{background:transparent;border:none;min-height:0;padding:0}
   .month-grid-cell.today{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+  .month-grid-mini{gap:4px}
+  .mcell-blank{min-height:0}
+  .month-cell-mini{border:1px solid var(--line);background:#fffafc;border-radius:10px;min-height:44px;padding:3px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;cursor:pointer}
+  .month-cell-mini .mday-num{font-size:12px;font-weight:800;color:var(--ink)}
+  .month-cell-mini .mday-dots{font-size:9px;line-height:1;color:var(--accent);letter-spacing:1px;min-height:9px}
+  .month-cell-mini.today{border-color:var(--accent)}
+  .month-cell-mini.active{background:var(--accent);border-color:var(--accent)}
+  .month-cell-mini.active .mday-num,.month-cell-mini.active .mday-dots{color:#fff}
+  .month-cell-mini[disabled]{opacity:.35;cursor:default;background:transparent;border-style:dashed}
+  .month-day-detail{margin-top:14px;padding:14px}
+  .mdd-title{font-weight:900;color:var(--accent-dark);margin-bottom:8px;font-size:15px}
+  .mdd-slot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .mdd-slot:last-child{border-bottom:none}
+  .mdd-slot-label{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:800}
+  .mdd-slot .meal-chip,.mdd-slot .add-slot{flex:1;max-width:72%;text-align:center}
   .month-grid-dow{text-align:center;font-size:11px;font-weight:800;color:var(--muted);padding:2px 0}
   .month-grid-cell{background:#fffafc;border:1px solid var(--line);border-radius:12px;min-height:92px;padding:6px;display:flex;flex-direction:column;gap:3px}
   .month-grid-num{font-size:11px;font-weight:800;color:var(--muted)}
@@ -358,9 +378,12 @@
       <div id="addonTrayHost"></div>
     </div>
     <div class="hint" style="display:none"><span id="planTarget">21</span><span id="planMeals">3</span></div>
-    <div class="plan-view-toggle">
-      <button type="button" data-pview="weeks" class="active" onclick="setPlanView('weeks')">🗓 <span class="pv-label">Week</span></button>
-      <button type="button" data-pview="month" onclick="setPlanView('month')">📅 <span class="pv-label">Month</span></button>
+    <div class="plan-view-row">
+      <div class="plan-view-toggle">
+        <button type="button" data-pview="weeks" class="active" onclick="setPlanView('weeks')">🗓 <span class="pv-label">Week</span></button>
+        <button type="button" data-pview="month" onclick="setPlanView('month')">📅 <span class="pv-label">Month</span></button>
+      </div>
+      <label class="plan-start"><span id="planStartLabel">Plan starts</span><input type="date" id="planStartInput" onchange="setPlanStartDate(this.value)"></label>
     </div>
     <div id="weeks"></div>
   </section>
@@ -1322,7 +1345,7 @@ const I18N = {
     navRecipes: 'Recipes', navPlan: 'Meal Plan', navShop: 'Shopping List', navBudget: 'Money',
     importTitle: 'Extract a recipe from caption text', extract: 'Extract recipe', demoCaption: 'Try demo caption text', demoLink: '',
     recipeDb: 'Your recipe database', manageCategories: 'Manage categories', newRecipe: '+ New recipe',
-    planTitle: 'Monthly plan - 4 weeks', savedPlans: '📂 Saved plans', newMonthPlan: '➕ New month plan', balanceSettings: 'Balance settings', autoBalance: 'Auto-balance the month', viewWeek: 'Week', viewMonth: 'Month',
+    planTitle: 'Monthly plan - 4 weeks', savedPlans: '📂 Saved plans', newMonthPlan: '➕ New month plan', balanceSettings: 'Balance settings', autoBalance: 'Auto-balance the month', viewWeek: 'Week', viewMonth: 'Month', planStarts: 'Plan starts',
     planHint: 'Each week has <span id="planTarget">21</span> meal slots: <span id="planMeals">3</span> meals per day across 7 days.',
     shopTitle: 'Smart shopping list', addItem: '+ Add item', shopHint: 'Built from the meals you planned, scaled to your family, with duplicates merged into weekly, 15-day, and monthly trips.',
     budgetTitle: 'Money management', drawerTitle: 'Choose meal', drawerRecipe: 'Recipe', drawerServings: 'Servings', drawerSave: 'Save', drawerRemove: 'Remove',
@@ -1371,7 +1394,7 @@ const I18N = {
     navRecipes: 'Recettes', navPlan: 'Planning', navShop: 'Liste de courses', navBudget: 'Budget',
     importTitle: 'Extraire une recette depuis un texte', extract: 'Extraire la recette', demoCaption: 'Essayer un texte demo', demoLink: '',
     recipeDb: 'Votre base de recettes', manageCategories: 'Gerer les categories', newRecipe: '+ Nouvelle recette',
-    planTitle: 'Planning mensuel - 4 semaines', savedPlans: '📂 Plans enregistres', newMonthPlan: '➕ Nouveau plan mensuel', balanceSettings: 'Criteres', autoBalance: 'Equilibrer le mois', viewWeek: 'Semaine', viewMonth: 'Mois',
+    planTitle: 'Planning mensuel - 4 semaines', savedPlans: '📂 Plans enregistres', newMonthPlan: '➕ Nouveau plan mensuel', balanceSettings: 'Criteres', autoBalance: 'Equilibrer le mois', viewWeek: 'Semaine', viewMonth: 'Mois', planStarts: 'Debut du plan',
     planHint: 'Chaque semaine contient <span id="planTarget">21</span> emplacements: <span id="planMeals">3</span> repas par jour sur 7 jours.',
     shopTitle: 'Liste de courses intelligente', addItem: '+ Ajouter un article', shopHint: 'Creee a partir des repas planifies, adaptee a votre famille, avec les doublons regroupes par achats hebdomadaires, 15 jours et mensuels.',
     budgetTitle: 'Gestion du budget', drawerTitle: 'Choisir un repas', drawerRecipe: 'Recette', drawerServings: 'Portions', drawerSave: 'Enregistrer', drawerRemove: 'Retirer',
@@ -1420,7 +1443,7 @@ const I18N = {
     navRecipes: 'الوصفات', navPlan: 'خطة الوجبات', navShop: 'قائمة التسوق', navBudget: 'الميزانية',
     importTitle: 'استخراج وصفة من نص', extract: 'استخراج الوصفة', demoCaption: 'تجربة نص', demoLink: '',
     recipeDb: 'قاعدة الوصفات', manageCategories: 'إدارة الفئات', newRecipe: '+ وصفة جديدة',
-    planTitle: 'الخطة الشهرية - 4 أسابيع', savedPlans: '📂 الخطط المحفوظة', newMonthPlan: '➕ خطة شهر جديد', balanceSettings: 'معايير الاختيار', autoBalance: 'تنظيم الشهر تلقائيا', viewWeek: 'أسبوع', viewMonth: 'شهر',
+    planTitle: 'الخطة الشهرية - 4 أسابيع', savedPlans: '📂 الخطط المحفوظة', newMonthPlan: '➕ خطة شهر جديد', balanceSettings: 'معايير الاختيار', autoBalance: 'تنظيم الشهر تلقائيا', viewWeek: 'أسبوع', viewMonth: 'شهر', planStarts: 'بداية الخطة',
     planHint: 'كل أسبوع يحتوي على <span id="planTarget">21</span> خانة وجبات: <span id="planMeals">3</span> وجبات في اليوم لمدة 7 أيام.',
     shopTitle: 'قائمة تسوق ذكية', addItem: '+ إضافة عنصر', shopHint: 'تجمع المكونات من الوجبات المخططة، حسب عدد أفراد العائلة، وتقسمها إلى مشتريات أسبوعية ونصف شهرية وشهرية.',
     budgetTitle: 'إدارة المال', drawerTitle: 'اختيار وجبة', drawerRecipe: 'الوصفة', drawerServings: 'الحصص', drawerSave: 'حفظ', drawerRemove: 'إزالة',
@@ -2015,6 +2038,8 @@ function applyLanguage() {
   const _ps = document.getElementById('planSavedBtn'); if (_ps) _ps.textContent = tr('savedPlans');
   const _pvw = document.querySelector('.plan-view-toggle button[data-pview="weeks"] .pv-label'); if (_pvw) _pvw.textContent = tr('viewWeek');
   const _pvm = document.querySelector('.plan-view-toggle button[data-pview="month"] .pv-label'); if (_pvm) _pvm.textContent = tr('viewMonth');
+  const _psl = document.getElementById('planStartLabel'); if (_psl) _psl.textContent = tr('planStarts');
+  const _psi = document.getElementById('planStartInput'); if (_psi && _psi.value !== planStartDate) _psi.value = planStartDate || '';
   const shopTitle = document.querySelector('#shop > .row.between h2.section'); if (shopTitle) shopTitle.textContent = tr('shopTitle');
   const shopBtn = document.querySelector('#shop > .row.between button'); if (shopBtn) shopBtn.textContent = tr('addItem');
   const shopHint = document.querySelector('#shop > .hint'); if (shopHint) shopHint.textContent = tr('shopHint');
@@ -2178,6 +2203,7 @@ function ensureOptionalSlotStyles() {
     main.plan-full{max-width:none;width:100%}
     main.plan-full #plan{width:100%}
     #weeks{direction:ltr}
+    [dir="rtl"] #weeks{direction:rtl}
     [dir="rtl"] #weeks .week-column,[dir="rtl"] #weeks .optional-addon-tray,[dir="rtl"] #weeks .week-day{direction:rtl}
     .month-board{grid-template-columns:repeat(4,minmax(230px,1fr));width:min(100%,1500px)!important;position:relative;left:50%;margin-inline:0!important;margin-left:0!important;transform:translateX(-50%)!important}
     .optional-addon-tray{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:fit-content;max-width:100%;margin:0;padding:6px 12px;background:var(--accent-soft);border-radius:24px}
@@ -2762,6 +2788,7 @@ function appStateSnapshot() {
     extraItems,
     nextExtraId,
     ingredientPrices,
+    planStartDate,
     savedPlans,
     balanceSettings,
     monthlyBudget,
@@ -2798,6 +2825,7 @@ function hydrateAppState(saved) {
   extraItems = Array.isArray(saved.extraItems) ? saved.extraItems : [];
   nextExtraId = Math.max(Number(saved.nextExtraId) || 1, ...extraItems.map(x => Number(x.id) || 0)) + 1;
   ingredientPrices = (saved.ingredientPrices && typeof saved.ingredientPrices === 'object') ? saved.ingredientPrices : {};
+  planStartDate = typeof saved.planStartDate === 'string' ? saved.planStartDate : '';
   savedPlans = Array.isArray(saved.savedPlans) ? saved.savedPlans : [];
   balanceSettings = Object.assign(balanceSettings, saved.balanceSettings || {});
   monthlyBudget = Number(saved.monthlyBudget) || 0;
@@ -3389,6 +3417,26 @@ saveRecipe = function() {
 let activePlanWeek = 0;
 function setPlanWeek(n){ activePlanWeek = Math.max(0, Math.min(3, n)); renderWeeks(); }
 let planView = 'weeks';
+let planStartDate = '';
+function isMobileView() { return typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(max-width:980px)').matches; }
+function setPlanStartDate(v) { planStartDate = v || ''; try { const el = document.getElementById('planStartInput'); if (el) el.value = planStartDate; } catch (e) {} renderWeeks(); if (typeof appStateHydrated !== 'undefined' && appStateHydrated) queueAppStateSave(); }
+function planDayDate(w, d) {
+  if (!planStartDate) return null;
+  const base = new Date(planStartDate + 'T00:00:00');
+  if (isNaN(base.getTime())) return null;
+  base.setDate(base.getDate() + (w * 7 + d));
+  return base;
+}
+function planDayLabels(w, d) {
+  const date = planDayDate(w, d);
+  if (date) {
+    const locale = { en: 'en-US', fr: 'fr-FR', ar: 'ar' }[currentLang] || 'en-US';
+    let wd;
+    try { wd = date.toLocaleDateString(locale, { weekday: 'short' }); } catch (e) { wd = date.toLocaleDateString('en-US', { weekday: 'short' }); }
+    return { label: wd, num: String(date.getDate()) };
+  }
+  return { label: dayLabel(d), num: String(w * 7 + d + 1) };
+}
 function setPlanView(v) { planView = (v === 'month') ? 'month' : 'weeks'; syncPlanViewToggle(); renderWeeks(); }
 function syncPlanViewToggle() {
   document.querySelectorAll('.plan-view-toggle button').forEach(b => b.classList.toggle('active', b.dataset.pview === planView));
@@ -3398,37 +3446,90 @@ function addToMonthDay(w, d) {
   const empty = slots.find(s => !(plan[w + '_' + d] || []).some(m => m.slot === s)) || slots[0];
   openMealDrawer(w, d, empty);
 }
-function renderMonthCalendar(wrap) {
+let selectedMonthDay = null;
+function selectMonthDay(w, d, date) { selectedMonthDay = { w, d, date }; renderWeeks(); }
+function renderMonthDayDetail(wrap) {
+  if (!selectedMonthDay) return;
+  const w = selectedMonthDay.w, d = selectedMonthDay.d, date = selectedMonthDay.date;
+  const panel = document.createElement('div'); panel.className = 'month-day-detail card';
+  let inner = `<div class="mdd-title">${htmlEscape(dayLabel(d))} ${date}</div>`;
+  slotsForDay(d).forEach(sname => {
+    const meal = (plan[w + '_' + d] || []).find(m => m.slot === sname);
+    const arg = encodeURIComponent(sname);
+    if (meal) {
+      const r = recipes.find(x => x.id === meal.recipeId);
+      inner += `<div class="mdd-slot"><span class="mdd-slot-label">${htmlEscape(slotLabel(sname))}</span><button class="meal-chip plan-chip" onclick="openMealDrawer(event,${w},${d},decodeURIComponent('${arg}'))">${htmlEscape(r ? r.title : '?')}</button></div>`;
+    } else {
+      inner += `<div class="mdd-slot"><span class="mdd-slot-label">${htmlEscape(slotLabel(sname))}</span><button class="add-slot" onclick="openMealDrawer(event,${w},${d},decodeURIComponent('${arg}'))">${htmlEscape(tr('add'))}</button></div>`;
+    }
+  });
+  panel.innerHTML = inner;
+  wrap.appendChild(panel);
+}
+function renderMonthCalendarMobile(wrap) {
   const now = new Date();
   const year = now.getFullYear(), month = now.getMonth();
   const locale = { en: 'en-US', fr: 'fr-FR', ar: 'ar' }[currentLang] || 'en-US';
   const head = document.createElement('div'); head.className = 'month-cal-head';
-  try { head.textContent = now.toLocaleDateString(locale, { month: 'long', year: 'numeric' }); }
-  catch (e) { head.textContent = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }); }
+  try { head.textContent = now.toLocaleDateString(locale, { month: 'long', year: 'numeric' }); } catch (e) { head.textContent = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }); }
+  wrap.appendChild(head);
+  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayDate = now.getDate();
+  if (!selectedMonthDay) {
+    const tIdx = firstDow + (todayDate - 1), tW = Math.floor(tIdx / 7);
+    selectedMonthDay = tW < 4 ? { w: tW, d: tIdx % 7, date: todayDate } : { w: 0, d: firstDow, date: 1 };
+  }
+  let html = '<div class="month-grid month-grid-mini">';
+  for (let d = 0; d < 7; d++) html += `<div class="month-grid-dow">${htmlEscape(dayLabel(d))}</div>`;
+  for (let i = 0; i < firstDow; i++) html += '<div class="mcell-blank"></div>';
+  for (let date = 1; date <= daysInMonth; date++) {
+    const idx = firstDow + (date - 1), weekRow = Math.floor(idx / 7), weekday = idx % 7;
+    let count = 0;
+    if (weekRow < 4) count = slotsForDay(weekday).filter(s => (plan[weekRow + '_' + weekday] || []).some(m => m.slot === s)).length;
+    const dots = '<span class="mday-dots">' + (count ? '•'.repeat(Math.min(count, 3)) : '') + '</span>';
+    const active = (selectedMonthDay.w === weekRow && selectedMonthDay.d === weekday && weekRow < 4) ? ' active' : '';
+    const today = date === todayDate ? ' today' : '';
+    html += weekRow < 4
+      ? `<button class="month-cell-mini${active}${today}" onclick="selectMonthDay(${weekRow},${weekday},${date})"><span class="mday-num">${date}</span>${dots}</button>`
+      : `<button class="month-cell-mini${today}" disabled><span class="mday-num">${date}</span></button>`;
+  }
+  html += '</div>';
+  wrap.insertAdjacentHTML('beforeend', html);
+  renderMonthDayDetail(wrap);
+}
+function renderMonthCalendar(wrap) {
+  const locale = { en: 'en-US', fr: 'fr-FR', ar: 'ar' }[currentLang] || 'en-US';
+  const start = planStartDate ? new Date(planStartDate + 'T00:00:00') : null;
+  const hasStart = !!(start && !isNaN(start.getTime()));
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const head = document.createElement('div'); head.className = 'month-cal-head';
+  if (hasStart) {
+    const end = new Date(start); end.setDate(end.getDate() + 27);
+    const fmt = dt => { try { return dt.toLocaleDateString(locale, { day: 'numeric', month: 'short' }); } catch (e) { return dt.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }); } };
+    head.textContent = fmt(start) + ' – ' + fmt(end);
+  } else { head.textContent = tr('viewMonth'); }
   wrap.appendChild(head);
   const grid = document.createElement('div'); grid.className = 'month-grid';
   for (let d = 0; d < 7; d++) { const h = document.createElement('div'); h.className = 'month-grid-dow'; h.textContent = dayLabel(d); grid.appendChild(h); }
-  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // Monday = 0
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const todayDate = now.getDate();
+  const firstDow = hasStart ? (start.getDay() + 6) % 7 : 0; // Monday = 0
   for (let i = 0; i < firstDow; i++) { const b = document.createElement('div'); b.className = 'month-grid-cell blank'; grid.appendChild(b); }
-  for (let date = 1; date <= daysInMonth; date++) {
-    const idx = firstDow + (date - 1);
-    const weekRow = Math.floor(idx / 7), weekday = idx % 7;
-    const cell = document.createElement('div'); cell.className = 'month-grid-cell' + (date === todayDate ? ' today' : '');
-    let inner = `<div class="month-grid-num">${date}</div>`;
-    if (weekRow < 4) {
-      let hasEmpty = false;
-      slotsForDay(weekday).forEach(sname => {
-        const meal = (plan[weekRow + '_' + weekday] || []).find(m => m.slot === sname);
-        if (meal) {
-          const r = recipes.find(x => x.id === meal.recipeId);
-          const arg = encodeURIComponent(sname);
-          inner += `<button class="month-meal-chip" title="${htmlEscape(r ? r.title : '')}" onclick="openMealDrawer(event,${weekRow},${weekday},decodeURIComponent('${arg}'))"><span class="cat-mini"></span>${htmlEscape(r ? r.title : '?')}</button>`;
-        } else { hasEmpty = true; }
-      });
-      if (hasEmpty) inner += `<button class="month-add-chip" onclick="addToMonthDay(${weekRow},${weekday})" title="${htmlEscape(tr('add'))}">＋</button>`;
-    }
+  for (let i = 0; i < 28; i++) {
+    const w = Math.floor(i / 7), d = i % 7;
+    let numLabel = String(i + 1), isToday = false;
+    if (hasStart) { const dt = new Date(start); dt.setDate(dt.getDate() + i); numLabel = String(dt.getDate()); isToday = dt.getTime() === today.getTime(); }
+    const cell = document.createElement('div'); cell.className = 'month-grid-cell' + (isToday ? ' today' : '');
+    let inner = `<div class="month-grid-num">${htmlEscape(numLabel)}</div>`;
+    let hasEmpty = false;
+    slotsForDay(d).forEach(sname => {
+      const meal = (plan[w + '_' + d] || []).find(m => m.slot === sname);
+      if (meal) {
+        const r = recipes.find(x => x.id === meal.recipeId);
+        const arg = encodeURIComponent(sname);
+        inner += `<button class="month-meal-chip" title="${htmlEscape(r ? r.title : '')}" onclick="openMealDrawer(event,${w},${d},decodeURIComponent('${arg}'))"><span class="cat-mini"></span>${htmlEscape(r ? r.title : '?')}</button>`;
+      } else { hasEmpty = true; }
+    });
+    if (hasEmpty) inner += `<button class="month-add-chip" onclick="addToMonthDay(${w},${d})" title="${htmlEscape(tr('add'))}">＋</button>`;
     cell.innerHTML = inner;
     grid.appendChild(cell);
   }
@@ -3441,7 +3542,7 @@ renderWeeks = function() {
   document.querySelector('main').classList.toggle('plan-full', document.getElementById('plan').classList.contains('active'));
   const _ah = document.getElementById('addonTrayHost'); if (_ah) _ah.innerHTML = optionalAddonTrayHtml();
   syncPlanViewToggle();
-  if (planView === 'month') { renderMonthCalendar(wrap); renderOptionalAddonPickState(); aBars(); return; }
+  if (planView === 'month' && !isMobileView()) { renderMonthCalendar(wrap); renderOptionalAddonPickState(); aBars(); return; }
   if (typeof activePlanWeek !== 'number' || activePlanWeek < 0 || activePlanWeek > 3) activePlanWeek = 0;
   const stats = [];
   for (let wk = 0; wk < 4; wk++) {
@@ -3491,7 +3592,7 @@ renderWeeks = function() {
       }).join('');
       const addons = addonHtml ? `<div class="day-addons">${addonHtml}</div>` : '';
       if (!slotHtml) slotHtml = '<div class="empty" style="padding:10px;font-size:12px">-</div>';
-      daysHtml += `<div class="week-day" onclick="placePickedOptionalAddon(event,${w},${d})" ondragover="dragOptionalAddonOver(event)" ondragleave="dragOptionalAddonLeave(event)" ondrop="dropOptionalAddon(event,${w},${d})"><div class="week-day-title"><span>${htmlEscape(dayLabel(d))}</span><span>${w * 7 + d + 1}</span></div><div class="week-day-slots">${slotHtml}</div>${addons}</div>`;
+      daysHtml += `<div class="week-day" onclick="placePickedOptionalAddon(event,${w},${d})" ondragover="dragOptionalAddonOver(event)" ondragleave="dragOptionalAddonLeave(event)" ondrop="dropOptionalAddon(event,${w},${d})"><div class="week-day-title"><span>${htmlEscape(planDayLabels(w,d).label)}</span><span>${htmlEscape(planDayLabels(w,d).num)}</span></div><div class="week-day-slots">${slotHtml}</div>${addons}</div>`;
     }
     daysHtml += '</div>';
     const barColor = variety >= 3 ? 'var(--green)' : variety === 2 ? '#d8a85a' : 'var(--accent)';
