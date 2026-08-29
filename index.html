@@ -54,20 +54,8 @@
   [dir="rtl"] .profile-dropdown{right:auto;left:0}
   [dir="rtl"] .profile-dropdown-item{text-align:right}
   nav{display:flex;gap:6px;padding:14px 22px 0;flex-wrap:wrap}
-  nav button{border:none;background:transparent;padding:10px 18px;border-radius:30px;cursor:pointer;font-size:15px;color:var(--muted);font-weight:700;font-family:inherit;display:inline-flex;align-items:center;gap:7px}
+  nav button{border:none;background:transparent;padding:10px 18px;border-radius:30px;cursor:pointer;font-size:15px;color:var(--muted);font-weight:700;font-family:inherit}
   nav button.active{background:var(--card);color:var(--accent-dark);box-shadow:var(--shadow)}
-  nav .nav-ico{font-size:17px;line-height:1}
-  @media (max-width:980px){
-    nav{position:fixed;bottom:0;left:0;right:0;z-index:85;background:#fff;border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom));margin:0;gap:2px;flex-wrap:nowrap;justify-content:space-around;box-shadow:0 -6px 20px rgba(199,91,140,.14)}
-    nav button{flex:1;flex-direction:column;gap:3px;padding:6px 2px;font-size:10.5px;border-radius:14px;min-width:0}
-    nav button .nav-label{font-size:10.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-    nav button.active{background:var(--accent-soft);color:var(--accent-dark);box-shadow:none}
-    nav .nav-ico{font-size:20px}
-    main{padding-bottom:84px}
-    header{padding:12px 16px;gap:10px}
-    header .tagline{display:none}
-    header h1{font-size:20px}
-  }
   main{padding:18px 22px 60px;max-width:1100px;margin:0 auto}
   .view{display:none}
   .view.active{display:block}
@@ -86,16 +74,6 @@
   .pill.monthly{background:var(--purple-soft);color:#8c4d8c}
   .ing-list{list-style:none;padding:0;margin:8px 0 0;font-size:13px}
   .ing-list li{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--line);gap:8px}
-  .recipe-view-btn{display:none}
-  @media (max-width:980px){
-    .recipe-card .recipe-details{display:none}
-    .recipe-view-btn{display:inline-block}
-    .recipes-grid{gap:10px}
-    .recipe-card{padding:13px 15px}
-    .recipe-card h3{font-size:16px}
-    .recipe-card .recipe-actions{margin-top:10px;gap:6px}
-    .recipe-card .recipe-actions .btn{flex:1;padding:7px 4px;font-size:12px}
-  }
   .btn{border:none;border-radius:30px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .15s}
   .btn-primary{background:linear-gradient(120deg,#e07ba6,#cf76c4);color:#fff;box-shadow:0 6px 16px rgba(208,118,196,.32)}
   .btn-primary:hover{transform:translateY(-1px);box-shadow:0 9px 22px rgba(208,118,196,.42)}
@@ -191,60 +169,10 @@
   .setup-edit{background:rgba(255,255,255,.26);color:#fff;border:1px solid rgba(255,255,255,.34)}
   main.plan-full{max-width:none;width:100%}
   #weeks{direction:ltr}
-  [dir="rtl"] #weeks{direction:rtl}
   [dir="rtl"] #weeks .week-column,[dir="rtl"] #weeks .week-day{direction:rtl}
   .month-board{display:grid;grid-template-columns:repeat(4,minmax(230px,1fr));gap:12px;width:min(100%,1500px);position:relative;left:50%;transform:translateX(-50%);align-items:start}
   .week-column.card{padding:12px;border-radius:16px}
   .week-column .week-head{margin-bottom:10px}
-  .week-tabs{display:none;gap:8px;flex-wrap:wrap;margin:4px 0 14px}
-  .week-tab{flex:1;min-width:84px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:8px 10px;cursor:pointer;font-family:inherit;font-weight:800;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .12s}
-  .week-tab small{font-weight:700;font-size:11px;opacity:.85}
-  .week-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:var(--shadow)}
-  .week-tab:hover{transform:translateY(-1px)}
-  .week-single{width:min(100%,640px);margin:0 auto}
-  .week-single .week-column.card{padding:14px}
-  .plan-view-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 14px}
-  .plan-start{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--muted)}
-  .plan-start input{padding:6px 10px}
-  @media (max-width:980px){ .plan-view-toggle{display:none} }
-  .plan-view-toggle{display:inline-flex;gap:4px;background:var(--accent-soft);border-radius:24px;padding:4px}
-  .plan-view-toggle button{border:none;background:transparent;border-radius:20px;padding:7px 16px;font-family:inherit;font-weight:800;font-size:13px;color:var(--accent-dark);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
-  .plan-view-toggle button.active{background:#fff;box-shadow:var(--shadow)}
-  .month-cal-head{font-family:'Playfair Display',serif;font-weight:700;font-size:19px;color:var(--accent-dark);text-align:center;margin:0 0 12px}
-  .month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-  .month-grid-cell.blank{background:transparent;border:none;min-height:0;padding:0}
-  .month-grid-cell.today{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
-  .month-grid-mini{gap:4px}
-  .mcell-blank{min-height:0}
-  .month-cell-mini{border:1px solid var(--line);background:#fffafc;border-radius:10px;min-height:44px;padding:3px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;cursor:pointer}
-  .month-cell-mini .mday-num{font-size:12px;font-weight:800;color:var(--ink)}
-  .month-cell-mini .mday-dots{font-size:9px;line-height:1;color:var(--accent);letter-spacing:1px;min-height:9px}
-  .month-cell-mini.today{border-color:var(--accent)}
-  .month-cell-mini.active{background:var(--accent);border-color:var(--accent)}
-  .month-cell-mini.active .mday-num,.month-cell-mini.active .mday-dots{color:#fff}
-  .month-cell-mini[disabled]{opacity:.35;cursor:default;background:transparent;border-style:dashed}
-  .month-day-detail{margin-top:14px;padding:14px}
-  .mdd-title{font-weight:900;color:var(--accent-dark);margin-bottom:8px;font-size:15px}
-  .mdd-slot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line)}
-  .mdd-slot:last-child{border-bottom:none}
-  .mdd-slot-label{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:800}
-  .mdd-slot .meal-chip,.mdd-slot .add-slot{flex:1;max-width:72%;text-align:center}
-  .month-grid-dow{text-align:center;font-size:11px;font-weight:800;color:var(--muted);padding:2px 0}
-  .month-grid-cell{background:#fffafc;border:1px solid var(--line);border-radius:12px;min-height:92px;padding:6px;display:flex;flex-direction:column;gap:3px}
-  .month-grid-num{font-size:11px;font-weight:800;color:var(--muted)}
-  .month-meal-chip{border:none;background:var(--accent-soft);color:var(--accent-dark);border-radius:7px;padding:3px 6px;font-size:10.5px;font-weight:700;cursor:pointer;text-align:start;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:inherit;display:flex;align-items:center;gap:3px}
-  .month-meal-chip:hover{background:var(--accent);color:#fff}
-  .month-add-chip{border:1px dashed var(--line);background:#fff;color:var(--muted);border-radius:7px;padding:2px;font-size:12px;cursor:pointer;font-family:inherit}
-  @media (max-width:980px){
-    .month-grid{gap:3px}
-    .month-grid-cell{min-height:66px;padding:4px;border-radius:9px}
-    .month-meal-chip{font-size:9px;padding:2px 4px}
-    .month-grid-dow{font-size:9px}
-    .plan-view-toggle button{padding:7px 12px;font-size:12px}
-  }
-  .shop-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 14px}
-  #shopContent .shop-week-card{display:none}
-  #shopContent .shop-week-card.shop-active{display:block}
   .week-days-list{display:grid;gap:8px}
   .week-day{background:#fffafc;border:1px solid var(--line);border-radius:12px;padding:8px;min-height:96px}
   .week-day-title{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-weight:800;font-size:12px;margin-bottom:6px}
@@ -265,12 +193,7 @@
   [dir="rtl"] .drawer-close{right:auto;left:14px}
   [dir="rtl"] .cat-mini{margin-right:0;margin-left:3px}
   body:not(.feature-budget) .budget-field{display:none!important}
-  @media (max-width:980px){
-    #weeks .week-tabs{display:flex}
-    .month-board{grid-template-columns:1fr;width:100%;max-width:none;left:auto;transform:none;margin:0}
-    .month-board > .week-column{display:none}
-    .month-board > .week-column.wk-active{display:block}
-  }
+  @media (max-width:980px){.month-board{grid-template-columns:repeat(4,220px);width:max-content;max-width:none}}
   @media (max-width:700px){main{padding-left:12px;padding-right:12px}.setup-progress{grid-template-columns:repeat(3,1fr)}.setup-card{border-radius:16px}.meal-drawer{width:100%}}
   .login-screen{position:fixed;inset:0;z-index:999;background:radial-gradient(1200px 500px at 90% -10%,#fbe3f0 0%,transparent 55%),radial-gradient(900px 500px at -10% 10%,#f3e7fb 0%,transparent 50%),var(--bg);display:flex;align-items:center;justify-content:center;padding:18px;transition:opacity .5s,visibility .5s}
   .login-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
@@ -299,6 +222,24 @@
 </div>
 <div class="setup-screen" id="setupScreen"></div>
 
+<div class="login-screen hidden" id="subExpiredScreen">
+  <div class="login-card" style="text-align:center;max-width:420px">
+    <div style="font-size:52px;margin-bottom:10px">🌸</div>
+    <h2 id="subExpiredTitle" style="color:var(--accent-dark);margin:0 0 6px;font-family:'Playfair Display',serif">Subscription Ended</h2>
+    <p id="subExpiredPlan" style="color:var(--muted);font-weight:700;margin:0 0 14px;font-size:14px"></p>
+    <p id="subExpiredMsg" style="margin:0 0 24px;line-height:1.65;color:var(--ink)"></p>
+    <a id="subRenewBtn" href="#" target="_blank" rel="noopener noreferrer"
+       class="btn btn-primary" style="display:inline-block;text-decoration:none;margin-bottom:18px;padding:12px 28px">
+      Renew via Instagram
+    </a>
+    <br>
+    <button id="subSignOutBtn" onclick="subExpiredSignOut()"
+      style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline;margin-top:4px">
+      Sign out / change account
+    </button>
+  </div>
+</div>
+
 <header>
   <div style="font-size:40px;line-height:1;width:56px;height:56px;display:flex;align-items:center;justify-content:center">🌸</div>
   <div>
@@ -307,7 +248,7 @@
   </div>
   <div class="controls">
     <div class="ctrl"><label>Family</label><button onclick="changeMembers(-1)">−</button><span class="count" id="memberCount">4</span><button onclick="changeMembers(1)">+</button></div>
-    <div class="ctrl meals-ctrl" onclick="openMealSlotsModal()" style="cursor:pointer"><label>Meals/day</label><span class="count" id="mealCount">3</span><span style="font-size:12px;opacity:.8">▾</span></div>
+    <div class="ctrl"><label>Meals/day</label><button onclick="changeMeals(-1)">−</button><span class="count" id="mealCount">3</span><button onclick="changeMeals(1)">+</button></div>
     <div class="profile-menu" id="profileMenu">
       <button class="profile-btn" id="profileMenuBtn" type="button" onclick="toggleProfileMenu(event)" aria-label="Account" title="Account">
         <span class="profile-avatar" id="profileAvatar">🌸</span><span id="profileMenuName" style="display:none">Account</span>
@@ -325,10 +266,10 @@
 </header>
 
 <nav>
-  <button class="active" data-view="recipes" onclick="showView('recipes',this)"><span class="nav-ico">📖</span><span class="nav-label">Recipes</span></button>
-  <button data-view="plan" onclick="showView('plan',this)"><span class="nav-ico">📅</span><span class="nav-label">Meal Plan</span></button>
-  <button data-view="shop" onclick="showView('shop',this)"><span class="nav-ico">🛒</span><span class="nav-label">Shopping List</span></button>
-  <button data-view="budget" onclick="showView('budget',this)"><span class="nav-ico">💰</span><span class="nav-label">Budget</span></button>
+  <button class="active" data-view="recipes" onclick="showView('recipes',this)">📖 Recipes</button>
+  <button data-view="plan" onclick="showView('plan',this)">📅 Meal Plan</button>
+  <button data-view="shop" onclick="showView('shop',this)">🛒 Shopping List</button>
+  <button data-view="budget" onclick="showView('budget',this)">💰 Budget</button>
 </nav>
 
 <main>
@@ -365,26 +306,16 @@
   </section>
 
   <section class="view" id="plan">
-    <div class="row between" style="align-items:center">
+    <div class="row between">
       <h2 class="section" style="margin:0">📅 Monthly plan — 4 weeks</h2>
-      <button class="btn btn-ghost btn-sm" id="planNewBtn" onclick="newPlanPrompt()">➕ New month plan</button>
-    </div>
-    <div class="plan-controls" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 4px">
-      <div class="plan-toolbar" style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary btn-sm" id="planAutoBtn" onclick="autoBalance()">⚖️ Auto-balance the month</button>
-        <button class="btn btn-ghost btn-sm" id="planBalanceBtn" onclick="openBalanceModal()">⚙️ Balance settings</button>
-        <button class="btn btn-ghost btn-sm" id="planSavedBtn" onclick="openPlansModal()">📂 Saved plans</button>
+      <div class="row">
+        <button class="btn btn-ghost btn-sm" onclick="openPlansModal()">📂 Saved plans</button>
+        <button class="btn btn-ghost btn-sm" onclick="newPlanPrompt()">🗑️ New month plan</button>
+        <button class="btn btn-ghost btn-sm" onclick="openBalanceModal()">⚙️ Balance settings</button>
+        <button class="btn btn-primary btn-sm" onclick="autoBalance()">⚖️ Auto-balance the month</button>
       </div>
-      <div id="addonTrayHost"></div>
     </div>
-    <div class="hint" style="display:none"><span id="planTarget">21</span><span id="planMeals">3</span></div>
-    <div class="plan-view-row">
-      <div class="plan-view-toggle">
-        <button type="button" data-pview="weeks" class="active" onclick="setPlanView('weeks')">🗓 <span class="pv-label">Week</span></button>
-        <button type="button" data-pview="month" onclick="setPlanView('month')">📅 <span class="pv-label">Month</span></button>
-      </div>
-      <label class="plan-start"><span id="planStartLabel">Plan starts</span><input type="date" id="planStartInput" onchange="setPlanStartDate(this.value)"></label>
-    </div>
+    <div class="hint">Each week has <span id="planTarget">21</span> meal slots (<span id="planMeals">3</span> meals/day × 7). The bar shows how full and how varied each week is — aim for a mix of categories so no week feels repetitive. Use <b>Balance settings</b> to control repeat limits, prioritized tags, and cost/time preference.</div>
     <div id="weeks"></div>
   </section>
 
@@ -393,7 +324,7 @@
       <h2 class="section" style="margin:0">🛒 Smart shopping list</h2>
       <button class="btn btn-primary btn-sm" onclick="openExtraModal()">+ Add item</button>
     </div>
-    <div class="hint">Pick a week, tick items as you buy them, and type a price to track cost. Add anything extra with "+ Add item".</div>
+    <div class="hint">Built from the whole month, scaled to your family, duplicates merged — then split by how often you buy: weekly items become one list per week, every-15-days items split into two stock-ups, and monthly items are one bulk run. Things that aren't in any recipe — salt, paper towels, cleaning supplies — can be added manually with "+ Add item"; they're tagged <b>extra</b> and can be removed anytime. Type a price next to any item to see cost estimates, or tick what you bought and use <b>Mark trip done</b> to log the total you spent on the Budget tab.</div>
     <div id="shopContent"></div>
   </section>
 
@@ -415,7 +346,7 @@
       </div>
     </div>
     <h2 class="section" style="margin:0 0 10px">🧾 Spend log</h2>
-    <div class="hint">Tick items and tap "✅ Mark trip done" on a shopping list to log what you spent.</div>
+    <div class="hint">Hit "✅ Mark trip done" on any shopping group (Shopping List tab) to log what you actually spent on that trip. Estimates use the prices you type next to each item in the shopping list.</div>
     <div id="spendLogContent"></div>
   </section>
 </main>
@@ -439,12 +370,6 @@
   <div class="row between" style="margin-top:16px"><button class="btn btn-ghost" onclick="closeRecipeModal()">Cancel</button><button class="btn btn-primary" onclick="saveRecipe()">Save recipe</button></div>
 </div></div>
 
-<div class="modal-bg" id="mealSlotsModal"><div class="modal" style="max-width:440px">
-  <h3 id="mealSlotsTitle">Meals per day</h3>
-  <p id="mealSlotsDesc" style="color:var(--muted);font-size:13px;margin-top:0">Choose which meals you plan each day.</p>
-  <div id="mealSlotsList" class="setup-options"></div>
-  <div class="row between" style="margin-top:16px"><button class="btn btn-primary" id="mealSlotsDone" onclick="closeMealSlotsModal()">Done</button></div>
-</div></div>
 <div class="modal-bg" id="catModal"><div class="modal" style="max-width:440px">
   <h3>Meal categories</h3>
   <p style="color:var(--muted);font-size:13px;margin-top:0">Add the categories you cook by. These appear as filters and on each recipe.</p>
@@ -534,12 +459,12 @@
 </div></div>
 
 <div class="modal-bg" id="newPlanPromptModal"><div class="modal" style="max-width:420px">
-  <h3 id="newPlanTitle">➕ Start a new month plan?</h3>
-  <p id="newPlanQuestion" style="color:var(--muted);font-size:13px;margin-top:0">Do you want to save the current plan before starting fresh?</p>
+  <h3>🗑️ Start a new month plan?</h3>
+  <p style="color:var(--muted);font-size:13px;margin-top:0">Do you want to save the current plan before starting fresh?</p>
   <div class="row between" style="margin-top:16px">
-    <button class="btn btn-ghost" id="newPlanCancelBtn" onclick="closeNewPlanPrompt()">Cancel</button>
-    <button class="btn btn-ghost" id="newPlanDiscardBtn" onclick="discardPlanAndNew()">🗑️ No, discard</button>
-    <button class="btn btn-primary" id="newPlanSaveBtn" onclick="savePlanAndNew()">💾 Yes, save it</button>
+    <button class="btn btn-ghost" onclick="closeNewPlanPrompt()">Cancel</button>
+    <button class="btn btn-ghost" onclick="discardPlanAndNew()">🗑️ No, discard</button>
+    <button class="btn btn-primary" onclick="savePlanAndNew()">💾 Yes, save it</button>
   </div>
 </div></div>
 
@@ -566,6 +491,8 @@ function isBudgetFeature() { return setupData && setupData.features && setupData
 /* ---------- Supabase integration ---------- */
 const SUPABASE_URL = 'https://yqbwdpqgphifqkqkylry.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxYndkcHFncGhpZnFrcWt5bHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzOTY4NTYsImV4cCI6MjA5Nzk3Mjg1Nn0.gTqq45OHhnmmAVZY7izdGhwvMuBCCXjRr_cI50CZrxc';
+// Renewal contact — update this to your actual Instagram URL
+const RENEWAL_URL = 'https://www.instagram.com/ikram_magaz/';
 let sb;
 function loadSupabase(timeout){
   timeout=timeout||5000;
@@ -648,6 +575,13 @@ async function login() {
     if (error || !data || !data.user) { err.textContent = 'Invalid username or password.'; return; }
     loggedInUser = user;
     localStorage.setItem('mealmate_user', user);
+    const sub = await checkSubscription(user);
+    if (sub.expired) {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('loginPass').value = '';
+      showSubscriptionExpired(sub);
+      return;
+    }
     document.getElementById('loginScreen').classList.add('hidden');
     bootMealMateV2();
   } catch (e) {
@@ -849,59 +783,6 @@ function showView(v,btn){
 }
 function changeMembers(d){members=Math.max(1,members+d);document.getElementById('memberCount').textContent=members;renderWeeks();renderShopping();}
 function changeMeals(d){mealsPerDay=Math.min(6,Math.max(1,mealsPerDay+d));document.getElementById('mealCount').textContent=mealsPerDay;document.getElementById('planMeals').textContent=mealsPerDay;document.getElementById('planTarget').textContent=mealsPerDay*7;renderWeeks();renderShopping();}
-function openMealSlotsModal(){ renderMealSlotsModal(); document.getElementById('mealSlotsModal').classList.add('open'); if(typeof aModal==='function')aModal('mealSlotsModal'); }
-function closeMealSlotsModal(){ document.getElementById('mealSlotsModal').classList.remove('open'); }
-function renderMealSlotsModal(){
-  const box = document.getElementById('mealSlotsList'); if(!box) return;
-  const t=document.getElementById('mealSlotsTitle'); if(t)t.textContent=tr('mealsPerWeek');
-  const ds=document.getElementById('mealSlotsDesc'); if(ds)ds.textContent=tr('mealChoiceIntro');
-  const done=document.getElementById('mealSlotsDone'); if(done)done.textContent=tr('close');
-  const selected = new Set(selectedMealSlots());
-  const rows = allMealSlotKeys().map(key => {
-    const isCustom = !MEAL_SLOT_KEYS.includes(key);
-    const del = isCustom ? `<button class="x" type="button" title="${htmlEscape(tr('del'))}" onclick="event.preventDefault();event.stopPropagation();deleteCustomMealSlot('${key}')">x</button>` : '';
-    return `<label class="setup-option ${selected.has(key)?'active':''}" style="cursor:pointer"><input type="checkbox" ${selected.has(key)?'checked':''} onchange="toggleMealSlotChoice('${key}',this.checked)"><span style="flex:1"><strong>${htmlEscape(slotLabel(key))}</strong></span>${del}</label>`;
-  }).join('');
-  const addRow = `<div class="row" style="margin-top:10px;gap:8px"><input id="newMealSlot" style="flex:1;min-width:150px" placeholder="${htmlEscape(tr('addMealPlaceholder'))}" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomMealSlot()}"><button class="btn btn-ghost btn-sm" onclick="addCustomMealSlot()">${htmlEscape(tr('addMeal'))}</button></div>`;
-  box.innerHTML = rows + addRow;
-}
-function toggleMealSlotChoice(key, on){
-  const slots = new Set(selectedMealSlots());
-  if(on) slots.add(key); else if(slots.size>1) slots.delete(key);
-  setupData.selectedMealSlots = allMealSlotKeys().filter(s=>slots.has(s));
-  syncMealCounts();
-  const mc = document.getElementById('mealCount'); if(mc) mc.textContent = mealsPerDay;
-  renderMealSlotsModal();
-  renderWeeks(); renderShopping();
-  try { localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup())); } catch(e){}
-  if (typeof appStateHydrated !== 'undefined' && appStateHydrated) queueAppStateSave();
-}
-function addCustomMealSlot(){
-  const input = document.getElementById('newMealSlot');
-  const label = (input && input.value.trim()) || '';
-  if(!label) return;
-  if(!Array.isArray(setupData.customMealSlots)) setupData.customMealSlots = [];
-  const key = 'cmeal_' + Date.now().toString(36);
-  setupData.customMealSlots.push({ key, label });
-  const slots = new Set(selectedMealSlots()); slots.add(key);
-  setupData.selectedMealSlots = allMealSlotKeys().filter(s=>slots.has(s));
-  if(input) input.value='';
-  syncMealCounts();
-  const mc = document.getElementById('mealCount'); if(mc) mc.textContent = mealsPerDay;
-  renderMealSlotsModal(); renderWeeks(); renderShopping();
-  try { localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup())); } catch(e){}
-  if (typeof appStateHydrated !== 'undefined' && appStateHydrated) queueAppStateSave();
-}
-function deleteCustomMealSlot(key){
-  setupData.customMealSlots = (setupData.customMealSlots||[]).filter(c=>c.key!==key);
-  setupData.selectedMealSlots = (setupData.selectedMealSlots||[]).filter(s=>s!==key);
-  if(!selectedMealSlots().length) setupData.selectedMealSlots = ['breakfast','lunch','dinner'];
-  syncMealCounts();
-  const mc = document.getElementById('mealCount'); if(mc) mc.textContent = mealsPerDay;
-  renderMealSlotsModal(); renderWeeks(); renderShopping();
-  try { localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup())); } catch(e){}
-  if (typeof appStateHydrated !== 'undefined' && appStateHydrated) queueAppStateSave();
-}
 
 /* ---------- Categories ---------- */
 function renderCatFilter(){
@@ -1345,7 +1226,7 @@ const I18N = {
     navRecipes: 'Recipes', navPlan: 'Meal Plan', navShop: 'Shopping List', navBudget: 'Money',
     importTitle: 'Extract a recipe from caption text', extract: 'Extract recipe', demoCaption: 'Try demo caption text', demoLink: '',
     recipeDb: 'Your recipe database', manageCategories: 'Manage categories', newRecipe: '+ New recipe',
-    planTitle: 'Monthly plan - 4 weeks', savedPlans: '📂 Saved plans', newMonthPlan: '➕ New month plan', balanceSettings: 'Balance settings', autoBalance: 'Auto-balance the month', viewWeek: 'Week', viewMonth: 'Month', planStarts: 'Plan starts',
+    planTitle: 'Monthly plan - 4 weeks', savedPlans: '📂 Saved plans', newMonthPlan: '🗑️ New month plan', balanceSettings: 'Balance settings', autoBalance: 'Auto-balance the month',
     planHint: 'Each week has <span id="planTarget">21</span> meal slots: <span id="planMeals">3</span> meals per day across 7 days.',
     shopTitle: 'Smart shopping list', addItem: '+ Add item', shopHint: 'Built from the meals you planned, scaled to your family, with duplicates merged into weekly, 15-day, and monthly trips.',
     budgetTitle: 'Money management', drawerTitle: 'Choose meal', drawerRecipe: 'Recipe', drawerServings: 'Servings', drawerSave: 'Save', drawerRemove: 'Remove',
@@ -1355,7 +1236,7 @@ const I18N = {
     addCategory: '+ Add category', categoryPlaceholder: 'Add your own category...', deleteCategory: 'Delete category', customCategory: 'Custom category', noReadyInCats: 'No starter recipes match these categories yet. Add a standard category to choose ready recipes, or continue and add your own recipes later.', showingFromCats: 'Showing starter recipes from the categories you chose.',
     mealPlanning: 'Meal planning', mealPlanningSub: 'Build the 4-week calendar', shopping: 'Shopping list', shoppingSub: 'Group ingredients into trips', money: 'Money management', moneySub: 'Track grocery budget and spend',
     back: 'Back', next: 'Next', finish: 'Start planning', selected: 'selected', search: 'Search recipes...', selectAll: 'Select shown', clear: 'Clear', popular: 'Use popular starter set',
-    mealsPerWeek: 'Meals per day', mealChoiceIntro: 'Choose exactly which meal moments you want to plan every day. The monthly calendar will use only these slots.', addMeal: '+ Add meal', addMealPlaceholder: 'New meal, e.g. Brunch, Suhoor', mealsSelected: 'meals selected', familySize: 'People in the family', repeatDays: 'Do not repeat the same recipe within', days: 'days',
+    mealsPerWeek: 'Meals per day', mealChoiceIntro: 'Choose exactly which meal moments you want to plan every day. The monthly calendar will use only these slots.', mealsSelected: 'meals selected', familySize: 'People in the family', repeatDays: 'Do not repeat the same recipe within', days: 'days',
     cheap: 'Favor cheaper recipes', quick: 'Favor quick recipes', healthy: 'Prefer healthy meals', vegetarian: 'Prefer vegetarian meals', variety: 'Maximize category variety', kidFriendly: 'Kid-friendly',
     criteriaIntro: 'Choose what the automatic planner should care about. These choices affect recipe selection, weekly variety, shopping rhythm, and how many cook-ahead meals appear.',
     seasonalProduce: 'Seasonal vegetables', seasonalProduceSub: 'Prefer recipes that use fresh, seasonal produce.',
@@ -1378,7 +1259,6 @@ const I18N = {
     catModalTitle: 'Meal categories', catModalDesc: 'Add the categories you cook by. These appear as filters and on each recipe.', close: 'Close',
     extraModalTitle: 'Add a non-recipe item', nameLabel: 'Name', qtyLabel: 'Qty', unitLabel: 'Unit', categoryOptional: 'Category (optional)', priceOptional: 'Price (optional)', addItemAction: 'Add item',
     balanceModalTitle: 'Auto-balance settings', balanceModalDesc: 'Choose what the month planner should optimize for.', noTagsYet: 'No tags yet - add some in your recipes.', saveAndBalance: 'Save & balance',
-    newPlanTitle: 'Start a new month plan?', newPlanQuestion: 'Do you want to save the current plan before starting fresh?', newPlanDiscard: 'No, discard', newPlanSave: 'Yes, save it',
     budgetInputLabel: 'Monthly grocery budget', spendLog: 'Spend log', spendHint: 'Mark a shopping trip done to log what you actually spent.', estimatedLabel: 'Estimated', actualSpent: 'Actual amount spent', source: 'Source', details: 'Details', currencyLabel: 'Currency', currencyIntro: 'Algeria uses Algerian dinar by default. Change this if your family shops in another country.',
     noRecipesFirst: 'Add some recipes first.', actualAmountError: 'Enter the actual amount spent.', overBudgetBy: 'Over budget by', pleaseAddName: 'Please add a name.',
     importNoIngredients: 'Could not detect ingredients from this text. Try pasting the full caption/transcript with quantities, for example "400g pasta".',
@@ -1394,7 +1274,7 @@ const I18N = {
     navRecipes: 'Recettes', navPlan: 'Planning', navShop: 'Liste de courses', navBudget: 'Budget',
     importTitle: 'Extraire une recette depuis un texte', extract: 'Extraire la recette', demoCaption: 'Essayer un texte demo', demoLink: '',
     recipeDb: 'Votre base de recettes', manageCategories: 'Gerer les categories', newRecipe: '+ Nouvelle recette',
-    planTitle: 'Planning mensuel - 4 semaines', savedPlans: '📂 Plans enregistres', newMonthPlan: '➕ Nouveau plan mensuel', balanceSettings: 'Criteres', autoBalance: 'Equilibrer le mois', viewWeek: 'Semaine', viewMonth: 'Mois', planStarts: 'Debut du plan',
+    planTitle: 'Planning mensuel - 4 semaines', savedPlans: '📂 Plans enregistres', newMonthPlan: '🗑️ Nouveau plan mensuel', balanceSettings: 'Criteres', autoBalance: 'Equilibrer le mois',
     planHint: 'Chaque semaine contient <span id="planTarget">21</span> emplacements: <span id="planMeals">3</span> repas par jour sur 7 jours.',
     shopTitle: 'Liste de courses intelligente', addItem: '+ Ajouter un article', shopHint: 'Creee a partir des repas planifies, adaptee a votre famille, avec les doublons regroupes par achats hebdomadaires, 15 jours et mensuels.',
     budgetTitle: 'Gestion du budget', drawerTitle: 'Choisir un repas', drawerRecipe: 'Recette', drawerServings: 'Portions', drawerSave: 'Enregistrer', drawerRemove: 'Retirer',
@@ -1404,7 +1284,7 @@ const I18N = {
     addCategory: '+ Ajouter une categorie', categoryPlaceholder: 'Ajouter votre categorie...', deleteCategory: 'Supprimer la categorie', customCategory: 'Categorie personnalisee', noReadyInCats: 'Aucune recette de depart ne correspond encore a ces categories. Ajoutez une categorie standard pour choisir des recettes pretes, ou continuez avec vos propres recettes plus tard.', showingFromCats: 'Recettes de depart affichees depuis les categories choisies.',
     mealPlanning: 'Planning des repas', mealPlanningSub: 'Construire le calendrier de 4 semaines', shopping: 'Liste de courses', shoppingSub: 'Regrouper les ingredients par courses', money: 'Gestion du budget', moneySub: 'Suivre budget et depenses',
     back: 'Retour', next: 'Suivant', finish: 'Commencer', selected: 'selectionnees', search: 'Rechercher une recette...', selectAll: 'Selectionner visibles', clear: 'Vider', popular: 'Selection populaire',
-    mealsPerWeek: 'Repas par jour', mealChoiceIntro: 'Choisissez les moments de repas a planifier chaque jour. Le calendrier mensuel utilisera uniquement ces emplacements.', addMeal: '+ Ajouter un repas', addMealPlaceholder: 'Nouveau repas, ex. Brunch, Suhoor', mealsSelected: 'repas selectionnes', familySize: 'Personnes dans la famille', repeatDays: 'Ne pas repeter la meme recette avant', days: 'jours',
+    mealsPerWeek: 'Repas par jour', mealChoiceIntro: 'Choisissez les moments de repas a planifier chaque jour. Le calendrier mensuel utilisera uniquement ces emplacements.', mealsSelected: 'repas selectionnes', familySize: 'Personnes dans la famille', repeatDays: 'Ne pas repeter la meme recette avant', days: 'jours',
     cheap: 'Favoriser les recettes economiques', quick: 'Favoriser les recettes rapides', healthy: 'Preferer les repas sains', vegetarian: 'Preferer le vegetarien', variety: 'Maximiser la variete', kidFriendly: 'Pour enfants',
     criteriaIntro: 'Choisissez ce que le planning automatique doit privilegier. Ces criteres influencent les recettes, la variete de la semaine, le rythme des courses et les repas prepares a l avance.',
     seasonalProduce: 'Legumes de saison', seasonalProduceSub: 'Favoriser les recettes avec legumes frais et de saison.',
@@ -1427,7 +1307,6 @@ const I18N = {
     catModalTitle: 'Categories de repas', catModalDesc: 'Ajoutez les categories que vous utilisez. Elles servent de filtres et apparaissent sur chaque recette.', close: 'Fermer',
     extraModalTitle: 'Ajouter un article hors recette', nameLabel: 'Nom', qtyLabel: 'Qte', unitLabel: 'Unite', categoryOptional: 'Categorie (optionnel)', priceOptional: 'Prix (optionnel)', addItemAction: 'Ajouter',
     balanceModalTitle: 'Criteres d equilibrage', balanceModalDesc: 'Choisissez ce que le planning mensuel doit privilegier.', noTagsYet: 'Aucun tag pour le moment - ajoutez-en dans vos recettes.', saveAndBalance: 'Enregistrer et equilibrer',
-    newPlanTitle: 'Commencer un nouveau plan du mois ?', newPlanQuestion: 'Voulez-vous enregistrer le plan actuel avant de recommencer ?', newPlanDiscard: 'Non, supprimer', newPlanSave: 'Oui, enregistrer',
     budgetInputLabel: 'Budget courses mensuel', spendLog: 'Journal des depenses', spendHint: 'Marquez une course comme faite pour enregistrer le montant reel.', estimatedLabel: 'Estime', actualSpent: 'Montant reel depense', source: 'Source', details: 'Details', currencyLabel: 'Devise', currencyIntro: 'En Algerie, la devise par defaut est le dinar algerien. Changez-la si votre famille fait les courses dans un autre pays.',
     noRecipesFirst: 'Ajoutez quelques recettes d abord.', actualAmountError: 'Entrez le montant reel depense.', overBudgetBy: 'Depassement du budget de', pleaseAddName: 'Ajoutez un nom.',
     importNoIngredients: 'Impossible de detecter les ingredients dans ce texte. Collez la legende ou transcription complete avec les quantites, par exemple "400g pates".',
@@ -1443,7 +1322,7 @@ const I18N = {
     navRecipes: 'الوصفات', navPlan: 'خطة الوجبات', navShop: 'قائمة التسوق', navBudget: 'الميزانية',
     importTitle: 'استخراج وصفة من نص', extract: 'استخراج الوصفة', demoCaption: 'تجربة نص', demoLink: '',
     recipeDb: 'قاعدة الوصفات', manageCategories: 'إدارة الفئات', newRecipe: '+ وصفة جديدة',
-    planTitle: 'الخطة الشهرية - 4 أسابيع', savedPlans: '📂 الخطط المحفوظة', newMonthPlan: '➕ خطة شهر جديد', balanceSettings: 'معايير الاختيار', autoBalance: 'تنظيم الشهر تلقائيا', viewWeek: 'أسبوع', viewMonth: 'شهر', planStarts: 'بداية الخطة',
+    planTitle: 'الخطة الشهرية - 4 أسابيع', savedPlans: '📂 الخطط المحفوظة', newMonthPlan: '🗑️ خطة شهر جديد', balanceSettings: 'معايير الاختيار', autoBalance: 'تنظيم الشهر تلقائيا',
     planHint: 'كل أسبوع يحتوي على <span id="planTarget">21</span> خانة وجبات: <span id="planMeals">3</span> وجبات في اليوم لمدة 7 أيام.',
     shopTitle: 'قائمة تسوق ذكية', addItem: '+ إضافة عنصر', shopHint: 'تجمع المكونات من الوجبات المخططة، حسب عدد أفراد العائلة، وتقسمها إلى مشتريات أسبوعية ونصف شهرية وشهرية.',
     budgetTitle: 'إدارة المال', drawerTitle: 'اختيار وجبة', drawerRecipe: 'الوصفة', drawerServings: 'الحصص', drawerSave: 'حفظ', drawerRemove: 'إزالة',
@@ -1453,7 +1332,7 @@ const I18N = {
     addCategory: '+ إضافة فئة', categoryPlaceholder: 'أضيفي فئة خاصة...', deleteCategory: 'حذف الفئة', customCategory: 'فئة خاصة', noReadyInCats: 'لا توجد وصفات جاهزة لهذه الفئات حاليا. أضيفي فئة أساسية لاختيار وصفات جاهزة، أو تابعي وأضيفي وصفاتك لاحقا.', showingFromCats: 'نعرض الوصفات الجاهزة من الفئات التي اخترتها.',
     mealPlanning: 'تخطيط الوجبات', mealPlanningSub: 'إنشاء تقويم 4 أسابيع', shopping: 'قائمة التسوق', shoppingSub: 'تجميع المكونات في رحلات شراء', money: 'إدارة المال', moneySub: 'متابعة ميزانية المشتريات',
     back: 'رجوع', next: 'التالي', finish: 'ابدئي التخطيط', selected: 'محددة', search: 'ابحثي عن وصفة...', selectAll: 'تحديد الظاهر', clear: 'إفراغ', popular: 'مجموعة مقترحة',
-    mealsPerWeek: 'وجبات في اليوم', mealChoiceIntro: 'اختاري الوجبات التي تريدين تخطيطها كل يوم. التقويم الشهري سيستعمل هذه الخانات فقط.', addMeal: '+ إضافة وجبة', addMealPlaceholder: 'وجبة جديدة، مثل: برانش، سحور', mealsSelected: 'وجبات محددة', familySize: 'عدد أفراد العائلة', repeatDays: 'عدم تكرار نفس الوصفة خلال', days: 'أيام',
+    mealsPerWeek: 'وجبات في اليوم', mealChoiceIntro: 'اختاري الوجبات التي تريدين تخطيطها كل يوم. التقويم الشهري سيستعمل هذه الخانات فقط.', mealsSelected: 'وجبات محددة', familySize: 'عدد أفراد العائلة', repeatDays: 'عدم تكرار نفس الوصفة خلال', days: 'أيام',
     cheap: 'تفضيل الوصفات الاقتصادية', quick: 'تفضيل الوصفات السريعة', healthy: 'تفضيل الوجبات الصحية', vegetarian: 'تفضيل النباتي', variety: 'زيادة التنوع بين الفئات', kidFriendly: 'مناسبة للأطفال',
     criteriaIntro: 'اختاري ما يجب أن يهتم به التخطيط التلقائي. هذه المعايير تؤثر على اختيار الوصفات، تنوع الأسبوع، طريقة التسوق، والوجبات التي يمكن تحضيرها مسبقا.',
     seasonalProduce: 'الخضر الموسمية', seasonalProduceSub: 'تفضيل الوصفات التي تستعمل خضر طازجة وموسمية.',
@@ -1476,7 +1355,6 @@ const I18N = {
     catModalTitle: 'فئات الوجبات', catModalDesc: 'أضيفي الفئات التي تطبخين بها. تظهر كفلاتر وعلى كل وصفة.', close: 'إغلاق',
     extraModalTitle: 'إضافة عنصر خارج الوصفات', nameLabel: 'الاسم', qtyLabel: 'الكمية', unitLabel: 'الوحدة', categoryOptional: 'الفئة (اختياري)', priceOptional: 'السعر (اختياري)', addItemAction: 'إضافة',
     balanceModalTitle: 'إعدادات التخطيط التلقائي', balanceModalDesc: 'اختاري ما يجب أن يراعيه مخطط الشهر.', noTagsYet: 'لا توجد وسوم بعد - أضيفيها داخل الوصفات.', saveAndBalance: 'حفظ وتنظيم',
-    newPlanTitle: 'بدء خطة شهر جديدة؟', newPlanQuestion: 'هل تريدين حفظ الخطة الحالية قبل البدء من جديد؟', newPlanDiscard: 'لا، احذفها', newPlanSave: 'نعم، احفظها',
     budgetInputLabel: 'ميزانية المشتريات الشهرية', spendLog: 'سجل المصاريف', spendHint: 'حددي رحلة التسوق كمنجزة لتسجيل المبلغ الحقيقي.', estimatedLabel: 'متوقع', actualSpent: 'المبلغ الحقيقي المصروف', source: 'المصدر', details: 'التفاصيل', currencyLabel: 'العملة', currencyIntro: 'في الجزائر العملة الافتراضية هي الدينار الجزائري. غيّريها إذا كانت العائلة تتسوق في بلد آخر.',
     noRecipesFirst: 'أضيفي بعض الوصفات أولا.', actualAmountError: 'أدخلي المبلغ الحقيقي المصروف.', overBudgetBy: 'تجاوزت الميزانية بـ', pleaseAddName: 'أضيفي اسما.',
     importNoIngredients: 'لم نتمكن من اكتشاف المكونات من هذا النص. الصقي الوصف أو التفريغ الكامل مع الكميات، مثلا "400g pasta".',
@@ -1489,25 +1367,23 @@ const I18N = {
 
 Object.assign(I18N.en, {
   optionalAddonsTitle: 'Optional add-ons',
-  optionalAddonsHint: 'Drag bread or dessert onto a day, or tap it then tap a day.',
+  optionalAddonsHint: 'Drag bread or dessert onto any day, or click one then click a day.',
   dropAddonHint: 'Drop to add'
 });
 Object.assign(I18N.fr, {
   optionalAddonsTitle: 'Extras optionnels',
-  optionalAddonsHint: 'Glissez le pain ou le dessert sur un jour, ou touchez puis touchez un jour.',
+  optionalAddonsHint: 'Glissez le pain ou le dessert sur un jour, ou cliquez puis choisissez un jour.',
   dropAddonHint: 'Deposez pour ajouter'
 });
 Object.assign(I18N.ar, {
   optionalAddonsTitle: 'إضافات اختيارية',
-  optionalAddonsHint: 'اسحبي الخبز أو التحلية إلى اليوم، أو اضغطي ثم اختاري اليوم.',
+  optionalAddonsHint: 'اسحبي الخبز أو التحلية إلى اليوم، أو اضغطي عليها ثم اختاري اليوم.',
   dropAddonHint: 'أفلتي هنا للإضافة'
 });
 
 Object.assign(I18N.en, {
   shoppingMergeNote: 'Shopping rhythm: Week 1 includes the monthly stock-up and the first 15-day stock-up. Week 3 includes the second 15-day stock-up.',
   shopCatProduce: 'Vegetables & fruits',
-  shopCatGrocery: 'Grocery',
-  shopCatMeats: 'Meats & fish',
   shopCatMeat: 'Meat & chicken',
   shopCatFish: 'Fish & seafood',
   shopCatDairy: 'Dairy & eggs',
@@ -1519,8 +1395,6 @@ Object.assign(I18N.en, {
 Object.assign(I18N.fr, {
   shoppingMergeNote: 'Organisation des courses : la semaine 1 inclut le stock mensuel et le premier achat de 15 jours. La semaine 3 inclut le deuxieme achat de 15 jours.',
   shopCatProduce: 'Legumes et fruits',
-  shopCatGrocery: 'Epicerie',
-  shopCatMeats: 'Viandes et poisson',
   shopCatMeat: 'Viande et poulet',
   shopCatFish: 'Poisson et fruits de mer',
   shopCatDairy: 'Laitages et oeufs',
@@ -1532,8 +1406,6 @@ Object.assign(I18N.fr, {
 Object.assign(I18N.ar, {
   shoppingMergeNote: 'تنظيم الشراء: مشتريات الأسبوع الأول معها مشتريات الشهر ومشتريات 15 يوم الأولى، ومشتريات الأسبوع الثالث معها مشتريات 15 يوم الثانية.',
   shopCatProduce: 'الخضر والفواكه',
-  shopCatGrocery: 'البقالة',
-  shopCatMeats: 'اللحوم والأسماك',
   shopCatMeat: 'اللحوم والدجاج',
   shopCatFish: 'السمك والمأكولات البحرية',
   shopCatDairy: 'الحليب والبيض والأجبان',
@@ -1580,17 +1452,41 @@ Object.assign(I18N.ar, {
 Object.assign(I18N.en, {
   account: 'Account',
   language: 'Language',
-  logout: 'Logout'
+  logout: 'Logout',
+  subExpiredTitle: 'Subscription Ended',
+  subExpiredMsg: 'Your subscription expired on {date}. All your data is safely saved — contact us to renew your access.',
+  subRenewBtn: 'Renew via Instagram',
+  subSignOut: 'Sign out / change account',
+  subPlan_monthly: 'Monthly subscription',
+  subPlan_3months: '3-month subscription',
+  subPlan_yearly: 'Yearly subscription',
+  subPlan_lifetime: 'Lifetime subscription'
 });
 Object.assign(I18N.fr, {
   account: 'Compte',
   language: 'Langue',
-  logout: 'Deconnexion'
+  logout: 'Deconnexion',
+  subExpiredTitle: 'Abonnement termine',
+  subExpiredMsg: 'Votre abonnement a expire le {date}. Vos donnees sont sauvegardes — contactez-nous pour renouveler votre acces.',
+  subRenewBtn: 'Renouveler via Instagram',
+  subSignOut: 'Deconnexion / changer de compte',
+  subPlan_monthly: 'Abonnement mensuel',
+  subPlan_3months: 'Abonnement 3 mois',
+  subPlan_yearly: 'Abonnement annuel',
+  subPlan_lifetime: 'Abonnement a vie'
 });
 Object.assign(I18N.ar, {
   account: 'الحساب',
   language: 'اللغة',
-  logout: 'تسجيل الخروج'
+  logout: 'تسجيل الخروج',
+  subExpiredTitle: 'انتهى الاشتراك',
+  subExpiredMsg: 'انتهى اشتراكك في {date}. بياناتك محفوظة بأمان — تواصلي معنا لتجديد الاشتراك.',
+  subRenewBtn: 'جدّدي عبر Instagram',
+  subSignOut: 'تسجيل الخروج / تغيير الحساب',
+  subPlan_monthly: 'اشتراك شهري',
+  subPlan_3months: 'اشتراك لمدة 3 أشهر',
+  subPlan_yearly: 'اشتراك سنوي',
+  subPlan_lifetime: 'اشتراك مدى الحياة'
 });
 
 const READY_RECIPE_DEFS = [
@@ -1849,7 +1745,6 @@ const setupData = {
   categoryTouched: false,
   mealsPerWeek: 21,
   selectedMealSlots: ['breakfast', 'lunch', 'dinner'],
-  customMealSlots: [],
   persons: 4,
   criteria: {
     repeatDays: 7,
@@ -1907,17 +1802,12 @@ function mealSlotKeysForCount(count) {
   const preferred = ['breakfast', 'lunch', 'dinner', 'morningSnack', 'afternoonSnack', 'snack', 'supper'];
   return preferred.slice(0, Math.max(1, Math.min(preferred.length, count || 3)));
 }
-function allMealSlotKeys() { return [...MEAL_SLOT_KEYS, ...((setupData && setupData.customMealSlots) || []).map(c => c.key)]; }
 function selectedMealSlots() {
   if (!setupData.selectedMealSlots || !setupData.selectedMealSlots.length) setupData.selectedMealSlots = ['breakfast', 'lunch', 'dinner'];
-  return allMealSlotKeys().filter(key => setupData.selectedMealSlots.includes(key));
+  return MEAL_SLOT_KEYS.filter(key => setupData.selectedMealSlots.includes(key));
 }
 function isOptionalDaySlot(slot) { return OPTIONAL_DAY_SLOT_KEYS.includes(slot); }
-function slotLabel(slot) {
-  if (MEAL_SLOT_KEYS.includes(slot) || isOptionalDaySlot(slot)) return tr(slot);
-  const custom = ((setupData && setupData.customMealSlots) || []).find(c => c.key === slot);
-  return custom ? custom.label : slot;
-}
+function slotLabel(slot) { return MEAL_SLOT_KEYS.includes(slot) || isOptionalDaySlot(slot) ? tr(slot) : slot; }
 function optionalSlotRecipes(slot) {
   if (slot === 'dessertAddon') return recipes.filter(r => r._catKey === 'dessert' || r.category === catLabel('dessert') || /dessert|sweet|gateau|dessert|تحلية|حلو|بسبوسة|طمينة|محلبي|موسكوتشو|قلب اللوز|مقروط/i.test(r.title));
   if (slot === 'breadAddon') {
@@ -2021,7 +1911,7 @@ function applyLanguage() {
   if (labels[1]) labels[1].textContent = tr('mealsWeek');
   const tagline = document.querySelector('header .tagline'); if (tagline) tagline.textContent = tr('tagline');
   const navMap = { recipes: 'navRecipes', plan: 'navPlan', shop: 'navShop', budget: 'navBudget' };
-  Object.keys(navMap).forEach(v => { const b = document.querySelector('nav button[data-view="' + v + '"]'); if (b) { const lab = b.querySelector('.nav-label'); if (lab) lab.textContent = tr(navMap[v]); else b.textContent = tr(navMap[v]); } });
+  Object.keys(navMap).forEach(v => { const b = document.querySelector('nav button[data-view="' + v + '"]'); if (b) b.textContent = tr(navMap[v]); });
   const importTitle = document.querySelector('#recipes .card h2.section'); if (importTitle) importTitle.textContent = tr('importTitle');
   const importBtn = document.querySelector('#recipes .card .btn-primary'); if (importBtn) importBtn.textContent = tr('extract');
   const demoBtns = document.querySelectorAll('#recipes .card .btn-ghost');
@@ -2032,14 +1922,12 @@ function applyLanguage() {
   if (recipeActions[0]) recipeActions[0].textContent = tr('manageCategories');
   if (recipeActions[1]) recipeActions[1].textContent = tr('newRecipe');
   const planTitle = document.querySelector('#plan > .row.between h2.section'); if (planTitle) planTitle.textContent = tr('planTitle');
-  const _pn = document.getElementById('planNewBtn'); if (_pn) _pn.textContent = tr('newMonthPlan');
-  const _pa = document.getElementById('planAutoBtn'); if (_pa) _pa.textContent = tr('autoBalance');
-  const _pb = document.getElementById('planBalanceBtn'); if (_pb) _pb.textContent = '⚙️ ' + tr('balanceSettings');
-  const _ps = document.getElementById('planSavedBtn'); if (_ps) _ps.textContent = tr('savedPlans');
-  const _pvw = document.querySelector('.plan-view-toggle button[data-pview="weeks"] .pv-label'); if (_pvw) _pvw.textContent = tr('viewWeek');
-  const _pvm = document.querySelector('.plan-view-toggle button[data-pview="month"] .pv-label'); if (_pvm) _pvm.textContent = tr('viewMonth');
-  const _psl = document.getElementById('planStartLabel'); if (_psl) _psl.textContent = tr('planStarts');
-  const _psi = document.getElementById('planStartInput'); if (_psi && _psi.value !== planStartDate) _psi.value = planStartDate || '';
+  const planBtns = document.querySelectorAll('#plan > .row.between button');
+  if (planBtns[0]) planBtns[0].textContent = tr('savedPlans');
+  if (planBtns[1]) planBtns[1].textContent = tr('newMonthPlan');
+  if (planBtns[2]) planBtns[2].textContent = '⚙️ ' + tr('balanceSettings');
+  if (planBtns[3]) planBtns[3].textContent = tr('autoBalance');
+  const planHint = document.querySelector('#plan > .hint'); if (planHint) planHint.innerHTML = tr('planHint');
   const shopTitle = document.querySelector('#shop > .row.between h2.section'); if (shopTitle) shopTitle.textContent = tr('shopTitle');
   const shopBtn = document.querySelector('#shop > .row.between button'); if (shopBtn) shopBtn.textContent = tr('addItem');
   const shopHint = document.querySelector('#shop > .hint'); if (shopHint) shopHint.textContent = tr('shopHint');
@@ -2088,11 +1976,6 @@ function translateStaticInterface() {
   const quickChecked = (document.getElementById('balQuick') && document.getElementById('balQuick').checked) || !!balanceSettings.favorQuick;
   if (critRows[0]) critRows[0].innerHTML = `<input type="checkbox" id="balQuick" ${quickChecked ? 'checked' : ''}>${htmlEscape(tr('quick'))}`;
   const balBtns = document.querySelectorAll('#balanceModal .row.between button'); if (balBtns[0]) balBtns[0].textContent = tr('cancel'); if (balBtns[1]) balBtns[1].textContent = tr('saveAndBalance');
-  const npt = document.getElementById('newPlanTitle'); if (npt) npt.textContent = '➕ ' + tr('newPlanTitle');
-  const npq = document.getElementById('newPlanQuestion'); if (npq) npq.textContent = tr('newPlanQuestion');
-  const npc = document.getElementById('newPlanCancelBtn'); if (npc) npc.textContent = tr('cancel');
-  const npd = document.getElementById('newPlanDiscardBtn'); if (npd) npd.textContent = '🗑️ ' + tr('newPlanDiscard');
-  const nps = document.getElementById('newPlanSaveBtn'); if (nps) nps.textContent = '💾 ' + tr('newPlanSave');
   const spendTitle = document.querySelector('#spendModal h3'); if (spendTitle) spendTitle.textContent = tr('done');
   setPrevLabel('spendEstimate', tr('estimatedLabel')); setPrevLabel('spendActual', tr('actualSpent'));
   const spendBtns = document.querySelectorAll('#spendModal .row.between button'); if (spendBtns[0]) spendBtns[0].textContent = tr('cancel'); if (spendBtns[1]) spendBtns[1].textContent = tr('saveSpend');
@@ -2195,6 +2078,71 @@ function renderProfileMenu() {
   }
   const logoutItem = document.getElementById('profileLogoutItem'); if (logoutItem) logoutItem.textContent = tr('logout');
 }
+
+// ─── Subscription gating ───────────────────────────────────────────────────
+async function checkSubscription(username) {
+  try {
+    const res = await fetch(
+      SUPABASE_URL + '/rest/v1/subscriptions?username=eq.' + encodeURIComponent(username) + '&select=expires_at,plan&limit=1',
+      { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY } }
+    );
+    if (!res.ok) return { expired: false, plan: null, expiresAt: null }; // fail open on server error
+    const rows = await res.json();
+    if (!rows || rows.length === 0) return { expired: true, plan: null, expiresAt: null }; // no record = expired
+    const row = rows[0];
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    return { expired: row.expires_at < today, plan: row.plan, expiresAt: row.expires_at };
+  } catch (e) {
+    console.warn('Subscription check failed', e);
+    return { expired: false, plan: null, expiresAt: null }; // fail open on network error
+  }
+}
+
+function showSubscriptionExpired(sub) {
+  // Apply stored language so direction/text is correct even before full boot
+  try {
+    const stored = JSON.parse(localStorage.getItem(SETUP_KEY) || '{}');
+    if (stored.lang && I18N[stored.lang]) {
+      currentLang = stored.lang;
+      document.documentElement.lang = currentLang;
+      document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    }
+  } catch (e) {}
+
+  const titleEl    = document.getElementById('subExpiredTitle');
+  const planEl     = document.getElementById('subExpiredPlan');
+  const msgEl      = document.getElementById('subExpiredMsg');
+  const renewBtn   = document.getElementById('subRenewBtn');
+  const signOutBtn = document.getElementById('subSignOutBtn');
+
+  if (titleEl) titleEl.textContent = tr('subExpiredTitle');
+  if (planEl)  planEl.textContent  = sub.plan ? tr('subPlan_' + sub.plan) : '';
+  if (msgEl) {
+    let dateStr = '';
+    if (sub.expiresAt) {
+      try {
+        const locale = currentLang === 'ar' ? 'ar-DZ' : currentLang === 'fr' ? 'fr-FR' : 'en-US';
+        dateStr = new Date(sub.expiresAt + 'T00:00:00').toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
+      } catch (e) { dateStr = sub.expiresAt; }
+    }
+    msgEl.textContent = tr('subExpiredMsg').replace('{date}', dateStr);
+  }
+  if (renewBtn) { renewBtn.textContent = tr('subRenewBtn'); renewBtn.href = RENEWAL_URL; }
+  if (signOutBtn) signOutBtn.textContent = tr('subSignOut');
+
+  document.getElementById('subExpiredScreen').classList.remove('hidden');
+}
+
+function subExpiredSignOut() {
+  loggedInUser = null;
+  localStorage.removeItem('mealmate_user');
+  if (sb) { try { sb.auth.signOut(); } catch (e) {} }
+  document.getElementById('subExpiredScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('loginPass').value = '';
+}
+// ──────────────────────────────────────────────────────────────────────────
+
 function ensureOptionalSlotStyles() {
   if (document.getElementById('optionalSlotStyles')) return;
   const style = document.createElement('style');
@@ -2203,13 +2151,13 @@ function ensureOptionalSlotStyles() {
     main.plan-full{max-width:none;width:100%}
     main.plan-full #plan{width:100%}
     #weeks{direction:ltr}
-    [dir="rtl"] #weeks{direction:rtl}
     [dir="rtl"] #weeks .week-column,[dir="rtl"] #weeks .optional-addon-tray,[dir="rtl"] #weeks .week-day{direction:rtl}
     .month-board{grid-template-columns:repeat(4,minmax(230px,1fr));width:min(100%,1500px)!important;position:relative;left:50%;margin-inline:0!important;margin-left:0!important;transform:translateX(-50%)!important}
-    .optional-addon-tray{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:fit-content;max-width:100%;margin:0;padding:6px 12px;background:var(--accent-soft);border-radius:24px}
-    .optional-addon-label{font-size:12.5px;font-weight:800;color:var(--accent-dark)}
-    .optional-addon-tools{display:flex;gap:6px;flex-wrap:wrap}
-    .optional-addon-drag{border:1px solid var(--line);background:#fff;color:var(--accent-dark);border-radius:20px;padding:6px 12px;font-size:12.5px;font-weight:800;cursor:grab;font-family:inherit}
+    .optional-addon-tray{width:min(100%,1500px);position:relative;left:50%;transform:translateX(-50%);margin:0 0 12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow)}
+    .optional-addon-copy strong{display:block;font-size:14px}
+    .optional-addon-copy span{display:block;color:var(--muted);font-size:12px;margin-top:1px}
+    .optional-addon-tools{display:flex;gap:8px;flex-wrap:wrap}
+    .optional-addon-drag{border:1px solid var(--line);background:var(--accent-soft);color:var(--accent-dark);border-radius:20px;padding:8px 12px;font-weight:800;cursor:grab;font-family:inherit}
     .optional-addon-drag:active{cursor:grabbing}
     .optional-addon-drag.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 5px 14px rgba(224,123,166,.28)}
     #weeks.addon-pick-mode .week-day{cursor:copy}
@@ -2218,12 +2166,7 @@ function ensureOptionalSlotStyles() {
     .day-addons{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;border-top:1px dashed var(--line);padding-top:6px}
     .addon-chip{border:1px solid var(--line);background:var(--purple-soft);color:#854c87;border-radius:18px;padding:4px 7px;font-size:10px;font-weight:800;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:inherit}
     .addon-chip:hover{border-color:var(--accent);color:var(--accent-dark)}
-    @media (max-width:980px){
-      #weeks .week-tabs{display:flex!important}
-      .month-board{grid-template-columns:1fr!important;width:100%!important;max-width:none!important;left:auto!important;transform:none!important;margin:0!important}
-      .month-board > .week-column{display:none!important}
-      .month-board > .week-column.wk-active{display:block!important}
-    }
+    @media (max-width:980px){.month-board{grid-template-columns:repeat(4,220px);width:max-content!important;max-width:none}}
   `;
   document.head.appendChild(style);
 }
@@ -2290,14 +2233,8 @@ function ensureShoppingCategoryStyles() {
     .shop-category.pantry .shop-category-icon{background:#efe9f9;color:#67559a}
     .shop-category.spices .shop-category-icon{background:#ffe8d6;color:#aa6934}
     .shop-category.other .shop-category-icon{background:#f0edf0;color:#816b7b}
-    .shop-category.vegfruit .shop-category-icon{background:#e2f1ec;color:#3f7a68}
-    .shop-category.meats .shop-category-icon{background:#fbe0e5;color:#bf4f67}
-    .shop-category.grocery .shop-category-icon{background:#efe9f9;color:#67559a}
     .shop-category .shop-item{border:none;border-bottom:1px dashed var(--line);border-radius:0;margin-bottom:0;background:#fff}
     .shop-category .shop-item:last-child{border-bottom:none}
-    .shop-cat-chevron{display:inline-block;transition:transform .15s;margin-left:4px}
-    .shop-category.collapsed .shop-cat-chevron{transform:rotate(-90deg)}
-    .shop-category.collapsed .shop-item{display:none}
   `;
   document.head.appendChild(style);
 }
@@ -2584,7 +2521,10 @@ function optionalAddonTrayHtml() {
       ${htmlEscape(slotLabel(slot))}
     </button>
   `).join('');
-  return `<div class="optional-addon-tray" title="${htmlEscape(tr('optionalAddonsHint'))}"><span class="optional-addon-label">${htmlEscape(tr('optionalAddonsTitle'))}</span><div class="optional-addon-tools">${chips}</div></div>`;
+  return `<div class="optional-addon-tray">
+    <div class="optional-addon-copy"><strong>${htmlEscape(tr('optionalAddonsTitle'))}</strong><span>${htmlEscape(tr('optionalAddonsHint'))}</span></div>
+    <div class="optional-addon-tools">${chips}</div>
+  </div>`;
 }
 function renderOptionalAddonPickState() {
   const weeks = document.getElementById('weeks');
@@ -2655,7 +2595,6 @@ function serializeSetup() {
     customCategories: setupData.customCategories,
     mealsPerWeek: setupData.mealsPerWeek,
     selectedMealSlots: setupData.selectedMealSlots,
-    customMealSlots: setupData.customMealSlots,
     persons: setupData.persons,
     criteria: setupData.criteria
   };
@@ -2669,8 +2608,7 @@ function hydrateSetup(saved) {
   setupData.categoryKeys = new Set(Array.isArray(saved.categoryKeys) ? saved.categoryKeys : Object.keys(CATEGORY_LIBRARY));
   setupData.customCategories = Array.isArray(saved.customCategories) ? saved.customCategories : [];
   setupData.mealsPerWeek = saved.mealsPerWeek || 21;
-  setupData.customMealSlots = Array.isArray(saved.customMealSlots) ? saved.customMealSlots : [];
-  setupData.selectedMealSlots = Array.isArray(saved.selectedMealSlots) && saved.selectedMealSlots.length ? saved.selectedMealSlots.filter(key => allMealSlotKeys().includes(key)) : mealSlotKeysForCount(Math.ceil((saved.mealsPerWeek || 21) / 7));
+  setupData.selectedMealSlots = Array.isArray(saved.selectedMealSlots) && saved.selectedMealSlots.length ? saved.selectedMealSlots.filter(key => MEAL_SLOT_KEYS.includes(key)) : mealSlotKeysForCount(Math.ceil((saved.mealsPerWeek || 21) / 7));
   if (!setupData.selectedMealSlots.length) setupData.selectedMealSlots = ['breakfast', 'lunch', 'dinner'];
   setupData.persons = saved.persons || 4;
   setupData.criteria = Object.assign(setupData.criteria, saved.criteria || {});
@@ -2692,22 +2630,15 @@ function reconcileCategoriesIntoSetup() {
   categories = [...setupData.categoryKeys].map(catLabel);
 }
 function normalizeCategoryList() {
-  // The user's chosen/managed categories (onboarding + "Manage categories") are the
-  // source of truth. Do NOT auto-add every category used by a recipe, otherwise the
-  // 100 starter recipes (which span all default categories) refill the list each time.
   const seen = new Set();
   const next = [];
-  [...setupData.categoryKeys].map(catLabel).forEach(cat => {
+  [...(categories || []), ...recipes.map(r => r.category).filter(Boolean)].forEach(cat => {
     const key = String(cat || '').trim();
-    if (key && !seen.has(key)) { seen.add(key); next.push(key); }
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    next.push(key);
   });
-  if (!next.length) {
-    recipes.map(r => r.category).filter(Boolean).forEach(cat => {
-      const key = String(cat).trim();
-      if (key && !seen.has(key)) { seen.add(key); next.push(key); }
-    });
-  }
-  categories = next;
+  categories = next.length ? next : [...setupData.categoryKeys].map(catLabel);
   if (activeFilter !== 'All' && !seen.has(activeFilter)) activeFilter = 'All';
 }
 /* ---------- Plan save/load ---------- */
@@ -2788,7 +2719,6 @@ function appStateSnapshot() {
     extraItems,
     nextExtraId,
     ingredientPrices,
-    planStartDate,
     savedPlans,
     balanceSettings,
     monthlyBudget,
@@ -2825,7 +2755,6 @@ function hydrateAppState(saved) {
   extraItems = Array.isArray(saved.extraItems) ? saved.extraItems : [];
   nextExtraId = Math.max(Number(saved.nextExtraId) || 1, ...extraItems.map(x => Number(x.id) || 0)) + 1;
   ingredientPrices = (saved.ingredientPrices && typeof saved.ingredientPrices === 'object') ? saved.ingredientPrices : {};
-  planStartDate = typeof saved.planStartDate === 'string' ? saved.planStartDate : '';
   savedPlans = Array.isArray(saved.savedPlans) ? saved.savedPlans : [];
   balanceSettings = Object.assign(balanceSettings, saved.balanceSettings || {});
   monthlyBudget = Number(saved.monthlyBudget) || 0;
@@ -3215,6 +3144,7 @@ function renderCriteriaStep() {
     ${option('pantryStaples', tr('pantryStaples'), tr('pantryStaplesSub'))}
     ${option('proteinVariety', tr('proteinVariety'), tr('proteinVarietySub'))}
     ${option('freshBalance', tr('freshBalance'), tr('freshBalanceSub'))}
+    <label class="setup-option ${c.favorCheap ? 'active' : ''}"><input type="checkbox" ${c.favorCheap ? 'checked' : ''} onchange="setupData.criteria.favorCheap=this.checked;this.closest('.setup-option').classList.toggle('active',this.checked)"><span><strong>${htmlEscape(tr('cheap'))}</strong></span></label>
     <label class="setup-option ${c.favorQuick ? 'active' : ''}"><input type="checkbox" ${c.favorQuick ? 'checked' : ''} onchange="setupData.criteria.favorQuick=this.checked;this.closest('.setup-option').classList.toggle('active',this.checked)"><span><strong>${htmlEscape(tr('quick'))}</strong></span></label>
     <label class="setup-option ${c.variety ? 'active' : ''}"><input type="checkbox" ${c.variety ? 'checked' : ''} onchange="setupData.criteria.variety=this.checked;this.closest('.setup-option').classList.toggle('active',this.checked)"><span><strong>${htmlEscape(tr('variety'))}</strong></span></label>
     ${tags.map(([tag, label]) => `<label class="setup-option ${(c.tags || []).includes(tag) ? 'active' : ''}"><input type="checkbox" ${(c.tags || []).includes(tag) ? 'checked' : ''} onchange="setupCriteriaTag('${tag}',this.checked);this.closest('.setup-option').classList.toggle('active',this.checked)"><span><strong>${htmlEscape(label)}</strong></span></label>`).join('')}
@@ -3312,14 +3242,11 @@ renderRecipes = function() {
     const extraBits = [];
     if (typeof r.prepMinutes === 'number') extraBits.push(r.prepMinutes + ' min');
     const sourceHtml = r.sourceLink ? `<div class="meta"><b>${htmlEscape(tr('source'))}:</b> <a href="${htmlEscape(r.sourceLink)}" target="_blank" rel="noopener">${htmlEscape(tr('recipeLink'))}</a></div>` : '';
-    const catTag = r.category ? `<span class="cat-tag">${htmlEscape(r.category)}</span>` : '';
-    card.innerHTML = `<div class="row between" style="align-items:center;gap:8px"><h3 style="margin:0;flex:1;cursor:pointer" onclick="viewRecipe(${r.id})">${htmlEscape(r.title)}</h3>${catTag}</div>
-      <div class="recipe-details">
+    card.innerHTML = `<div class="row between"><h3>${htmlEscape(r.title)}</h3><span class="cat-tag">${htmlEscape(r.category || '-')}</span></div>
       <div class="meta">${htmlEscape(tr('serves'))} ${r.baseServings} - ${htmlEscape(r.tags.join(', ') || '')}${extraBits.length ? ' - ' + extraBits.join(' - ') : ''}</div>
       ${sourceHtml}
       <ul class="ing-list">${ings}</ul>
-      </div>
-      <div class="row recipe-actions" style="margin-top:12px"><button class="btn btn-primary btn-sm recipe-view-btn" onclick="viewRecipe(${r.id})">👁 ${htmlEscape(tr('details'))}</button><button class="btn btn-ghost btn-sm" onclick="openRecipeModal(${r.id})">✎ ${htmlEscape(tr('edit'))}</button><button class="btn btn-ghost btn-sm" onclick="delRecipe(${r.id})">🗑 ${htmlEscape(tr('del'))}</button></div>`;
+      <div class="row" style="margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="openRecipeModal(${r.id})">${htmlEscape(tr('edit'))}</button><button class="btn btn-ghost btn-sm" onclick="delRecipe(${r.id})">${htmlEscape(tr('del'))}</button></div>`;
     g.appendChild(card);
   });
   aStagger('#recipeGrid .recipe-card');
@@ -3355,18 +3282,10 @@ function translateRecipeModalLabels() {
   if (lastTwo[0]) lastTwo[0].textContent = tr('cancel');
   if (lastTwo[1]) lastTwo[1].textContent = tr('saveRecipeLabel');
 }
-function refreshIngredientDatalist() {
-  let dl = document.getElementById('ingredientList');
-  if (!dl) { dl = document.createElement('datalist'); dl.id = 'ingredientList'; document.body.appendChild(dl); }
-  const names = new Set();
-  recipes.forEach(r => (r.ingredients || []).forEach(i => { const n = (i.name || '').trim(); if (n) names.add(n); }));
-  (typeof extraItems !== 'undefined' ? extraItems : []).forEach(it => { const n = (it.name || '').trim(); if (n) names.add(n); });
-  dl.innerHTML = [...names].sort((a, b) => String(a).localeCompare(String(b))).map(n => `<option value="${htmlEscape(n)}"></option>`).join('');
-}
 addIngRow = function(data) {
   const d = document.getElementById('ingRows');
   const row = document.createElement('div'); row.className = 'ing-row';
-  row.innerHTML = `<input class="i-name" list="ingredientList" autocomplete="off" value="${htmlEscape(data ? data.name : '')}" placeholder="${htmlEscape(tr('ingName'))}">
+  row.innerHTML = `<input class="i-name" value="${htmlEscape(data ? data.name : '')}" placeholder="${htmlEscape(tr('ingName'))}">
     <input class="i-qty" type="number" step="any" value="${data ? data.qty : ''}" placeholder="2">
     <select class="i-cad"><option value="weekly">${htmlEscape(tr('cadenceWeekly'))}</option><option value="biweekly">${htmlEscape(tr('cadenceBiweekly'))}</option><option value="monthly">${htmlEscape(tr('cadenceMonthly'))}</option></select>
     <button class="x" onclick="this.parentElement.remove()">x</button>`;
@@ -3376,7 +3295,6 @@ addIngRow = function(data) {
 openRecipeModal = function(id) {
   editingId = id || null;
   ensureRecipeModalStyles();
-  refreshIngredientDatalist();
   ensureRecipeSourceField();
   translateRecipeModalLabels();
   document.getElementById('modalTitle').textContent = id ? tr('editRecipeTitle') : tr('newRecipeTitle');
@@ -3414,157 +3332,19 @@ saveRecipe = function() {
   if (editingId) Object.assign(recipes.find(r => r.id === editingId), data); else { data.id = nextId++; recipes.push(data); }
   closeRecipeModal(); renderRecipes(); renderShopping();
 };
-let activePlanWeek = 0;
-function setPlanWeek(n){ activePlanWeek = Math.max(0, Math.min(3, n)); renderWeeks(); }
-let planView = 'weeks';
-let planStartDate = '';
-function isMobileView() { return typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(max-width:980px)').matches; }
-function setPlanStartDate(v) { planStartDate = v || ''; try { const el = document.getElementById('planStartInput'); if (el) el.value = planStartDate; } catch (e) {} renderWeeks(); if (typeof appStateHydrated !== 'undefined' && appStateHydrated) queueAppStateSave(); }
-function planDayDate(w, d) {
-  if (!planStartDate) return null;
-  const base = new Date(planStartDate + 'T00:00:00');
-  if (isNaN(base.getTime())) return null;
-  base.setDate(base.getDate() + (w * 7 + d));
-  return base;
-}
-function planDayLabels(w, d) {
-  const date = planDayDate(w, d);
-  if (date) {
-    const locale = { en: 'en-US', fr: 'fr-FR', ar: 'ar' }[currentLang] || 'en-US';
-    let wd;
-    try { wd = date.toLocaleDateString(locale, { weekday: 'short' }); } catch (e) { wd = date.toLocaleDateString('en-US', { weekday: 'short' }); }
-    return { label: wd, num: String(date.getDate()) };
-  }
-  return { label: dayLabel(d), num: String(w * 7 + d + 1) };
-}
-function setPlanView(v) { planView = (v === 'month') ? 'month' : 'weeks'; syncPlanViewToggle(); renderWeeks(); }
-function syncPlanViewToggle() {
-  document.querySelectorAll('.plan-view-toggle button').forEach(b => b.classList.toggle('active', b.dataset.pview === planView));
-}
-function addToMonthDay(w, d) {
-  const slots = slotsForDay(d);
-  const empty = slots.find(s => !(plan[w + '_' + d] || []).some(m => m.slot === s)) || slots[0];
-  openMealDrawer(w, d, empty);
-}
-let selectedMonthDay = null;
-function selectMonthDay(w, d, date) { selectedMonthDay = { w, d, date }; renderWeeks(); }
-function renderMonthDayDetail(wrap) {
-  if (!selectedMonthDay) return;
-  const w = selectedMonthDay.w, d = selectedMonthDay.d, date = selectedMonthDay.date;
-  const panel = document.createElement('div'); panel.className = 'month-day-detail card';
-  let inner = `<div class="mdd-title">${htmlEscape(dayLabel(d))} ${date}</div>`;
-  slotsForDay(d).forEach(sname => {
-    const meal = (plan[w + '_' + d] || []).find(m => m.slot === sname);
-    const arg = encodeURIComponent(sname);
-    if (meal) {
-      const r = recipes.find(x => x.id === meal.recipeId);
-      inner += `<div class="mdd-slot"><span class="mdd-slot-label">${htmlEscape(slotLabel(sname))}</span><button class="meal-chip plan-chip" onclick="openMealDrawer(event,${w},${d},decodeURIComponent('${arg}'))">${htmlEscape(r ? r.title : '?')}</button></div>`;
-    } else {
-      inner += `<div class="mdd-slot"><span class="mdd-slot-label">${htmlEscape(slotLabel(sname))}</span><button class="add-slot" onclick="openMealDrawer(event,${w},${d},decodeURIComponent('${arg}'))">${htmlEscape(tr('add'))}</button></div>`;
-    }
-  });
-  panel.innerHTML = inner;
-  wrap.appendChild(panel);
-}
-function renderMonthCalendarMobile(wrap) {
-  const now = new Date();
-  const year = now.getFullYear(), month = now.getMonth();
-  const locale = { en: 'en-US', fr: 'fr-FR', ar: 'ar' }[currentLang] || 'en-US';
-  const head = document.createElement('div'); head.className = 'month-cal-head';
-  try { head.textContent = now.toLocaleDateString(locale, { month: 'long', year: 'numeric' }); } catch (e) { head.textContent = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }); }
-  wrap.appendChild(head);
-  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const todayDate = now.getDate();
-  if (!selectedMonthDay) {
-    const tIdx = firstDow + (todayDate - 1), tW = Math.floor(tIdx / 7);
-    selectedMonthDay = tW < 4 ? { w: tW, d: tIdx % 7, date: todayDate } : { w: 0, d: firstDow, date: 1 };
-  }
-  let html = '<div class="month-grid month-grid-mini">';
-  for (let d = 0; d < 7; d++) html += `<div class="month-grid-dow">${htmlEscape(dayLabel(d))}</div>`;
-  for (let i = 0; i < firstDow; i++) html += '<div class="mcell-blank"></div>';
-  for (let date = 1; date <= daysInMonth; date++) {
-    const idx = firstDow + (date - 1), weekRow = Math.floor(idx / 7), weekday = idx % 7;
-    let count = 0;
-    if (weekRow < 4) count = slotsForDay(weekday).filter(s => (plan[weekRow + '_' + weekday] || []).some(m => m.slot === s)).length;
-    const dots = '<span class="mday-dots">' + (count ? '•'.repeat(Math.min(count, 3)) : '') + '</span>';
-    const active = (selectedMonthDay.w === weekRow && selectedMonthDay.d === weekday && weekRow < 4) ? ' active' : '';
-    const today = date === todayDate ? ' today' : '';
-    html += weekRow < 4
-      ? `<button class="month-cell-mini${active}${today}" onclick="selectMonthDay(${weekRow},${weekday},${date})"><span class="mday-num">${date}</span>${dots}</button>`
-      : `<button class="month-cell-mini${today}" disabled><span class="mday-num">${date}</span></button>`;
-  }
-  html += '</div>';
-  wrap.insertAdjacentHTML('beforeend', html);
-  renderMonthDayDetail(wrap);
-}
-function renderMonthCalendar(wrap) {
-  const locale = { en: 'en-US', fr: 'fr-FR', ar: 'ar' }[currentLang] || 'en-US';
-  const start = planStartDate ? new Date(planStartDate + 'T00:00:00') : null;
-  const hasStart = !!(start && !isNaN(start.getTime()));
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const head = document.createElement('div'); head.className = 'month-cal-head';
-  if (hasStart) {
-    const end = new Date(start); end.setDate(end.getDate() + 27);
-    const fmt = dt => { try { return dt.toLocaleDateString(locale, { day: 'numeric', month: 'short' }); } catch (e) { return dt.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }); } };
-    head.textContent = fmt(start) + ' – ' + fmt(end);
-  } else { head.textContent = tr('viewMonth'); }
-  wrap.appendChild(head);
-  const grid = document.createElement('div'); grid.className = 'month-grid';
-  for (let d = 0; d < 7; d++) { const h = document.createElement('div'); h.className = 'month-grid-dow'; h.textContent = dayLabel(d); grid.appendChild(h); }
-  const firstDow = hasStart ? (start.getDay() + 6) % 7 : 0; // Monday = 0
-  for (let i = 0; i < firstDow; i++) { const b = document.createElement('div'); b.className = 'month-grid-cell blank'; grid.appendChild(b); }
-  for (let i = 0; i < 28; i++) {
-    const w = Math.floor(i / 7), d = i % 7;
-    let numLabel = String(i + 1), isToday = false;
-    if (hasStart) { const dt = new Date(start); dt.setDate(dt.getDate() + i); numLabel = String(dt.getDate()); isToday = dt.getTime() === today.getTime(); }
-    const cell = document.createElement('div'); cell.className = 'month-grid-cell' + (isToday ? ' today' : '');
-    let inner = `<div class="month-grid-num">${htmlEscape(numLabel)}</div>`;
-    let hasEmpty = false;
-    slotsForDay(d).forEach(sname => {
-      const meal = (plan[w + '_' + d] || []).find(m => m.slot === sname);
-      if (meal) {
-        const r = recipes.find(x => x.id === meal.recipeId);
-        const arg = encodeURIComponent(sname);
-        inner += `<button class="month-meal-chip" title="${htmlEscape(r ? r.title : '')}" onclick="openMealDrawer(event,${w},${d},decodeURIComponent('${arg}'))"><span class="cat-mini"></span>${htmlEscape(r ? r.title : '?')}</button>`;
-      } else { hasEmpty = true; }
-    });
-    if (hasEmpty) inner += `<button class="month-add-chip" onclick="addToMonthDay(${w},${d})" title="${htmlEscape(tr('add'))}">＋</button>`;
-    cell.innerHTML = inner;
-    grid.appendChild(cell);
-  }
-  wrap.appendChild(grid);
-}
 renderWeeks = function() {
   syncMealCounts();
   const target = mealsPerWeek;
   const wrap = document.getElementById('weeks'); wrap.innerHTML = '';
   document.querySelector('main').classList.toggle('plan-full', document.getElementById('plan').classList.contains('active'));
-  const _ah = document.getElementById('addonTrayHost'); if (_ah) _ah.innerHTML = optionalAddonTrayHtml();
-  syncPlanViewToggle();
-  if (planView === 'month' && !isMobileView()) { renderMonthCalendar(wrap); renderOptionalAddonPickState(); aBars(); return; }
-  if (typeof activePlanWeek !== 'number' || activePlanWeek < 0 || activePlanWeek > 3) activePlanWeek = 0;
-  const stats = [];
-  for (let wk = 0; wk < 4; wk++) {
-    let f = 0; const cset = new Set();
-    for (let d = 0; d < 7; d++) (plan[wk + '_' + d] || []).forEach(m => { if (!isOptionalDaySlot(m.slot)) f++; const rr = recipes.find(x => x.id === m.recipeId); if (rr) cset.add(rr.category); });
-    stats.push({ filled: f, variety: cset.size });
-  }
-  const tabsEl = document.createElement('div'); tabsEl.className = 'week-tabs';
-  for (let t = 0; t < 4; t++) {
-    const tb = document.createElement('button');
-    tb.className = 'week-tab' + (t === activePlanWeek ? ' active' : '');
-    tb.onclick = () => setPlanWeek(t);
-    tb.innerHTML = `<span>${htmlEscape(tr('week'))} ${t + 1}</span><small>${stats[t].filled}/${target}</small>`;
-    tabsEl.appendChild(tb);
-  }
-  wrap.appendChild(tabsEl);
+  wrap.insertAdjacentHTML('beforeend', optionalAddonTrayHtml());
   const board = document.createElement('div'); board.className = 'month-board';
-  board.setAttribute('data-active', String(activePlanWeek));
   for (let w = 0; w < 4; w++) {
-    const filled = stats[w].filled, variety = stats[w].variety;
+    let filled = 0; const cats = new Set();
+    for (let d = 0; d < 7; d++) (plan[w + '_' + d] || []).forEach(m => { if (!isOptionalDaySlot(m.slot)) filled++; const r = recipes.find(x => x.id === m.recipeId); if (r) cats.add(r.category); });
     const fillPct = Math.min(100, Math.round(filled / target * 100));
-    const section = document.createElement('section'); section.className = 'week-column card' + (w === activePlanWeek ? ' wk-active' : '');
+    const variety = cats.size;
+    const section = document.createElement('section'); section.className = 'week-column card';
     let daysHtml = '<div class="week-days-list">';
     for (let d = 0; d < 7; d++) {
       let slotHtml = '';
@@ -3592,7 +3372,7 @@ renderWeeks = function() {
       }).join('');
       const addons = addonHtml ? `<div class="day-addons">${addonHtml}</div>` : '';
       if (!slotHtml) slotHtml = '<div class="empty" style="padding:10px;font-size:12px">-</div>';
-      daysHtml += `<div class="week-day" onclick="placePickedOptionalAddon(event,${w},${d})" ondragover="dragOptionalAddonOver(event)" ondragleave="dragOptionalAddonLeave(event)" ondrop="dropOptionalAddon(event,${w},${d})"><div class="week-day-title"><span>${htmlEscape(planDayLabels(w,d).label)}</span><span>${htmlEscape(planDayLabels(w,d).num)}</span></div><div class="week-day-slots">${slotHtml}</div>${addons}</div>`;
+      daysHtml += `<div class="week-day" onclick="placePickedOptionalAddon(event,${w},${d})" ondragover="dragOptionalAddonOver(event)" ondragleave="dragOptionalAddonLeave(event)" ondrop="dropOptionalAddon(event,${w},${d})"><div class="week-day-title"><span>${htmlEscape(dayLabel(d))}</span><span>${w * 7 + d + 1}</span></div><div class="week-day-slots">${slotHtml}</div>${addons}</div>`;
     }
     daysHtml += '</div>';
     const barColor = variety >= 3 ? 'var(--green)' : variety === 2 ? '#d8a85a' : 'var(--accent)';
@@ -3854,41 +3634,24 @@ function mergeShoppingBucket(target, source) {
     target[key].details = [...(target[key].details || []), ...(item.details || [])];
   });
 }
-let activeShopWeek = 0;
-function setShopWeek(w){ activeShopWeek = w; renderShopping(); }
 renderShopping = function() {
   ensureShoppingCategoryStyles();
   const { weekly, biweekly, monthly, any } = buildShoppingBuckets();
   const c = document.getElementById('shopContent');
   if (!any) { c.innerHTML = '<div class="empty">' + htmlEscape(tr('emptyShop')) + '</div>'; return; }
   c.innerHTML = '';
+  c.insertAdjacentHTML('beforeend', `<div class="shopping-merge-note">${htmlEscape(tr('shoppingMergeNote'))}</div>`);
   const weekBuckets = weekly.map(cloneShoppingBucket);
   mergeShoppingBucket(weekBuckets[0], biweekly[0]);
   mergeShoppingBucket(weekBuckets[0], monthly);
   mergeShoppingBucket(weekBuckets[2], biweekly[1]);
-  const present = [];
-  weekBuckets.forEach((b, w) => { if (bucketHasItems(b)) present.push(w); });
-  if (!present.includes(activeShopWeek)) activeShopWeek = present.length ? present[0] : 0;
-  const shopTabs = document.createElement('div'); shopTabs.className = 'shop-tabs';
-  present.forEach(w => {
-    const tb = document.createElement('button');
-    tb.className = 'week-tab' + (w === activeShopWeek ? ' active' : '');
-    tb.onclick = () => setShopWeek(w);
-    tb.innerHTML = `<span>${htmlEscape(tr('week'))} ${w + 1}</span><small>${Object.keys(weekBuckets[w]).length} ${htmlEscape(tr('items'))}</small>`;
-    shopTabs.appendChild(tb);
-  });
-  c.appendChild(shopTabs);
   weekBuckets.forEach((b, w) => {
     if (!bucketHasItems(b)) return;
     const subParts = [tr('perishables')];
     if (w === 0 && bucketHasItems(biweekly[0])) subParts.push(tr('stockA'));
     if (w === 0 && bucketHasItems(monthly)) subParts.push(tr('bulk'));
     if (w === 2 && bucketHasItems(biweekly[1])) subParts.push(tr('stockB'));
-    const grp = group(tr('weeklyTrip').replace('{n}', w + 1), subParts.join(' + '), b, 'w' + w);
-    grp.classList.add('shop-week-card');
-    grp.setAttribute('data-shopwk', String(w));
-    if (w === activeShopWeek) grp.classList.add('shop-active');
-    c.appendChild(grp);
+    c.appendChild(group(tr('weeklyTrip').replace('{n}', w + 1), subParts.join(' + '), b, 'w' + w));
   });
   aStagger('#shopContent .shop-group', { y: 20, stagger: .08 });
 };
@@ -3902,29 +3665,32 @@ function ingredientTotalText(it, qty) {
   }
   return qty + ' ' + unit + ' ' + cleanName;
 }
-const SHOP_CATEGORY_ORDER = ['grocery', 'meats', 'vegfruit'];
+const SHOP_CATEGORY_ORDER = ['produce', 'meat', 'fish', 'dairy', 'bakery', 'pantry', 'spices', 'other'];
 const SHOP_CATEGORY_META = {
-  grocery: { icon: '🛒', label: 'shopCatGrocery' },
-  meats: { icon: '🍖', label: 'shopCatMeats' },
-  vegfruit: { icon: '🥗', label: 'shopCatProduce' }
+  produce: { icon: '🥬', label: 'shopCatProduce' },
+  meat: { icon: '🍗', label: 'shopCatMeat' },
+  fish: { icon: '🐟', label: 'shopCatFish' },
+  dairy: { icon: '🥚', label: 'shopCatDairy' },
+  bakery: { icon: '🥖', label: 'shopCatBakery' },
+  pantry: { icon: '🛒', label: 'shopCatPantry' },
+  spices: { icon: '🫙', label: 'shopCatSpices' },
+  other: { icon: '📦', label: 'shopCatOther' }
 };
-const SHOP_BIG_CATEGORY = { produce: 'vegfruit', meat: 'meats', fish: 'meats', dairy: 'grocery', bakery: 'grocery', pantry: 'grocery', spices: 'grocery', other: 'grocery' };
-function bigCategoryForItem(it) { return SHOP_BIG_CATEGORY[shopCategoryForItem(it)] || 'grocery'; }
 function shopCategoryForItem(it) {
   const text = [it.name, it.unit, it.category].filter(Boolean).join(' ').toLowerCase();
-  if (/bread|baguette|tortilla|dioul|pita|bun|roll|croissant|pastry|cake|biscuit|cracker|pain|boulanger|brioche|gateau|biscotte|خبز|باغيت|تورتيلا|ديول|مخبوز|كرواسون|كعكة|بسكويت|مطلوع|كسرة/.test(text)) return 'bakery';
-  if (/fish|tuna|salmon|sardine|shrimp|prawn|seafood|anchovy|mackerel|poisson|thon|saumon|sardine|crevette|fruit de mer|anchois|maquereau|سمك|تونة|سلمون|سردين|جمبري|قريدس|مأكولات بحرية|حوت|أنشوة/.test(text)) return 'fish';
-  if (/chicken|poultry|beef|veal|lamb|mutton|meat|mince|minced|sausage|turkey|liver|kefta|merguez|poulet|volaille|boeuf|veau|agneau|mouton|viande|hache|hachee|saucisse|dinde|foie|دجاج|لحم|بقري|عجل|غنم|خروف|مفروم|نقانق|ديك رومي|كبدة|كفتة|مرقاز/.test(text)) return 'meat';
-  if (/egg|milk|cheese|butter|cream|yogurt|yoghurt|dairy|mozzarella|feta|labneh|smen|oeuf|lait|fromage|beurre|creme|yaourt|بيض|حليب|جبن|زبدة|كريمة|زبادي|رايب|لبن|جبنة|موزاريلا|سمن|لبنة/.test(text)) return 'dairy';
-  if (/spice|cumin|paprika|salt|oil|vinegar|sauce|paste|broth|stock|harissa|yeast|baking powder|cinnamon|turmeric|ginger|honey|epice|sel|huile|vinaigre|concentre|bouillon|levure|cannelle|curcuma|miel|بهار|بهارات|كمون|ملح|زيت|خل|صلصة|معجون|مرق|هريسة|خميرة|قرفة|كركم|زنجبيل|عسل/.test(text)) return 'spices';
-  if (/onion|carrot|tomato|cucumber|lettuce|potato|fruit|lemon|lime|herb|parsley|coriander|cilantro|pepper|mushroom|turnip|vegetable|olive|garlic|zucchini|courgette|eggplant|aubergine|spinach|cabbage|cauliflower|broccoli|bean|peas|apple|banana|orange|grape|strawberry|avocado|celery|leek|beet|radish|date|oignon|carotte|tomate|concombre|laitue|pomme de terre|citron|herbe|persil|coriandre|poivron|champignon|navet|legume|ail|epinard|chou|brocoli|haricot|pomme|banane|raisin|fraise|avocat|celeri|poireau|betterave|radis|datte|بصل|جزر|طماطم|خيار|خس|بطاط|فواكه|ليمون|معدنوس|قزبر|فلفل|فطر|لفت|خضار|زيتون|ثوم|كوسة|باذنجان|سبانخ|كرنب|قرنبيط|فاصوليا|بازلاء|تفاح|موز|برتقال|عنب|فراولة|افوكادو|كرفس|شمندر|فجل|تمر/.test(text)) return 'produce';
-  if (/flour|semolina|sugar|pasta|spaghetti|macaroni|rice|couscous|lentil|chickpea|legume|frik|rechta|chocolate|almond|nut|oats|oat|cereal|tea|coffee|canned|farine|semoule|sucre|pates|riz|lentille|pois chiche|legumineuse|chocolat|amande|noix|flocons|avoine|thé|café|cafe|conserve|دقيق|فرينة|سميد|سكر|معكرونة|مكرونة|سباغيتي|أرز|كسكس|عدس|حمص|بقول|فريك|رشتة|شوكولاتة|لوز|جوز|شوفان|شاي|قهوة|طحين|معلبات/.test(text)) return 'pantry';
+  if (/bread|baguette|tortilla|dioul|pain|boulanger|خبز|باغيت|تورتيلا|ديول|مخبوز/.test(text)) return 'bakery';
+  if (/fish|tuna|seafood|shrimp|poisson|thon|fruit de mer|سمك|تونة|حوت|جمبري|مأكولات بحرية/.test(text)) return 'fish';
+  if (/chicken|poulet|beef|boeuf|meat|viande|lamb|agneau|minced|hachee|دجاج|لحم|غنم|مفروم/.test(text)) return 'meat';
+  if (/egg|milk|cheese|butter|cream|yogurt|oeuf|lait|fromage|beurre|creme|yaourt|بيض|حليب|جبن|زبدة|كريمة|زبادي|ياغورت/.test(text)) return 'dairy';
+  if (/spice|cumin|oil|sauce|paste|broth|harissa|yeast|epice|huile|sauce|concentre|bouillon|levure|بهار|بهارات|كمون|زيت|صلصة|هريسة|معجون|مرق|خميرة/.test(text)) return 'spices';
+  if (/onion|carrot|tomato|cucumber|lettuce|potato|fruit|lemon|herb|parsley|coriander|pepper|mushroom|turnip|vegetable|olive|oignon|carotte|tomate|concombre|laitue|pomme de terre|fruit|citron|herbe|persil|coriandre|poivron|champignon|navet|legume|olive|بصل|جزر|طماطم|خيار|خس|بطاط|فواكه|ليمون|معدنوس|دبشة|فلفل|فطر|لفت|خضار|زيتون/.test(text)) return 'produce';
+  if (/flour|sugar|pasta|rice|legume|lentil|chickpea|couscous|semolina|frik|rechta|chocolate|almond|farine|sucre|pates|riz|legumineuse|lentille|pois chiche|couscous|semoule|chocolat|amande|دقيق|فرينة|سكر|معكرونة|أرز|بقولي|عدس|حمص|كسكس|سميد|فريك|رشتة|شوكولاتة|لوز|طحين/.test(text)) return 'pantry';
   return 'other';
 }
 function shoppingCategoryBuckets(items) {
   const buckets = {};
   SHOP_CATEGORY_ORDER.forEach(k => { buckets[k] = []; });
-  items.forEach(it => buckets[bigCategoryForItem(it)].push(it));
+  items.forEach(it => buckets[shopCategoryForItem(it)].push(it));
   return buckets;
 }
 group = function(title, sub, bucket, prefix) {
@@ -3932,7 +3698,7 @@ group = function(title, sub, bucket, prefix) {
   const total = bucketTotal(bucket);
   const wrap = document.createElement('div'); wrap.className = 'shop-group';
   const head = document.createElement('div'); head.className = 'shop-head';
-  head.innerHTML = `<h3>${htmlEscape(title)}</h3><span class="badge">${items.length} ${htmlEscape(tr('items'))}${total && isBudgetFeature() ? ' · ~' + htmlEscape(formatMoney(total)) : ''}</span>`;
+  head.innerHTML = `<h3>${htmlEscape(title)}</h3><span class="badge">${htmlEscape(sub)} - ${items.length} ${htmlEscape(tr('items'))}${total && isBudgetFeature() ? ' - ~' + htmlEscape(formatMoney(total)) : ''}</span>`;
   if (isBudgetFeature()) {
     const btn = document.createElement('button'); btn.className = 'btn btn-ghost btn-sm done-trip'; btn.textContent = tr('done');
     btn.onclick = () => markTripDone(title, total);
@@ -3945,8 +3711,8 @@ group = function(title, sub, bucket, prefix) {
     if (!catItems || !catItems.length) return;
     const meta = SHOP_CATEGORY_META[catKey];
     const catWrap = document.createElement('div');
-    catWrap.className = 'shop-category collapsed ' + catKey;
-    catWrap.innerHTML = `<div class="shop-category-head" onclick="this.parentElement.classList.toggle('collapsed')" style="cursor:pointer"><div class="shop-category-title"><span class="shop-category-icon">${htmlEscape(meta.icon)}</span><span>${htmlEscape(tr(meta.label))}</span></div><span class="shop-category-count">${catItems.length} ${htmlEscape(tr('items'))} <span class="shop-cat-chevron">▾</span></span></div>`;
+    catWrap.className = 'shop-category ' + catKey;
+    catWrap.innerHTML = `<div class="shop-category-head"><div class="shop-category-title"><span class="shop-category-icon">${htmlEscape(meta.icon)}</span><span>${htmlEscape(tr(meta.label))}</span></div><span class="shop-category-count">${catItems.length} ${htmlEscape(tr('items'))}</span></div>`;
     catItems.forEach(it => {
       const id = prefix + '|' + it.name; const qty = Math.round(it.qty * 100) / 100;
       const totalText = ingredientTotalText(it, qty);
@@ -4017,27 +3783,28 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeInlin
 
 async function trySyncFromCloud() {
   const cloud = await supabaseLoad();
-  const hasLocal = !!(localStorage.getItem(SETUP_KEY) || localStorage.getItem(APP_STATE_KEY));
-  const cloudHasData = !!(cloud && (cloud.setup_data || cloud.app_state));
-  if (!cloudHasData) {
-    // No saved data in the cloud for this account.
-    if (hasLocal) {
-      supabaseSave(); // this device already has data – upload it so it carries over
-    } else {
-      setTimeout(() => openSetup(0), 120); // brand-new account – run onboarding once
-    }
+  if (!cloud) {
+    // Nothing saved in the cloud yet for this account.
+    // If this device already has data, upload it once so it carries over.
+    if (localStorage.getItem(SETUP_KEY) || localStorage.getItem(APP_STATE_KEY)) supabaseSave();
     return;
   }
-  // Cloud is the shared source of truth across devices: always load it on login,
-  // so anything saved on another device (saved plans, recipes, budget, categories…)
-  // shows up here. This prevents a stale local copy from hiding cloud data.
-  if (cloud.setup_data) {
-    try { hydrateSetup(cloud.setup_data); } catch (e) {}
+  const localSetupKey = 'mealmate_setup_ts';
+  const localTs = Number(localStorage.getItem(localSetupKey)) || 0;
+  const cloudTs = new Date(cloud.updated_at).getTime();
+  if (cloudTs > localTs) {
+    // cloud has newer data
+    if (cloud.setup_data) {
+      try { hydrateSetup(cloud.setup_data); } catch (e) {}
+    }
+    if (cloud.app_state) {
+      try { hydrateAppState(cloud.app_state); } catch (e) {}
+    }
+    refreshAfterStateLoad();
+  } else if (localTs > 0 && localTs >= cloudTs) {
+    // local is current – push to cloud
+    supabaseSave();
   }
-  if (cloud.app_state) {
-    try { hydrateAppState(cloud.app_state); } catch (e) {}
-  }
-  refreshAfterStateLoad();
 }
 
 function bootMealMateV2() {
@@ -4068,18 +3835,28 @@ function bootMealMateV2() {
   updatePlanCounters();
   wireStatePersistence();
   appStateHydrated = true;
-  // The onboarding wizard is decided in trySyncFromCloud() after we know the
-  // account's cloud data, so returning users never get the setup window on login.
+  try {
+    if (!localStorage.getItem(SETUP_KEY) && !localStorage.getItem(APP_STATE_KEY)) setTimeout(() => openSetup(0), 120);
+  } catch (e) {
+    setTimeout(() => openSetup(0), 120);
+  }
   // sync with Supabase after boot
   trySyncFromCloud();
 }
 
 // Boot only if already logged in (session restored)
 if (loggedInUser) {
-  document.getElementById('loginScreen').classList.add('hidden');
-  bootMealMateV2();
+  // Keep login screen visible during subscription check, then proceed
+  checkSubscription(loggedInUser).then(sub => {
+    document.getElementById('loginScreen').classList.add('hidden');
+    if (sub.expired) {
+      showSubscriptionExpired(sub);
+    } else {
+      bootMealMateV2();
+    }
+  });
 }
 
 </script>
 </body>
-</html>
+</html>
