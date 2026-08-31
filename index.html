@@ -169,6 +169,7 @@
   .setup-edit{background:rgba(255,255,255,.26);color:#fff;border:1px solid rgba(255,255,255,.34)}
   main.plan-full{max-width:none;width:100%}
   #weeks{direction:ltr}
+  [dir="rtl"] #weeks{direction:rtl}
   [dir="rtl"] #weeks .week-column,[dir="rtl"] #weeks .week-day{direction:rtl}
   .month-board{display:grid;grid-template-columns:repeat(4,minmax(230px,1fr));gap:12px;width:min(100%,1500px);position:relative;left:50%;transform:translateX(-50%);align-items:start}
   .week-column.card{padding:12px;border-radius:16px}
@@ -2151,6 +2152,7 @@ function ensureOptionalSlotStyles() {
     main.plan-full{max-width:none;width:100%}
     main.plan-full #plan{width:100%}
     #weeks{direction:ltr}
+    [dir="rtl"] #weeks{direction:rtl}
     [dir="rtl"] #weeks .week-column,[dir="rtl"] #weeks .optional-addon-tray,[dir="rtl"] #weeks .week-day{direction:rtl}
     .month-board{grid-template-columns:repeat(4,minmax(230px,1fr));width:min(100%,1500px)!important;position:relative;left:50%;margin-inline:0!important;margin-left:0!important;transform:translateX(-50%)!important}
     .optional-addon-tray{width:min(100%,1500px);position:relative;left:50%;transform:translateX(-50%);margin:0 0 12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow)}
