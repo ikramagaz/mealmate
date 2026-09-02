@@ -53,6 +53,12 @@
   .profile-logout{color:var(--accent-dark)}
   [dir="rtl"] .profile-dropdown{right:auto;left:0}
   [dir="rtl"] .profile-dropdown-item{text-align:right}
+  .shop-week-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .shop-week-tab{padding:9px 20px;border:none;border-radius:20px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;background:var(--accent-soft);color:var(--accent-dark);transition:background .15s,color .15s}
+  .shop-week-tab.active{background:var(--accent);color:#fff}
+  .recipe-motivation{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:14px;font-size:14px;color:var(--ink);line-height:1.6;text-align:center}
+  .recipe-choice-btns{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+  .recipe-choice-btn{flex:1;min-width:160px;padding:14px 10px;font-size:15px;font-weight:700;border-radius:14px;cursor:pointer;font-family:inherit}
   nav{display:flex;gap:6px;padding:14px 22px 0;flex-wrap:wrap}
   nav button{border:none;background:transparent;padding:10px 18px;border-radius:30px;cursor:pointer;font-size:15px;color:var(--muted);font-weight:700;font-family:inherit}
   nav button.active{background:var(--card);color:var(--accent-dark);box-shadow:var(--shadow)}
@@ -326,6 +332,7 @@
       <button class="btn btn-primary btn-sm" onclick="openExtraModal()">+ Add item</button>
     </div>
     <div class="hint">Built from the whole month, scaled to your family, duplicates merged — then split by how often you buy: weekly items become one list per week, every-15-days items split into two stock-ups, and monthly items are one bulk run. Things that aren't in any recipe — salt, paper towels, cleaning supplies — can be added manually with "+ Add item"; they're tagged <b>extra</b> and can be removed anytime. Type a price next to any item to see cost estimates, or tick what you bought and use <b>Mark trip done</b> to log the total you spent on the Budget tab.</div>
+    <div id="shopWeekTabs" class="shop-week-tabs"></div>
     <div id="shopContent"></div>
   </section>
 
@@ -583,8 +590,8 @@ async function login() {
       showSubscriptionExpired(sub);
       return;
     }
+    await bootMealMateV2();
     document.getElementById('loginScreen').classList.add('hidden');
-    bootMealMateV2();
   } catch (e) {
     err.textContent = 'Could not sign in. Please check your connection and try again.';
   }
@@ -1489,6 +1496,24 @@ Object.assign(I18N.ar, {
   subPlan_yearly: 'اشتراك سنوي',
   subPlan_lifetime: 'اشتراك مدى الحياة'
 });
+Object.assign(I18N.en, {
+  recipeMotivation: '💡 The first phase where you enter recipes, ingredients, and other details will take some effort — but it\'s a one-time investment whose rewards you\'ll enjoy every month.',
+  startWithMealMate: '🌸 Start with MealMate recipes',
+  startFromScratch: '✏️ Start from scratch',
+  shopWk: 'Week'
+});
+Object.assign(I18N.fr, {
+  recipeMotivation: '💡 La première étape où vous saisissez les recettes, ingrédients et autres détails demande des efforts — mais c\'est un investissement unique dont vous profiterez chaque mois.',
+  startWithMealMate: '🌸 Commencer avec les recettes MealMate',
+  startFromScratch: '✏️ Commencer de zéro',
+  shopWk: 'Sem.'
+});
+Object.assign(I18N.ar, {
+  recipeMotivation: '💡 المرحلة الأولى التي تدخلين فيها الوصفات والمكونات والتفاصيل الأخرى ستكون متعبة، لكنها استثمار تستثمرينه مرة واحدة ثم ستجنين ثماره كل شهر.',
+  startWithMealMate: '🌸 ابدئي بوصفات MealMate',
+  startFromScratch: '✏️ ابدئي من الصفر',
+  shopWk: 'أسبوع'
+});
 
 const READY_RECIPE_DEFS = [
   ['breakfast', 'Classic Pancakes', 'Pancakes classiques', 'بان كيك كلاسيكي', 'quick,kid-friendly'],
@@ -1740,7 +1765,7 @@ const setupData = {
   lang: 'en',
   currency: 'DZD',
   features: { plan: true, shop: true, budget: false },
-  recipeIds: new Set(ACTIVE_READY_RECIPE_DEFS.map((_, i) => i)),
+  recipeIds: new Set(),
   categoryKeys: new Set(Object.keys(CATEGORY_LIBRARY)),
   customCategories: [],
   categoryTouched: false,
@@ -2026,6 +2051,35 @@ function toggleSectionPref(name, on) {
   applyFeatures();
   try { localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup())); } catch (e) {}
   if (typeof appStateHydrated !== 'undefined' && appStateHydrated) queueAppStateSave();
+}
+function ensureBackupButton() {
+  if (document.getElementById('backupDropdownBtn')) return;
+  if (!document.getElementById('backupToolStyles')) {
+    const style = document.createElement('style');
+    style.id = 'backupToolStyles';
+    style.textContent = `.backup-note{border:1px solid var(--line);background:linear-gradient(120deg,var(--accent-soft),#fff);border-radius:14px;padding:12px 14px;color:var(--ink);font-weight:800;line-height:1.45;margin:10px 0 14px}.backup-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}#backupStatus{min-height:20px;color:var(--accent-dark);font-weight:900;font-size:13px;margin-top:10px}`;
+    document.head.appendChild(style);
+  }
+  if (!document.getElementById('backupModal')) {
+    const modal = document.createElement('div');
+    modal.id = 'backupModal';
+    modal.className = 'modal-bg';
+    modal.innerHTML = `<div class="modal"><h3 id="backupModalTitle"></h3><div class="backup-note" id="backupModalHint"></div><div class="backup-actions"><button class="btn btn-primary" type="button" id="backupExportBtn" onclick="exportMealMateBackup()"></button><button class="btn btn-ghost" type="button" id="backupImportBtn" onclick="importMealMateBackup()"></button><button class="btn btn-ghost" type="button" id="backupCloseBtn" onclick="closeBackupModal()"></button></div><div id="backupStatus"></div><input id="backupFileInput" type="file" accept="application/json,.json" style="display:none" onchange="handleBackupFile(this)"></div>`;
+    document.body.appendChild(modal);
+  }
+  syncBackupTools();
+  const btn = document.createElement('button');
+  btn.id = 'backupDropdownBtn';
+  btn.className = 'profile-dropdown-item';
+  btn.type = 'button';
+  btn.textContent = tr('backupBtn');
+  btn.onclick = () => { closeProfileMenu(); openBackupModal(); };
+  const dropdown = document.getElementById('profileDropdown');
+  const logoutItem = document.getElementById('profileLogoutItem');
+  if (dropdown) {
+    if (logoutItem) dropdown.insertBefore(btn, logoutItem);
+    else dropdown.appendChild(btn);
+  }
 }
 function ensureCurrencyControl() {
   if (document.getElementById('currencySelect')) return;
@@ -2606,7 +2660,7 @@ function hydrateSetup(saved) {
   setupData.lang = saved.lang || 'en';
   setupData.currency = CURRENCIES[saved.currency] ? saved.currency : 'DZD';
   setupData.features = Object.assign(setupData.features, saved.features || {});
-  setupData.recipeIds = new Set(Array.isArray(saved.recipeIds) ? saved.recipeIds : ACTIVE_READY_RECIPE_DEFS.map((_, i) => i));
+  setupData.recipeIds = new Set(Array.isArray(saved.recipeIds) ? saved.recipeIds : []);
   setupData.categoryKeys = new Set(Array.isArray(saved.categoryKeys) ? saved.categoryKeys : Object.keys(CATEGORY_LIBRARY));
   setupData.customCategories = Array.isArray(saved.customCategories) ? saved.customCategories : [];
   setupData.mealsPerWeek = saved.mealsPerWeek || 21;
@@ -3055,7 +3109,12 @@ function renderNeedsStep() {
   </div>`;
 }
 function renderRecipesStep() {
-  return `<div class="setup-tools">
+  return `<div class="recipe-motivation">${htmlEscape(tr('recipeMotivation'))}</div>
+  <div class="recipe-choice-btns">
+    <button class="btn btn-primary recipe-choice-btn" type="button" onclick="setupPopular();renderReadyRecipes()">${htmlEscape(tr('startWithMealMate'))}</button>
+    <button class="btn btn-ghost recipe-choice-btn" type="button" onclick="setupClearRecipes()">${htmlEscape(tr('startFromScratch'))}</button>
+  </div>
+  <div class="setup-tools">
     <input id="readySearch" style="flex:1;min-width:210px" placeholder="${htmlEscape(tr('search'))}" value="${htmlEscape(setupRecipeSearch)}" oninput="setupRecipeSearch=this.value;renderReadyRecipes()">
     <button class="btn btn-ghost btn-sm" onclick="setupSelectAll()">${htmlEscape(tr('selectAll'))}</button>
     <button class="btn btn-ghost btn-sm" onclick="setupPopular()">${htmlEscape(tr('popular'))}</button>
@@ -3153,7 +3212,6 @@ function renderCriteriaStep() {
   </div>`;
 }
 function finishSetup() {
-  if (!setupData.recipeIds.size) setupPopular();
   if (!setupData.categoryKeys.size) setupData.categoryKeys = deriveSelectedCategories();
   members = setupData.persons;
   syncMealCounts();
@@ -3636,11 +3694,29 @@ function mergeShoppingBucket(target, source) {
     target[key].details = [...(target[key].details || []), ...(item.details || [])];
   });
 }
+let activeShopWeek = 0;
+function renderShopWeekTabs() {
+  const tabs = document.getElementById('shopWeekTabs');
+  if (!tabs) return;
+  tabs.innerHTML = [0,1,2,3].map(w =>
+    `<button class="shop-week-tab${activeShopWeek === w ? ' active' : ''}" onclick="setShopWeek(${w})">${htmlEscape(tr('shopWk'))} ${w+1}</button>`
+  ).join('');
+}
+function setShopWeek(w) {
+  activeShopWeek = w;
+  renderShopWeekTabs();
+  filterShopWeek();
+}
+function filterShopWeek() {
+  document.querySelectorAll('#shopContent .shop-group').forEach(g => {
+    g.style.display = (g.dataset.week == activeShopWeek) ? '' : 'none';
+  });
+}
 renderShopping = function() {
   ensureShoppingCategoryStyles();
   const { weekly, biweekly, monthly, any } = buildShoppingBuckets();
   const c = document.getElementById('shopContent');
-  if (!any) { c.innerHTML = '<div class="empty">' + htmlEscape(tr('emptyShop')) + '</div>'; return; }
+  if (!any) { c.innerHTML = '<div class="empty">' + htmlEscape(tr('emptyShop')) + '</div>'; renderShopWeekTabs(); return; }
   c.innerHTML = '';
   c.insertAdjacentHTML('beforeend', `<div class="shopping-merge-note">${htmlEscape(tr('shoppingMergeNote'))}</div>`);
   const weekBuckets = weekly.map(cloneShoppingBucket);
@@ -3653,9 +3729,13 @@ renderShopping = function() {
     if (w === 0 && bucketHasItems(biweekly[0])) subParts.push(tr('stockA'));
     if (w === 0 && bucketHasItems(monthly)) subParts.push(tr('bulk'));
     if (w === 2 && bucketHasItems(biweekly[1])) subParts.push(tr('stockB'));
-    c.appendChild(group(tr('weeklyTrip').replace('{n}', w + 1), subParts.join(' + '), b, 'w' + w));
+    const grp = group(tr('weeklyTrip').replace('{n}', w + 1), subParts.join(' + '), b, 'w' + w);
+    grp.dataset.week = w;
+    c.appendChild(grp);
   });
-  aStagger('#shopContent .shop-group', { y: 20, stagger: .08 });
+  renderShopWeekTabs();
+  filterShopWeek();
+  aStagger('#shopContent .shop-group:not([style*="none"])', { y: 20, stagger: .08 });
 };
 function ingredientTotalText(it, qty) {
   const unit = (it.unit || '').trim();
@@ -3809,16 +3889,31 @@ async function trySyncFromCloud() {
   }
 }
 
-function bootMealMateV2() {
+async function bootMealMateV2() {
   appStateHydrated = false;
-  const hasStoredAppState = loadStoredAppState();
-  if (!hasStoredAppState) {
-    try { hydrateSetup(JSON.parse(localStorage.getItem(SETUP_KEY) || 'null')); } catch (e) {}
+  // Supabase is the source of truth — always load from cloud first
+  let cloudLoaded = false;
+  try {
+    const cloud = await supabaseLoad();
+    if (cloud) {
+      if (cloud.setup_data) try { hydrateSetup(cloud.setup_data); } catch(e) {}
+      if (cloud.app_state) try { hydrateAppState(cloud.app_state); } catch(e) {}
+      cloudLoaded = true;
+    }
+  } catch(e) {}
+  if (!cloudLoaded) {
+    // Supabase unreachable or no data yet — fall back to localStorage
+    const hasStoredAppState = loadStoredAppState();
+    if (!hasStoredAppState) {
+      try { hydrateSetup(JSON.parse(localStorage.getItem(SETUP_KEY) || 'null')); } catch (e) {}
+      applyReadyRecipes();
+    }
+    // If the user has local data but nothing in Supabase, upload it now
+    if (localStorage.getItem(SETUP_KEY) || localStorage.getItem(APP_STATE_KEY)) supabaseSave();
   }
   currentLang = setupData.lang;
   members = setupData.persons;
   syncMealCounts();
-  if (!hasStoredAppState) applyReadyRecipes();
   normalizeCategoryList();
   ensureOptionalSlotStyles();
   ensureDrawerPickerStyles();
@@ -3830,6 +3925,7 @@ function bootMealMateV2() {
   normalizeCategoryList();
   applyFeatures();
   ensureSetupButton();
+  ensureBackupButton();
   renderCatFilter();
   renderRecipes();
   renderShopping();
@@ -3838,23 +3934,20 @@ function bootMealMateV2() {
   wireStatePersistence();
   appStateHydrated = true;
   try {
-    if (!localStorage.getItem(SETUP_KEY) && !localStorage.getItem(APP_STATE_KEY)) setTimeout(() => openSetup(0), 120);
-  } catch (e) {
-    setTimeout(() => openSetup(0), 120);
-  }
-  // sync with Supabase after boot
-  trySyncFromCloud();
+    if (!cloudLoaded && !localStorage.getItem(SETUP_KEY) && !localStorage.getItem(APP_STATE_KEY)) setTimeout(() => openSetup(0), 120);
+  } catch(e) {}
 }
 
 // Boot only if already logged in (session restored)
 if (loggedInUser) {
   // Keep login screen visible during subscription check, then proceed
-  checkSubscription(loggedInUser).then(sub => {
-    document.getElementById('loginScreen').classList.add('hidden');
+  checkSubscription(loggedInUser).then(async sub => {
     if (sub.expired) {
+      document.getElementById('loginScreen').classList.add('hidden');
       showSubscriptionExpired(sub);
     } else {
-      bootMealMateV2();
+      await bootMealMateV2();
+      document.getElementById('loginScreen').classList.add('hidden');
     }
   });
 }
