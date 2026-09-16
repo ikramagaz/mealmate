@@ -53,6 +53,12 @@
   .profile-logout{color:var(--accent-dark)}
   [dir="rtl"] .profile-dropdown{right:auto;left:0}
   [dir="rtl"] .profile-dropdown-item{text-align:right}
+  .shop-week-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .shop-week-tab{padding:9px 20px;border:none;border-radius:20px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;background:var(--accent-soft);color:var(--accent-dark);transition:background .15s,color .15s}
+  .shop-week-tab.active{background:var(--accent);color:#fff}
+  .recipe-motivation{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:14px;font-size:14px;color:var(--ink);line-height:1.6;text-align:center}
+  .recipe-choice-btns{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+  .recipe-choice-btn{flex:1;min-width:160px;padding:14px 10px;font-size:15px;font-weight:700;border-radius:14px;cursor:pointer;font-family:inherit}
   nav{display:flex;gap:6px;padding:14px 22px 0;flex-wrap:wrap}
   nav button{border:none;background:transparent;padding:10px 18px;border-radius:30px;cursor:pointer;font-size:15px;color:var(--muted);font-weight:700;font-family:inherit}
   nav button.active{background:var(--card);color:var(--accent-dark);box-shadow:var(--shadow)}
@@ -169,6 +175,7 @@
   .setup-edit{background:rgba(255,255,255,.26);color:#fff;border:1px solid rgba(255,255,255,.34)}
   main.plan-full{max-width:none;width:100%}
   #weeks{direction:ltr}
+  [dir="rtl"] #weeks{direction:rtl}
   [dir="rtl"] #weeks .week-column,[dir="rtl"] #weeks .week-day{direction:rtl}
   .month-board{display:grid;grid-template-columns:repeat(4,minmax(230px,1fr));gap:12px;width:min(100%,1500px);position:relative;left:50%;transform:translateX(-50%);align-items:start}
   .week-column.card{padding:12px;border-radius:16px}
@@ -221,6 +228,24 @@
   </div>
 </div>
 <div class="setup-screen" id="setupScreen"></div>
+
+<div class="login-screen hidden" id="subExpiredScreen">
+  <div class="login-card" style="text-align:center;max-width:420px">
+    <div style="font-size:52px;margin-bottom:10px">🌸</div>
+    <h2 id="subExpiredTitle" style="color:var(--accent-dark);margin:0 0 6px;font-family:'Playfair Display',serif">Subscription Ended</h2>
+    <p id="subExpiredPlan" style="color:var(--muted);font-weight:700;margin:0 0 14px;font-size:14px"></p>
+    <p id="subExpiredMsg" style="margin:0 0 24px;line-height:1.65;color:var(--ink)"></p>
+    <a id="subRenewBtn" href="#" target="_blank" rel="noopener noreferrer"
+       class="btn btn-primary" style="display:inline-block;text-decoration:none;margin-bottom:18px;padding:12px 28px">
+      Renew via Instagram
+    </a>
+    <br>
+    <button id="subSignOutBtn" onclick="subExpiredSignOut()"
+      style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline;margin-top:4px">
+      Sign out / change account
+    </button>
+  </div>
+</div>
 
 <header>
   <div style="font-size:40px;line-height:1;width:56px;height:56px;display:flex;align-items:center;justify-content:center">🌸</div>
@@ -293,6 +318,7 @@
       <div class="row">
         <button class="btn btn-ghost btn-sm" onclick="openPlansModal()">📂 Saved plans</button>
         <button class="btn btn-ghost btn-sm" onclick="newPlanPrompt()">🗑️ New month plan</button>
+        <button class="btn btn-ghost btn-sm" onclick="openBalanceModal()">⚙️ Balance settings</button>
         <button class="btn btn-primary btn-sm" onclick="autoBalance()">⚖️ Auto-balance the month</button>
       </div>
     </div>
@@ -306,6 +332,7 @@
       <button class="btn btn-primary btn-sm" onclick="openExtraModal()">+ Add item</button>
     </div>
     <div class="hint">Built from the whole month, scaled to your family, duplicates merged — then split by how often you buy: weekly items become one list per week, every-15-days items split into two stock-ups, and monthly items are one bulk run. Things that aren't in any recipe — salt, paper towels, cleaning supplies — can be added manually with "+ Add item"; they're tagged <b>extra</b> and can be removed anytime. Type a price next to any item to see cost estimates, or tick what you bought and use <b>Mark trip done</b> to log the total you spent on the Budget tab.</div>
+    <div id="shopWeekTabs" class="shop-week-tabs"></div>
     <div id="shopContent"></div>
   </section>
 
@@ -466,65 +493,137 @@
 /* Login now runs through Supabase Auth (secure). The old hardcoded
    username/password hashes were removed from this public file. */
 const USERS = {};
-let loggedInUser = localStorage.getItem('mealmate_user') || null;
+let loggedInUser = null;
+let activeUserId = null;
+let activeUserEmail = null;
 function isBudgetFeature() { return setupData && setupData.features && setupData.features.budget; }
 
 /* ---------- Supabase integration ---------- */
 const SUPABASE_URL = 'https://yqbwdpqgphifqkqkylry.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxYndkcHFncGhpZnFrcWt5bHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzOTY4NTYsImV4cCI6MjA5Nzk3Mjg1Nn0.gTqq45OHhnmmAVZY7izdGhwvMuBCCXjRr_cI50CZrxc';
+// Renewal contact — update this to your actual Instagram URL
+const RENEWAL_URL = 'https://www.instagram.com/ikram_magaz/';
 let sb;
+let supabaseReadyPromise = null;
+let cloudSyncState = 'locked'; // locked | loaded | new
+let cloudSaveChain = Promise.resolve();
+
 function loadSupabase(timeout){
-  timeout=timeout||5000;
-  const s=document.createElement('script');
-  s.src='https://unpkg.com/@supabase/supabase-js@2';
-  s.onload=()=>{try{const{createClient}=supabase;sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY)}catch(e){console.warn('Supabase init failed',e)}};
-  s.onerror=()=>{console.warn('Supabase CDN unavailable, cloud sync disabled')};
-  document.head.appendChild(s);
-  setTimeout(()=>{if(!sb)console.warn('Supabase CDN timeout, cloud sync disabled')},timeout);
+  if (sb) return Promise.resolve(sb);
+  if (supabaseReadyPromise) return supabaseReadyPromise;
+  timeout = timeout || 15000;
+  supabaseReadyPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    const timer = setTimeout(() => reject(new Error('Supabase client timed out')), timeout);
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js';
+    s.onload = () => {
+      clearTimeout(timer);
+      try {
+        const { createClient } = supabase;
+        sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+        });
+        resolve(sb);
+      } catch (e) {
+        reject(e);
+      }
+    };
+    s.onerror = () => {
+      clearTimeout(timer);
+      reject(new Error('Supabase client could not be loaded'));
+    };
+    document.head.appendChild(s);
+  }).catch(e => {
+    supabaseReadyPromise = null;
+    console.warn('Supabase init failed', e);
+    throw e;
+  });
+  return supabaseReadyPromise;
 }
-loadSupabase();
+loadSupabase().catch(() => {});
 
 let lastCloudUpdate = 0;
 
-async function currentUserId() {
-  if (!sb) return null;
-  try { const { data } = await sb.auth.getUser(); return data && data.user ? data.user.id : null; }
-  catch (e) { return null; }
+async function authenticatedUser() {
+  const client = sb || await loadSupabase();
+  const { data, error } = await client.auth.getUser();
+  if (error) throw error;
+  return data && data.user ? data.user : null;
 }
 
-async function supabaseSave() {
-  if (!sb) return;
-  const uid = await currentUserId();
-  if (!uid) return;
-  try {
-    const now = new Date().toISOString();
-    const { error } = await sb.from('mealmate_data').upsert({
-      user_id: uid,
-      state: { setup_data: serializeSetup(), app_state: appStateSnapshot(), updated_at: now },
-      updated_at: now
-    }, { onConflict: 'user_id' });
+function activateUser(user, displayName) {
+  activeUserId = user.id;
+  activeUserEmail = (user.email || '').trim().toLowerCase();
+  loggedInUser = (displayName || user.email || '').trim();
+  if (loggedInUser) localStorage.setItem('mealmate_user', loggedInUser);
+}
+
+function deactivateUser() {
+  activeUserId = null;
+  activeUserEmail = null;
+  loggedInUser = null;
+  cloudSyncState = 'locked';
+  appStateHydrated = false;
+  clearTimeout(appStateSaveTimer);
+  localStorage.removeItem('mealmate_user');
+}
+
+function supabaseSave(snapshot, setupSnapshot) {
+  if (!appStateHydrated || !activeUserId || !['loaded', 'new'].includes(cloudSyncState)) {
+    return Promise.resolve(false);
+  }
+  const uid = activeUserId;
+  const now = new Date().toISOString();
+  const payload = {
+    user_id: uid,
+    state: { setup_data: setupSnapshot, app_state: snapshot, updated_at: now },
+    updated_at: now
+  };
+  cloudSaveChain = cloudSaveChain.catch(() => {}).then(async () => {
+    if (uid !== activeUserId || !['loaded', 'new'].includes(cloudSyncState)) return false;
+    const client = sb || await loadSupabase();
+    const { data: authData, error: authError } = await client.auth.getUser();
+    if (authError || !authData.user || authData.user.id !== uid) throw authError || new Error('Authenticated user changed');
+    const { error } = await client.from('mealmate_data').upsert(payload, { onConflict: 'user_id' });
     if (error) throw error;
-  } catch (e) { console.warn('Supabase save failed', e); }
+    lastCloudUpdate = Date.parse(now);
+    cloudSyncState = 'loaded';
+    return true;
+  }).catch(e => {
+    console.warn('Supabase save failed', e);
+    return false;
+  });
+  return cloudSaveChain;
 }
 
 async function supabaseLoad() {
-  if (!sb) return null;
-  const uid = await currentUserId();
-  if (!uid) return null;
   try {
-    const { data, error } = await sb.from('mealmate_data')
+    const client = sb || await loadSupabase();
+    const user = await authenticatedUser();
+    if (!user) return { status: 'unauthenticated' };
+    activateUser(user, loggedInUser || user.email);
+    const { data, error } = await client.from('mealmate_data')
       .select('state, updated_at')
-      .eq('user_id', uid)
-      .single();
-    if (error) {
-      if (error.code === 'PGRST116') return null; // no rows yet
-      throw error;
-    }
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return { status: 'missing', user };
     const st = data.state || {};
     const ts = st.updated_at || data.updated_at;
-    lastCloudUpdate = new Date(ts).getTime();
-    return { setup_data: st.setup_data, app_state: st.app_state, updated_at: ts };
-  } catch (e) { console.warn('Supabase load failed', e); return null; }
+    lastCloudUpdate = Date.parse(ts) || 0;
+    const hasUsableState = st.app_state && typeof st.app_state === 'object' &&
+      (Number(st.app_state.version) > 0 || Array.isArray(st.app_state.recipes));
+    return {
+      status: hasUsableState ? 'found' : 'empty',
+      user,
+      setup_data: st.setup_data,
+      app_state: st.app_state,
+      updated_at: ts
+    };
+  } catch (e) {
+    console.warn('Supabase load failed', e);
+    return { status: 'error', error: e };
+  }
 }
 
 async function hashPassword(password) {
@@ -548,23 +647,38 @@ async function login() {
   const err = document.getElementById('loginError');
   err.textContent = '';
   if (!user || !pass) { err.textContent = 'Please enter username and password.'; return; }
-  if (!sb) { err.textContent = 'Still connecting to the server, please try again in a moment.'; return; }
   try {
-    const { data, error } = await sb.auth.signInWithPassword({ email: usernameToEmail(user), password: pass });
+    const client = sb || await loadSupabase();
+    const { data, error } = await client.auth.signInWithPassword({ email: usernameToEmail(user), password: pass });
     if (error || !data || !data.user) { err.textContent = 'Invalid username or password.'; return; }
-    loggedInUser = user;
-    localStorage.setItem('mealmate_user', user);
+    activateUser(data.user, user);
+    const sub = await checkSubscription(data.user, user);
+    if (sub.status === 'error') {
+      err.textContent = 'Could not verify your subscription. No data was changed. Check your connection and try again.';
+      return;
+    }
+    if (sub.status === 'expired' || sub.status === 'missing') {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('loginPass').value = '';
+      showSubscriptionExpired(sub);
+      return;
+    }
+    const booted = await bootMealMateV2();
+    if (!booted) {
+      err.textContent = 'Could not load your saved data. Nothing was overwritten. Check your connection and try again.';
+      return;
+    }
     document.getElementById('loginScreen').classList.add('hidden');
-    bootMealMateV2();
+    document.getElementById('loginPass').value = '';
   } catch (e) {
-    err.textContent = 'Could not sign in. Please check your connection and try again.';
+    err.textContent = 'Could not sign in. No data was changed. Check your connection and try again.';
   }
 }
 
 async function logout() {
-  loggedInUser = null;
-  localStorage.removeItem('mealmate_user');
   if (sb) { try { await sb.auth.signOut(); } catch (e) {} }
+  deactivateUser();
+  document.getElementById('subExpiredScreen').classList.add('hidden');
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('loginPass').value = '';
 }
@@ -1158,6 +1272,15 @@ if(GSAP){
 /* MealMate upgrade layer: onboarding, languages, ready recipes, drawer planner */
 const SETUP_KEY = 'mealmate_setup_v3';
 const APP_STATE_KEY = 'mealmate_app_state_v1';
+const APP_STATE_TS_KEY = 'mealmate_setup_ts';
+function userStorageKey(base) { return activeUserId ? base + ':' + activeUserId : null; }
+function setupStorageKey() { return userStorageKey(SETUP_KEY); }
+function appStateStorageKey() { return userStorageKey(APP_STATE_KEY); }
+function appStateTimestampKey() { return userStorageKey(APP_STATE_TS_KEY); }
+function saveSetupToLocal() {
+  const key = setupStorageKey();
+  if (key) localStorage.setItem(key, JSON.stringify(serializeSetup()));
+}
 let currentLang = 'en';
 let setupStep = 0;
 let setupRecipeSearch = '';
@@ -1424,17 +1547,68 @@ Object.assign(I18N.ar, {
 Object.assign(I18N.en, {
   account: 'Account',
   language: 'Language',
-  logout: 'Logout'
+  logout: 'Logout',
+  subExpiredTitle: 'Subscription Ended',
+  subExpiredMsg: 'Your subscription expired on {date}. All your data is safely saved — contact us to renew your access.',
+  subMissingTitle: 'Subscription Not Found',
+  subMissingMsg: 'We could not find a subscription linked to this signed-in account. No data was changed.',
+  subRenewBtn: 'Renew via Instagram',
+  subContactBtn: 'Contact us via Instagram',
+  subSignOut: 'Sign out / change account',
+  subPlan_monthly: 'Monthly subscription',
+  subPlan_3months: '3-month subscription',
+  subPlan_yearly: 'Yearly subscription',
+  subPlan_lifetime: 'Lifetime subscription'
 });
 Object.assign(I18N.fr, {
   account: 'Compte',
   language: 'Langue',
-  logout: 'Deconnexion'
+  logout: 'Deconnexion',
+  subExpiredTitle: 'Abonnement termine',
+  subExpiredMsg: 'Votre abonnement a expire le {date}. Vos donnees sont sauvegardes — contactez-nous pour renouveler votre acces.',
+  subMissingTitle: 'Abonnement introuvable',
+  subMissingMsg: 'Aucun abonnement lie a ce compte connecte n\'a ete trouve. Aucune donnee n\'a ete modifiee.',
+  subRenewBtn: 'Renouveler via Instagram',
+  subContactBtn: 'Nous contacter via Instagram',
+  subSignOut: 'Deconnexion / changer de compte',
+  subPlan_monthly: 'Abonnement mensuel',
+  subPlan_3months: 'Abonnement 3 mois',
+  subPlan_yearly: 'Abonnement annuel',
+  subPlan_lifetime: 'Abonnement a vie'
 });
 Object.assign(I18N.ar, {
   account: 'الحساب',
   language: 'اللغة',
-  logout: 'تسجيل الخروج'
+  logout: 'تسجيل الخروج',
+  subExpiredTitle: 'انتهى الاشتراك',
+  subExpiredMsg: 'انتهى اشتراكك في {date}. بياناتك محفوظة بأمان — تواصلي معنا لتجديد الاشتراك.',
+  subMissingTitle: 'لم يتم العثور على الاشتراك',
+  subMissingMsg: 'لم نجد اشتراكًا مرتبطًا بهذا الحساب. لم يتم تعديل أي بيانات.',
+  subRenewBtn: 'جدّدي عبر Instagram',
+  subContactBtn: 'تواصلي معنا عبر Instagram',
+  subSignOut: 'تسجيل الخروج / تغيير الحساب',
+  subPlan_monthly: 'اشتراك شهري',
+  subPlan_3months: 'اشتراك لمدة 3 أشهر',
+  subPlan_yearly: 'اشتراك سنوي',
+  subPlan_lifetime: 'اشتراك مدى الحياة'
+});
+Object.assign(I18N.en, {
+  recipeMotivation: '💡 The first phase where you enter recipes, ingredients, and other details will take some effort — but it\'s a one-time investment whose rewards you\'ll enjoy every month.',
+  startWithMealMate: '🌸 Start with MealMate recipes',
+  startFromScratch: '✏️ Start from scratch',
+  shopWk: 'Week'
+});
+Object.assign(I18N.fr, {
+  recipeMotivation: '💡 La première étape où vous saisissez les recettes, ingrédients et autres détails demande des efforts — mais c\'est un investissement unique dont vous profiterez chaque mois.',
+  startWithMealMate: '🌸 Commencer avec les recettes MealMate',
+  startFromScratch: '✏️ Commencer de zéro',
+  shopWk: 'Sem.'
+});
+Object.assign(I18N.ar, {
+  recipeMotivation: '💡 المرحلة الأولى التي تدخلين فيها الوصفات والمكونات والتفاصيل الأخرى ستكون متعبة، لكنها استثمار تستثمرينه مرة واحدة ثم ستجنين ثماره كل شهر.',
+  startWithMealMate: '🌸 ابدئي بوصفات MealMate',
+  startFromScratch: '✏️ ابدئي من الصفر',
+  shopWk: 'أسبوع'
 });
 
 const READY_RECIPE_DEFS = [
@@ -1687,7 +1861,7 @@ const setupData = {
   lang: 'en',
   currency: 'DZD',
   features: { plan: true, shop: true, budget: false },
-  recipeIds: new Set(ACTIVE_READY_RECIPE_DEFS.map((_, i) => i)),
+  recipeIds: new Set(),
   categoryKeys: new Set(Object.keys(CATEGORY_LIBRARY)),
   customCategories: [],
   categoryTouched: false,
@@ -1873,7 +2047,8 @@ function applyLanguage() {
   const planBtns = document.querySelectorAll('#plan > .row.between button');
   if (planBtns[0]) planBtns[0].textContent = tr('savedPlans');
   if (planBtns[1]) planBtns[1].textContent = tr('newMonthPlan');
-  if (planBtns[2]) planBtns[2].textContent = tr('autoBalance');
+  if (planBtns[2]) planBtns[2].textContent = '⚙️ ' + tr('balanceSettings');
+  if (planBtns[3]) planBtns[3].textContent = tr('autoBalance');
   const planHint = document.querySelector('#plan > .hint'); if (planHint) planHint.innerHTML = tr('planHint');
   const shopTitle = document.querySelector('#shop > .row.between h2.section'); if (shopTitle) shopTitle.textContent = tr('shopTitle');
   const shopBtn = document.querySelector('#shop > .row.between button'); if (shopBtn) shopBtn.textContent = tr('addItem');
@@ -1970,8 +2145,37 @@ function toggleSectionPref(name, on) {
   if (!setupData.features) setupData.features = {};
   setupData.features[name] = !!on;
   applyFeatures();
-  try { localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup())); } catch (e) {}
+  try { saveSetupToLocal(); } catch (e) {}
   if (typeof appStateHydrated !== 'undefined' && appStateHydrated) queueAppStateSave();
+}
+function ensureBackupButton() {
+  if (document.getElementById('backupDropdownBtn')) return;
+  if (!document.getElementById('backupToolStyles')) {
+    const style = document.createElement('style');
+    style.id = 'backupToolStyles';
+    style.textContent = `.backup-note{border:1px solid var(--line);background:linear-gradient(120deg,var(--accent-soft),#fff);border-radius:14px;padding:12px 14px;color:var(--ink);font-weight:800;line-height:1.45;margin:10px 0 14px}.backup-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}#backupStatus{min-height:20px;color:var(--accent-dark);font-weight:900;font-size:13px;margin-top:10px}`;
+    document.head.appendChild(style);
+  }
+  if (!document.getElementById('backupModal')) {
+    const modal = document.createElement('div');
+    modal.id = 'backupModal';
+    modal.className = 'modal-bg';
+    modal.innerHTML = `<div class="modal"><h3 id="backupModalTitle"></h3><div class="backup-note" id="backupModalHint"></div><div class="backup-actions"><button class="btn btn-primary" type="button" id="backupExportBtn" onclick="exportMealMateBackup()"></button><button class="btn btn-ghost" type="button" id="backupImportBtn" onclick="importMealMateBackup()"></button><button class="btn btn-ghost" type="button" id="backupCloseBtn" onclick="closeBackupModal()"></button></div><div id="backupStatus"></div><input id="backupFileInput" type="file" accept="application/json,.json" style="display:none" onchange="handleBackupFile(this)"></div>`;
+    document.body.appendChild(modal);
+  }
+  syncBackupTools();
+  const btn = document.createElement('button');
+  btn.id = 'backupDropdownBtn';
+  btn.className = 'profile-dropdown-item';
+  btn.type = 'button';
+  btn.textContent = tr('backupBtn');
+  btn.onclick = () => { closeProfileMenu(); openBackupModal(); };
+  const dropdown = document.getElementById('profileDropdown');
+  const logoutItem = document.getElementById('profileLogoutItem');
+  if (dropdown) {
+    if (logoutItem) dropdown.insertBefore(btn, logoutItem);
+    else dropdown.appendChild(btn);
+  }
 }
 function ensureCurrencyControl() {
   if (document.getElementById('currencySelect')) return;
@@ -2008,7 +2212,7 @@ function setHeaderLanguage(lang) {
     setupData.lang = lang;
     currentLang = lang;
     applyLanguage();
-    try { localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup())); } catch (e) {}
+    try { saveSetupToLocal(); } catch (e) {}
     const setupScreen = document.getElementById('setupScreen');
     if (appStateHydrated && (!setupScreen || !setupScreen.classList.contains('open'))) queueAppStateSave();
   }
@@ -2025,6 +2229,104 @@ function renderProfileMenu() {
   }
   const logoutItem = document.getElementById('profileLogoutItem'); if (logoutItem) logoutItem.textContent = tr('logout');
 }
+
+// ─── Subscription gating ───────────────────────────────────────────────────
+function todayInAlgiers() {
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Africa/Algiers', year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(new Date());
+    const values = Object.fromEntries(parts.map(p => [p.type, p.value]));
+    return values.year + '-' + values.month + '-' + values.day;
+  } catch (e) {
+    return new Date().toISOString().slice(0, 10);
+  }
+}
+
+async function checkSubscription(user, typedUsername) {
+  try {
+    if (!user || !user.id) return { status: 'error', plan: null, expiresAt: null };
+    const client = sb || await loadSupabase();
+    const candidates = new Set();
+    const addCandidate = value => {
+      value = String(value || '').trim();
+      if (!value) return;
+      candidates.add(value);
+      if (value.endsWith('@mealmate.local')) candidates.add(value.split('@')[0]);
+    };
+    addCandidate(typedUsername);
+    addCandidate(user.email);
+    if (user.email) addCandidate(user.email.split('@')[0]);
+
+    const { data: profile, error: profileError } = await client.from('mealmate_profiles')
+      .select('username').eq('id', user.id).maybeSingle();
+    if (!profileError && profile) addCandidate(profile.username);
+
+    let row = null;
+    for (const candidate of candidates) {
+      const { data, error } = await client.from('subscriptions')
+        .select('expires_at,plan')
+        .eq('username', candidate)
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      if (data) { row = data; break; }
+    }
+    if (!row) return { status: 'missing', plan: null, expiresAt: null };
+    const expired = row.plan !== 'lifetime' && row.expires_at < todayInAlgiers();
+    return { status: expired ? 'expired' : 'active', plan: row.plan, expiresAt: row.expires_at };
+  } catch (e) {
+    console.warn('Subscription check failed', e);
+    return { status: 'error', plan: null, expiresAt: null, error: e };
+  }
+}
+
+function showSubscriptionExpired(sub) {
+  // Apply stored language so direction/text is correct even before full boot
+  try {
+    const scopedKey = setupStorageKey();
+    const stored = JSON.parse((scopedKey && localStorage.getItem(scopedKey)) || localStorage.getItem(SETUP_KEY) || '{}');
+    if (stored.lang && I18N[stored.lang]) {
+      currentLang = stored.lang;
+      document.documentElement.lang = currentLang;
+      document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    }
+  } catch (e) {}
+
+  const titleEl    = document.getElementById('subExpiredTitle');
+  const planEl     = document.getElementById('subExpiredPlan');
+  const msgEl      = document.getElementById('subExpiredMsg');
+  const renewBtn   = document.getElementById('subRenewBtn');
+  const signOutBtn = document.getElementById('subSignOutBtn');
+
+  const missing = sub.status === 'missing';
+  if (titleEl) titleEl.textContent = tr(missing ? 'subMissingTitle' : 'subExpiredTitle');
+  if (planEl)  planEl.textContent  = sub.plan ? tr('subPlan_' + sub.plan) : '';
+  if (msgEl) {
+    if (missing) {
+      msgEl.textContent = tr('subMissingMsg');
+    } else if (sub.expiresAt) {
+      let dateStr = sub.expiresAt;
+      try {
+        const locale = currentLang === 'ar' ? 'ar-DZ' : currentLang === 'fr' ? 'fr-FR' : 'en-US';
+        dateStr = new Date(sub.expiresAt + 'T00:00:00').toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
+      } catch (e) { dateStr = sub.expiresAt; }
+      msgEl.textContent = tr('subExpiredMsg').replace('{date}', dateStr);
+    } else {
+      msgEl.textContent = tr('subMissingMsg');
+    }
+  }
+  if (renewBtn) { renewBtn.textContent = tr(missing ? 'subContactBtn' : 'subRenewBtn'); renewBtn.href = RENEWAL_URL; }
+  if (signOutBtn) signOutBtn.textContent = tr('subSignOut');
+
+  document.getElementById('subExpiredScreen').classList.remove('hidden');
+}
+
+async function subExpiredSignOut() {
+  await logout();
+}
+// ──────────────────────────────────────────────────────────────────────────
+
 function ensureOptionalSlotStyles() {
   if (document.getElementById('optionalSlotStyles')) return;
   const style = document.createElement('style');
@@ -2033,6 +2335,7 @@ function ensureOptionalSlotStyles() {
     main.plan-full{max-width:none;width:100%}
     main.plan-full #plan{width:100%}
     #weeks{direction:ltr}
+    [dir="rtl"] #weeks{direction:rtl}
     [dir="rtl"] #weeks .week-column,[dir="rtl"] #weeks .optional-addon-tray,[dir="rtl"] #weeks .week-day{direction:rtl}
     .month-board{grid-template-columns:repeat(4,minmax(230px,1fr));width:min(100%,1500px)!important;position:relative;left:50%;margin-inline:0!important;margin-left:0!important;transform:translateX(-50%)!important}
     .optional-addon-tray{width:min(100%,1500px);position:relative;left:50%;transform:translateX(-50%);margin:0 0 12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow)}
@@ -2486,7 +2789,7 @@ function hydrateSetup(saved) {
   setupData.lang = saved.lang || 'en';
   setupData.currency = CURRENCIES[saved.currency] ? saved.currency : 'DZD';
   setupData.features = Object.assign(setupData.features, saved.features || {});
-  setupData.recipeIds = new Set(Array.isArray(saved.recipeIds) ? saved.recipeIds : ACTIVE_READY_RECIPE_DEFS.map((_, i) => i));
+  setupData.recipeIds = new Set(Array.isArray(saved.recipeIds) ? saved.recipeIds : []);
   setupData.categoryKeys = new Set(Array.isArray(saved.categoryKeys) ? saved.categoryKeys : Object.keys(CATEGORY_LIBRARY));
   setupData.customCategories = Array.isArray(saved.customCategories) ? saved.customCategories : [];
   setupData.mealsPerWeek = saved.mealsPerWeek || 21;
@@ -2609,13 +2912,15 @@ function appStateSnapshot() {
   };
 }
 function saveAppStateNow() {
-  if (!appStateHydrated) return;
+  if (!appStateHydrated || !activeUserId) return;
   const ts = Date.now();
+  const setupSnapshot = serializeSetup();
+  const snapshot = appStateSnapshot();
   try {
-    localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup()));
-    localStorage.setItem(APP_STATE_KEY, JSON.stringify(appStateSnapshot()));
-    localStorage.setItem('mealmate_setup_ts', String(ts));
-    supabaseSave();
+    localStorage.setItem(setupStorageKey(), JSON.stringify(setupSnapshot));
+    localStorage.setItem(appStateStorageKey(), JSON.stringify(snapshot));
+    localStorage.setItem(appStateTimestampKey(), String(ts));
+    supabaseSave(snapshot, setupSnapshot);
   } catch (e) {}
 }
 function queueAppStateSave() {
@@ -2652,7 +2957,8 @@ function hydrateAppState(saved) {
 }
 function loadStoredAppState() {
   try {
-    const raw = localStorage.getItem(APP_STATE_KEY);
+    const key = appStateStorageKey();
+    const raw = key ? localStorage.getItem(key) : null;
     return raw ? hydrateAppState(JSON.parse(raw)) : false;
   } catch (e) {
     return false;
@@ -2743,7 +3049,6 @@ function closeBackupModal() {
   if (modal) modal.classList.remove('open');
 }
 function exportMealMateBackup() {
-  saveAppStateNow();
   const data = JSON.stringify(appStateSnapshot(), null, 2);
   const blob = new Blob([data], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -2771,7 +3076,7 @@ function handleBackupFile(input) {
       if (!confirm(tr('backupReplaceConfirm'))) return;
       appStateHydrated = false;
       if (!hydrateAppState(saved)) throw new Error('Invalid backup');
-      localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup()));
+      saveSetupToLocal();
       appStateHydrated = true;
       saveAppStateNow();
       refreshAfterStateLoad();
@@ -2812,7 +3117,7 @@ function setupChooseCurrency(code) {
   renderRecipes();
   renderShopping();
   renderBudget();
-  try { localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup())); } catch (e) {}
+  try { saveSetupToLocal(); } catch (e) {}
   const setupScreen = document.getElementById('setupScreen');
   if (appStateHydrated && (!setupScreen || !setupScreen.classList.contains('open'))) queueAppStateSave();
 }
@@ -2935,7 +3240,12 @@ function renderNeedsStep() {
   </div>`;
 }
 function renderRecipesStep() {
-  return `<div class="setup-tools">
+  return `<div class="recipe-motivation">${htmlEscape(tr('recipeMotivation'))}</div>
+  <div class="recipe-choice-btns">
+    <button class="btn btn-primary recipe-choice-btn" type="button" onclick="setupPopular();renderReadyRecipes()">${htmlEscape(tr('startWithMealMate'))}</button>
+    <button class="btn btn-ghost recipe-choice-btn" type="button" onclick="setupClearRecipes()">${htmlEscape(tr('startFromScratch'))}</button>
+  </div>
+  <div class="setup-tools">
     <input id="readySearch" style="flex:1;min-width:210px" placeholder="${htmlEscape(tr('search'))}" value="${htmlEscape(setupRecipeSearch)}" oninput="setupRecipeSearch=this.value;renderReadyRecipes()">
     <button class="btn btn-ghost btn-sm" onclick="setupSelectAll()">${htmlEscape(tr('selectAll'))}</button>
     <button class="btn btn-ghost btn-sm" onclick="setupPopular()">${htmlEscape(tr('popular'))}</button>
@@ -3033,7 +3343,6 @@ function renderCriteriaStep() {
   </div>`;
 }
 function finishSetup() {
-  if (!setupData.recipeIds.size) setupPopular();
   if (!setupData.categoryKeys.size) setupData.categoryKeys = deriveSelectedCategories();
   members = setupData.persons;
   syncMealCounts();
@@ -3057,7 +3366,7 @@ function finishSetup() {
   renderRecipes();
   renderWeeks();
   renderShopping();
-  try { localStorage.setItem(SETUP_KEY, JSON.stringify(serializeSetup())); } catch (e) {}
+  try { saveSetupToLocal(); } catch (e) {}
   closeSetup();
 }
 function slotLabelsForCount(n) {
@@ -3516,11 +3825,29 @@ function mergeShoppingBucket(target, source) {
     target[key].details = [...(target[key].details || []), ...(item.details || [])];
   });
 }
+let activeShopWeek = 0;
+function renderShopWeekTabs() {
+  const tabs = document.getElementById('shopWeekTabs');
+  if (!tabs) return;
+  tabs.innerHTML = [0,1,2,3].map(w =>
+    `<button class="shop-week-tab${activeShopWeek === w ? ' active' : ''}" onclick="setShopWeek(${w})">${htmlEscape(tr('shopWk'))} ${w+1}</button>`
+  ).join('');
+}
+function setShopWeek(w) {
+  activeShopWeek = w;
+  renderShopWeekTabs();
+  filterShopWeek();
+}
+function filterShopWeek() {
+  document.querySelectorAll('#shopContent .shop-group').forEach(g => {
+    g.style.display = (g.dataset.week == activeShopWeek) ? '' : 'none';
+  });
+}
 renderShopping = function() {
   ensureShoppingCategoryStyles();
   const { weekly, biweekly, monthly, any } = buildShoppingBuckets();
   const c = document.getElementById('shopContent');
-  if (!any) { c.innerHTML = '<div class="empty">' + htmlEscape(tr('emptyShop')) + '</div>'; return; }
+  if (!any) { c.innerHTML = '<div class="empty">' + htmlEscape(tr('emptyShop')) + '</div>'; renderShopWeekTabs(); return; }
   c.innerHTML = '';
   c.insertAdjacentHTML('beforeend', `<div class="shopping-merge-note">${htmlEscape(tr('shoppingMergeNote'))}</div>`);
   const weekBuckets = weekly.map(cloneShoppingBucket);
@@ -3533,9 +3860,13 @@ renderShopping = function() {
     if (w === 0 && bucketHasItems(biweekly[0])) subParts.push(tr('stockA'));
     if (w === 0 && bucketHasItems(monthly)) subParts.push(tr('bulk'));
     if (w === 2 && bucketHasItems(biweekly[1])) subParts.push(tr('stockB'));
-    c.appendChild(group(tr('weeklyTrip').replace('{n}', w + 1), subParts.join(' + '), b, 'w' + w));
+    const grp = group(tr('weeklyTrip').replace('{n}', w + 1), subParts.join(' + '), b, 'w' + w);
+    grp.dataset.week = w;
+    c.appendChild(grp);
   });
-  aStagger('#shopContent .shop-group', { y: 20, stagger: .08 });
+  renderShopWeekTabs();
+  filterShopWeek();
+  aStagger('#shopContent .shop-group:not([style*="none"])', { y: 20, stagger: .08 });
 };
 function ingredientTotalText(it, qty) {
   const unit = (it.unit || '').trim();
@@ -3643,4 +3974,146 @@ function renderBudget() {
   const pct = monthlyBudget ? Math.min(100, Math.round(base / monthlyBudget * 100)) : 0;
   const estLabel = document.getElementById('budgetEstLabel');
   const pctLabel = document.getElementById('budgetPctLabel');
-  const bar = document.getElementById('
+  const bar = document.getElementById('budgetBar');
+  if (estLabel) estLabel.textContent = formatMoney(estimate) + ' ' + tr('estimated');
+  if (pctLabel) pctLabel.textContent = pct + '%';
+  if (bar) {
+    bar.style.width = pct + '%';
+    bar.style.background = monthlyBudget && base > monthlyBudget ? '#d96b7b' : 'var(--green)';
+  }
+  const warning = document.getElementById('budgetWarning');
+  if (warning) {
+    warning.style.display = monthlyBudget && base > monthlyBudget ? 'block' : 'none';
+    warning.textContent = monthlyBudget && base > monthlyBudget ? tr('overBudgetBy') + ' ' + formatMoney(base - monthlyBudget) : '';
+  }
+  const list = document.getElementById('spendLogContent');
+  if (!list) return;
+  if (!spendLog.length) { list.innerHTML = '<div class="empty">' + htmlEscape(tr('emptyBudget')) + '</div>'; return; }
+  list.innerHTML = spendLog.map(x => `<div class="shop-item"><label>${htmlEscape(x.title)}<br><small>${htmlEscape(x.date)}</small></label><span class="qty">${htmlEscape(formatMoney(x.actual))}</span></div>`).join('');
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeInlineMealPicker(); closeMealDrawer(); } });
+
+async function trySyncFromCloud() {
+  const cloud = await supabaseLoad();
+  if (cloud.status !== 'found') return false;
+  const localTs = Number(localStorage.getItem(appStateTimestampKey())) || 0;
+  const cloudTs = Date.parse(cloud.updated_at) || 0;
+  if (cloudTs > localTs) {
+    appStateHydrated = false;
+    if (cloud.setup_data) {
+      try { hydrateSetup(cloud.setup_data); } catch (e) {}
+    }
+    if (cloud.app_state) {
+      try { hydrateAppState(cloud.app_state); } catch (e) {}
+    }
+    appStateHydrated = true;
+    cloudSyncState = 'loaded';
+    try {
+      localStorage.setItem(setupStorageKey(), JSON.stringify(serializeSetup()));
+      localStorage.setItem(appStateStorageKey(), JSON.stringify(cloud.app_state));
+      localStorage.setItem(appStateTimestampKey(), String(cloudTs));
+    } catch (e) {}
+    refreshAfterStateLoad();
+  }
+  return true;
+}
+
+async function bootMealMateV2() {
+  appStateHydrated = false;
+  cloudSyncState = 'locked';
+  clearTimeout(appStateSaveTimer);
+  const cloud = await supabaseLoad();
+  if (cloud.status === 'error' || cloud.status === 'unauthenticated') return false;
+
+  let needsSetup = false;
+  if (cloud.status === 'found') {
+    try {
+      if (cloud.setup_data) hydrateSetup(cloud.setup_data);
+      if (!hydrateAppState(cloud.app_state)) return false;
+    } catch (e) {
+      console.warn('Cloud state could not be hydrated', e);
+      return false;
+    }
+    cloudSyncState = 'loaded';
+  } else {
+    // A missing/empty cloud row is a confirmed new-account state, not a network failure.
+    cloudSyncState = 'new';
+    const hasStoredAppState = loadStoredAppState();
+    if (!hasStoredAppState) {
+      const setupKey = setupStorageKey();
+      try { hydrateSetup(JSON.parse((setupKey && localStorage.getItem(setupKey)) || 'null')); } catch (e) {}
+      applyReadyRecipes();
+      needsSetup = true;
+    }
+  }
+  currentLang = setupData.lang;
+  members = setupData.persons;
+  syncMealCounts();
+  normalizeCategoryList();
+  ensureOptionalSlotStyles();
+  ensureDrawerPickerStyles();
+  ensureRecipeModalStyles();
+  ensureInlineMealPickerStyles();
+  ensureShoppingCategoryStyles();
+  ensureCurrencyControl();
+  applyLanguage();
+  normalizeCategoryList();
+  applyFeatures();
+  ensureSetupButton();
+  ensureBackupButton();
+  renderCatFilter();
+  renderRecipes();
+  renderShopping();
+  renderBudget();
+  updatePlanCounters();
+  wireStatePersistence();
+  appStateHydrated = true;
+  try {
+    if (cloud.status === 'found') {
+      const cloudTs = Date.parse(cloud.updated_at) || Date.now();
+      localStorage.setItem(setupStorageKey(), JSON.stringify(serializeSetup()));
+      localStorage.setItem(appStateStorageKey(), JSON.stringify(cloud.app_state));
+      localStorage.setItem(appStateTimestampKey(), String(cloudTs));
+    }
+    if (needsSetup) setTimeout(() => openSetup(0), 120);
+  } catch(e) {}
+  return true;
+}
+
+async function restoreAuthenticatedSession() {
+  const err = document.getElementById('loginError');
+  try {
+    const user = await authenticatedUser();
+    if (!user) {
+      deactivateUser();
+      return;
+    }
+    const savedDisplayName = localStorage.getItem('mealmate_user') || user.email || '';
+    activateUser(user, savedDisplayName);
+    const sub = await checkSubscription(user, savedDisplayName);
+    if (sub.status === 'error') {
+      err.textContent = 'Could not verify your subscription. No data was changed. Check your connection and try again.';
+      return;
+    }
+    if (sub.status === 'expired' || sub.status === 'missing') {
+      document.getElementById('loginScreen').classList.add('hidden');
+      showSubscriptionExpired(sub);
+      return;
+    }
+    const booted = await bootMealMateV2();
+    if (!booted) {
+      err.textContent = 'Could not load your saved data. Nothing was overwritten. Check your connection and try again.';
+      return;
+    }
+    document.getElementById('loginScreen').classList.add('hidden');
+  } catch (e) {
+    console.warn('Session restore failed', e);
+    err.textContent = 'Could not connect securely. No data was changed. Check your connection and try again.';
+  }
+}
+restoreAuthenticatedSession();
+
+</script>
+</body>
+</html>
