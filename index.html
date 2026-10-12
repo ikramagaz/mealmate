@@ -683,6 +683,7 @@ async function login() {
     }
     await bootMealMateV2();
     document.getElementById('loginScreen').classList.add('hidden');
+    startSubscriptionWatch();
   } catch (e) {
     err.textContent = 'Could not sign in. Please check your connection and try again.';
   }
@@ -2300,24 +2301,79 @@ function renderProfileMenu() {
   const logoutItem = document.getElementById('profileLogoutItem'); if (logoutItem) logoutItem.textContent = tr('logout');
 }
 
-// ─── Subscription gating ───────────────────────────────────────────────────
+// ─── Subscription gating ─────────────────────────────────────────────
+// A subscription ends ON its expires_at date: from 00:00 of that day (the user's
+// own local time) the "Subscription Ended" screen shows. Paid users see nothing.
+const SUB_CACHE_KEY = 'mealmate_sub_cache';
+function localToday() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function subIsExpired(expiresAt) {
+  if (!expiresAt) return true;
+  return String(expiresAt).slice(0, 10) <= localToday();
+}
+function subLookupNames(username) {
+  const u = String(username || '').trim().toLowerCase();
+  const base = u.endsWith('@mealmate.local') ? u.slice(0, -'@mealmate.local'.length) : u;
+  const names = [base];
+  if (!base.includes('@')) names.push(base + '@mealmate.local');
+  return names;
+}
 async function checkSubscription(username) {
+  const names = subLookupNames(username);
+  const cacheKey = names[0];
   try {
-    const lookupName = username.endsWith('@mealmate.local') ? username.split('@')[0] : username;
+    const q = n => '"' + n.replace(/["\\*%,()]/g, '') + '"';
+    const filter = 'or=' + encodeURIComponent('(' + names.map(n => 'username.ilike.' + q(n)).join(',') + ')');
     const res = await fetch(
-      SUPABASE_URL + '/rest/v1/subscriptions?username=eq.' + encodeURIComponent(lookupName) + '&select=expires_at,plan&limit=1',
-      { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY } }
+      SUPABASE_URL + '/rest/v1/subscriptions?' + filter + '&select=expires_at,plan&order=expires_at.desc&limit=1',
+      { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }, cache: 'no-store' }
     );
-    if (!res.ok) return { expired: false, plan: null, expiresAt: null }; // fail open on server error
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const rows = await res.json();
-    if (!rows || rows.length === 0) return { expired: true, plan: null, expiresAt: null }; // no record = expired
+    if (!rows || rows.length === 0) return { expired: true, plan: null, expiresAt: null }; // no record = no access
     const row = rows[0];
-    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-    return { expired: row.expires_at < today, plan: row.plan, expiresAt: row.expires_at };
+    try { localStorage.setItem(SUB_CACHE_KEY, JSON.stringify({ user: cacheKey, expires_at: row.expires_at, plan: row.plan })); } catch (e) {}
+    return { expired: subIsExpired(row.expires_at), plan: row.plan, expiresAt: row.expires_at };
   } catch (e) {
+    // Offline / server error: fall back to the last date we saw for this user,
+    // so the end date is still respected without a connection.
     console.warn('Subscription check failed', e);
-    return { expired: false, plan: null, expiresAt: null }; // fail open on network error
+    try {
+      const c = JSON.parse(localStorage.getItem(SUB_CACHE_KEY) || 'null');
+      if (c && c.user === cacheKey && c.expires_at) return { expired: subIsExpired(c.expires_at), plan: c.plan, expiresAt: c.expires_at };
+    } catch (e2) {}
+    return { expired: false, plan: null, expiresAt: null };
   }
+}
+
+// Re-check while the app stays open: every 30 min, when the phone brings the app
+// back, and right after local midnight — so nobody keeps using it past the end date.
+let subWatchStarted = false;
+async function recheckSubscription() {
+  if (!loggedInUser) return;
+  const screen = document.getElementById('subExpiredScreen');
+  if (screen && !screen.classList.contains('hidden')) return;
+  const sub = await checkSubscription(loggedInUser);
+  if (sub.expired && loggedInUser) {
+    document.querySelectorAll('.modal-bg.open').forEach(m => m.classList.remove('open'));
+    document.getElementById('loginScreen').classList.add('hidden');
+    showSubscriptionExpired(sub);
+  }
+}
+function startSubscriptionWatch() {
+  if (subWatchStarted) return;
+  subWatchStarted = true;
+  setInterval(recheckSubscription, 30 * 60 * 1000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') recheckSubscription(); });
+  window.addEventListener('focus', recheckSubscription);
+  const scheduleMidnight = () => {
+    const now = new Date();
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 5);
+    setTimeout(() => { recheckSubscription(); scheduleMidnight(); }, next - now);
+  };
+  scheduleMidnight();
 }
 
 function showSubscriptionExpired(sub) {
@@ -4259,6 +4315,7 @@ if (loggedInUser) {
     } else {
       await bootMealMateV2();
       document.getElementById('loginScreen').classList.add('hidden');
+      startSubscriptionWatch();
     }
   });
 }
